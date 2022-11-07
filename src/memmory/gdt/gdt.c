@@ -5,8 +5,7 @@
 void gdt_load() {
 
   uint64_t descriptor_table[9] = // GDT STRUCT IS IN GDT.H CALLED "gdt_entry",
-                                 // ILL FIX THIS UP LATER, although paging will
-                                 // be used
+    
       {
           0x0000000000000000, // null
 
