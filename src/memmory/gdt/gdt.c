@@ -5,7 +5,8 @@
 void gdt_load() {
 
   uint64_t descriptor_table[9] = // GDT STRUCT IS IN GDT.H CALLED "gdt_entry",
-                                 // ILL FIX THIS UP LATER, although paging will be used 
+                                 // ILL FIX THIS UP LATER, although paging will
+                                 // be used
       {
           0x0000000000000000, // null
 
@@ -22,12 +23,14 @@ void gdt_load() {
           0x00aff3000000ffff, // usermode 64-bit data
       };
 
-  extern void func(uint16_t limit, uint64_t base);
-
+  extern void load_gdt(uint16_t limit, uint64_t base);
+  extern void reloadSegments();
   static gdt_register_t gdtr;
   gdtr.limit = (sizeof(descriptor_table) - 1);
   gdtr.base = (uint64_t)&descriptor_table;
-  func(gdtr.limit, gdtr.base);
+  load_gdt(gdtr.limit, gdtr.base);
+  reloadSegments();
+
   printf("GDT INITALIZED");
 }
 
