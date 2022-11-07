@@ -17,7 +17,7 @@ static void done(void) {
 // The following will be our kernel's entry point.
 void _start(void) {
 
-  printf("\033[0;31mHello World! \n\n"); //will be made better soon
+  printf("\033[0;31mHello World! \n\n"); //clean this
   gdt_init();
 
   done();
