@@ -22,10 +22,6 @@ struct gdt_register {
 } __attribute__((packed));
 typedef struct gdt_register gdt_register_t;
 
- 
-
-#define NUM_SEGMENTS 7
-
 void encodeGdtEntry();
 void gdt_init();
 void gdt_load();
