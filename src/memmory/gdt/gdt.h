@@ -22,6 +22,11 @@ struct gdt_register {
 } __attribute__((packed));
 typedef struct gdt_register gdt_register_t;
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 3c4ffc6 (loaded idt)
 void encodeGdtEntry();
 void gdt_init();
 void gdt_load();

@@ -93,10 +93,6 @@ $(KERNEL): $(OBJ)
 %.o: %.c limine.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-# Compilation rules for *.S files.
-%.o: %.S limine.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-
 # Compilation rules for *.asm (nasm) files.
 %.o: %.asm
 	nasm $(NASMFLAGS) $< -o $@

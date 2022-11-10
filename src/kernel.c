@@ -1,8 +1,10 @@
 #include "memmory/gdt/gdt.h"
+//#include "interrupts/idt/idt.h"
 #include "std/stdio.h"
 #include <limine.h>
 #include <stddef.h>
 #include <stdint.h>
+
 
 // The Limine requests can be placed anywhere, but it is important that
 // the compiler does not optimise them away, so, usually, they should
@@ -19,6 +21,5 @@ void _start(void) {
 
   printf("\033[0;31mHello World! \n\n"); //clean this
   gdt_init();
-
   done();
 }

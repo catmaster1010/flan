@@ -6,7 +6,7 @@ load_gdt:
         cli
         MOV   [gdtr], DI
         MOV  [gdtr+2], RSI
-        LGDT  [gdtr] ;load gdt into cpu.
+        LGDT  [gdtr] ;Load gdt into cpu.
         ret
 reloadSegments:
         ; Reload CS register:
@@ -22,7 +22,7 @@ reloadSegments:
         MOV   FS, AX
         MOV   GS, AX
         MOV   SS, AX
-        RET
+        ret
 
 
 section	.data
