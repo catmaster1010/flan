@@ -21,5 +21,6 @@ void _start(void) {
 
   printf("\033[0;31mHello World! \n\n"); //clean this
   gdt_init();
+  idt_init();
   done();
 }

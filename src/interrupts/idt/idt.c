@@ -23,13 +23,13 @@ void idt_load() {
 
     extern void load_gdt(uint16_t limit, uint64_t base);
     load_gdt(idtr.limit, idtr.base);
-    
+    printf("IDT Loaded.");
 }
-void isr_load();
+void isr_init(){}
 
 
 void idt_init(){
     idt_load();
-    isr_load();}
+    isr_init();}
 
 

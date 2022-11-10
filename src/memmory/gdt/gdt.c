@@ -4,14 +4,8 @@
 
 void gdt_load() {
 
-<<<<<<< HEAD
-  uint64_t descriptor_table[9] = // GDT STRUCT IS IN GDT.H CALLED "gdt_entry",
-    
-=======
-  uint64_t gdt[9] = // GDT STRUCT IS IN GDT.H CALLED "gdt_entry",
-                                 // ILL FIX THIS UP LATER, although paging will
-                                 // be used
->>>>>>> 3c4ffc6 (loaded idt)
+  uint64_t gdt[9] = // GDT STRUCT IS IN GDT.H CALLED "gdt_entry"
+                                 // ILL FIX THIS UP LATER
       {
           0x0000000000000000, // null
 
@@ -30,16 +24,14 @@ void gdt_load() {
 
 
   static gdt_register_t gdtr;
-
   gdtr.limit = (sizeof(gdt) - 1);
   gdtr.base = (uint64_t)&gdt;
-
   extern void load_gdt(uint16_t limit, uint64_t base);
   extern void reloadSegments();
 
   load_gdt(gdtr.limit, gdtr.base);
   reloadSegments();
-
+  
   printf("GDT INITALIZED");
 }
 
