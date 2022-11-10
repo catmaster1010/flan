@@ -4,7 +4,8 @@ load_idt:
         cli
         MOV   [idtr], DI
         MOV  [idtr+2], RSI
-        LIDT  [idtr] ;Load idt into cpu.
+        LIDT  [idtr] ;Load IDT into cpu.
+        sti ; Enable interrupts again.
         ret
 
 
