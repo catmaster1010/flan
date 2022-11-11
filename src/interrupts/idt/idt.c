@@ -6,7 +6,7 @@
 static idt_gate_t idt[256];
 
 static void encode_idt_entry(uint8_t vector, void* isr, uint8_t flags) {
-    idt_gate_t* descriptor = &idt[vector];
+    idt_gate_t* descriptor = idt[vector];
  
     descriptor->lowOffset16       = (uint64_t)isr & 0xFFFF;
     descriptor->selector16        = 0x28; //Kernel code offset. 
