@@ -101,9 +101,6 @@ isr_no_err_stub 29
 isr_err_stub    30
 isr_no_err_stub 31
 
-;Stub table which prevents execssive code use
-
-
 section	.data
 idtr DW 0
 DQ 0 
