@@ -1,29 +1,70 @@
-section	.text
-        extern exception_handler
-	global load_idt
-        
-        global isr_stub_table
-load_idt:
-        cli
-        MOV   [idtr], DI
-        MOV  [idtr+2], RSI
-        LIDT  [idtr] ;Load IDT into cpu.
-        sti ; Enable interrupts again.
-        ret
-
-;IRETQ (Return from interrupts) POPS RIP AND CS (RIP:CS)
-
 %macro isr_err_stub 1
-isr_stub_%+%1:
+isr_stub_%1:
+    pushal
     call exception_handler ;Located in IDT.c
+    popal
     iretq ;Preform long jump.
 %endmacro
 
 %macro isr_no_err_stub 1
-isr_stub_%+%1: 
+isr_stub_%1: 
+    pushal
     call exception_handler ;Located in IDT.c
+    popal
     iretq ;Preform long jump. 
 %endmacro
+;save state
+%macro pushal 0
+    push rax
+    push rbx
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+    push rbp
+    push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+%endmacro
+
+;restore state
+%macro popal 0 
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rbp
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
+%endmacro
+
+section	.text
+    
+extern exception_handler
+global load_idt
+global isr_stub_table
+
+load_idt:
+    MOV   [idtr], DI
+    MOV  [idtr+2], RSI
+    LIDT  [idtr] ;Load IDT into cpu.
+    sti ; Enable interrupts again.
+    ret
+
+;IRETQ (Return from interrupts) POPS RIP AND CS (RIP:CS)
 
 
 extern exception_handler
@@ -61,13 +102,15 @@ isr_err_stub    30
 isr_no_err_stub 31
 
 ;Stub table which prevents execssive code use
-isr_stub_table:
-%assign i 0 
-%rep    32 
-    DQ isr_stub_%+i 
-%assign i i+1 
-%endrep
+
 
 section	.data
 idtr DW 0
 DQ 0 
+
+isr_stub_table:
+%assign i 0
+%rep 32
+    DQ isr_stub_%+i 
+%assign i i+1
+%endrep
