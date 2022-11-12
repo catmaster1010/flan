@@ -39,7 +39,7 @@ void isr_init(){
         isr_stub_table[vector] =0;//0b10001110 hardware interupts ignore this. (which is this since its the first 32 entries)
         printf("Loading IRS...\n");
     }
-   // printf("All ISRs have been loaded.");
+   printf("All ISRs have been loaded.");
 }
 
 
