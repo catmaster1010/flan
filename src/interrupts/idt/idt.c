@@ -36,8 +36,15 @@ void idt_load() {
 void isr_init(){
     extern uintptr_t isr_stub_table[];
     for (uint8_t vector = 0; vector < 32; vector++) {
-        isr_stub_table[vector] =0;//0b10001110 hardware interupts ignore this. (which is this since its the first 32 entries)
-        printf("Loading IRS...\n");
+        isr_stub_table[vector] =0b10001110;//0b10001110 hardware interupts ignore this. (which is this since its the first 32 entries)
+        //printf("Loading IRS...\n");
+        char* a= itoa(&isr_stub_table[5], 10);
+        char* b= itoa(isr_stub_table[2],10);
+        printf(a);
+         printf("\n");
+        printf(b);
+         printf("\n");
+          printf("\n");
     }
    printf("All ISRs have been loaded.");
 }
@@ -47,6 +54,7 @@ void idt_init(){
     isr_init();
     idt_load();
     printf("idt_init routine finished...");
+    
 }
 /////////////////////////
 

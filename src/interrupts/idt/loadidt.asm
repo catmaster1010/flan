@@ -1,3 +1,5 @@
+
+
 %macro isr_err_stub 1
 isr_stub_%1:
     pushal
@@ -67,7 +69,8 @@ load_idt:
 ;IRETQ (Return from interrupts) POPS RIP AND CS (RIP:CS)
 
 
-extern exception_handler
+
+
 isr_no_err_stub 0
 isr_no_err_stub 1
 isr_no_err_stub 2
