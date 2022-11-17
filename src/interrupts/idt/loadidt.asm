@@ -1,19 +1,19 @@
-
-
+bits 64
+extern exception_handler
 %macro isr_err_stub 1
 isr_stub_%1:
-    pushal
-    call exception_handler ;Located in IDT.c
-    popal
+    ;pushal
+    call exception_handler ;Located in IDT.c ; It is written as no return this will be eddited later on
+   ;popal
     iretq ;Preform long jump.
 %endmacro
 
 %macro isr_no_err_stub 1
 isr_stub_%1: 
-    pushal
+    ;pushal
     call exception_handler ;Located in IDT.c
-    popal
-    iretq ;Preform long jump. 
+    ;popal
+    iretq
 %endmacro
 ;save state
 %macro pushal 0
@@ -54,21 +54,6 @@ isr_stub_%1:
 %endmacro
 
 section	.text
-    
-extern exception_handler
-global load_idt
-global isr_stub_table
-
-load_idt:
-    MOV   [idtr], DI
-    MOV  [idtr+2], RSI
-    LIDT  [idtr] ;Load IDT into cpu.
-    sti ; Enable interrupts again.
-    ret
-
-;IRETQ (Return from interrupts) POPS RIP AND CS (RIP:CS)
-
-
 
 
 isr_no_err_stub 0
@@ -105,12 +90,16 @@ isr_err_stub    30
 isr_no_err_stub 31
 
 section	.data
-idtr DW 0
-DQ 0 
+global isr_stub_table
+global load_idt
 
 isr_stub_table:
 %assign i 0
 %rep 32
-    DQ isr_stub_%+i 
+    dq isr_stub_%+i 
 %assign i i+1
 %endrep
+
+
+;IRETQ (Return from interrupts) POPS RIP  CS (RIP:CS) -- quad since 64 bit.
+

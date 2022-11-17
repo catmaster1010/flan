@@ -22,6 +22,8 @@ struct idt_gate {
 }__attribute__((packed));
 typedef struct idt_gate idt_gate_t; 
 
+
+
 void idt_init();
 void isr_init();
 void idt_load();

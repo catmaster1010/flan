@@ -21,10 +21,9 @@ gdt_register_t gdtr;
 void gdt_load() {
   gdtr.limit = (sizeof(gdt) - 1);
   gdtr.base = (uint64_t)&gdt;
-  extern void flush_gdt(uint64_t gdtr);
+  extern void load_gdt(uint64_t gdtr);
 
-  flush_gdt((uint64_t)&gdtr);
-
-  
+  load_gdt((uint64_t)&gdtr);
+  printf("GDT loaded.\n");  
 }
 

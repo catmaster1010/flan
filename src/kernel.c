@@ -20,9 +20,10 @@ static void done(void) {
 void _start(void) {
 
   printf("\033[0;31mHello World! \n\n"); //clean this
+  
   gdt_load();
-   //Implement paging first.
-  printf("Limine provided GDT loaded.\n");
-  //idt_init();
+
+  idt_init();
+  //int a =1/0;
   done();
 }

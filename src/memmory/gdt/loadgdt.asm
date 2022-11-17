@@ -1,11 +1,13 @@
-global flush_gdt
-flush_gdt:
+global load_gdt
+load_gdt:
         cli
         lgdt [rdi]
         mov ax, 0x30
-        mov ss, ax
-        mov ds, ax
-        mov es, ax
+        MOV   DS, AX
+        MOV   ES, AX
+        MOV   FS, AX
+        MOV   GS, AX
+        MOV   SS, AX
         pop rdi
         mov rax, 0x28
         push rax
