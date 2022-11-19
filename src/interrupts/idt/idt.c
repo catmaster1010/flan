@@ -24,9 +24,9 @@ void isr_init(){
     extern uintptr_t *isr_stub_table[];
     for (uint8_t vector = 0; vector < 32; vector++) {
         idt[vector] = encode_idt_entry(&isr_stub_table[vector],0x8e);//0b10001110 hardware interupts ignore this. (which is this since its the first 32 entries)
-       // int n = itoa(vector,10);printf("Loading isr_stub_"); printf(n);printf("...\n");
-       int  n = itoa(&isr_stub_table[vector], 10);
-       printf(n);printf("...\n");
+       int n = itoa(vector,10);printf("Loading isr_stub_"); printf(n);printf("...\n");
+       //int  n = itoa(&isr_stub_table[vector], 10);
+       //printf(n);printf("...\n");
         
 
     }
@@ -36,7 +36,7 @@ void isr_init(){
 
 void idt_init(){
     isr_init();
-    idtr.limit = (uint16_t) (sizeof(idt_gate_t) *256 - 1);
+    idtr.limit = (uint16_t) (sizeof(idt_gate_t) *256 - 1); 
     idtr.base = (uint64_t)&idt;
     __asm__ volatile("lidt %0"
                      :

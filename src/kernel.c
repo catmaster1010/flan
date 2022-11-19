@@ -1,5 +1,5 @@
 #include "memmory/gdt/gdt.h"
-//#include "interrupts/idt/idt.h"
+#include "interrupts/idt/idt.h"
 #include "std/stdio.h"
 #include <limine.h>
 #include <stddef.h>
