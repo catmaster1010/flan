@@ -15,7 +15,6 @@ void out(char* str){
 }
 
 void printf(char* str,...){
-  //TODO add %s,%d etc. suppport
   out(str);            
         
 }
