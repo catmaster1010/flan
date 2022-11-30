@@ -1,4 +1,6 @@
 #include "memmory/gdt/gdt.h"
+#include "memmory/pmm.h"
+
 #include "interrupts/idt/idt.h"
 #include "std/stdio.h"
 #include <limine.h>
