@@ -14,9 +14,28 @@ void out(char* str){
   terminal_request.response->write(terminal, str, strlen(str));
 }
 
-void printf(char* str,...){
-  out(str);            
-        
+void printf(char* fmt, ... ){
+  
+  va_list args; 
+  va_start(args, fmt);
+  for (char* c=fmt;*c!='\0';c++){
+    if (*c=='%'){
+      c++;
+      switch(*c){
+        case 's':
+          out(va_arg(args,char*));break;
+        case 'd':
+          out(itoa(va_arg(args,uint32_t),10));break;
+        case 'x':
+          out(itoa(va_arg(args,uint32_t),16));break;
+          }
+    }
+    else{
+      char str[] = {*c,'\0'};
+      out(str);
+    }
+  }         
+  va_end(args); //Not needed for GCC or clang. Here for compatibility. 
 }
 
 

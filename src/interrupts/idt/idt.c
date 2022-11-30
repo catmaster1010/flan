@@ -39,7 +39,7 @@ void idt_init(){
                      : "m"(idtr));
     __asm__ volatile("sti");
     printf("IDT Loaded.\n");
-    printf("idt_init routine finished...");
+    printf("idt_init routine finished...\n");
     
 }
 

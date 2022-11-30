@@ -5,14 +5,12 @@ int strlen(char* f){
   return ct;
 }
 
-
-//this is stolen lol
 char* itoa(uint32_t num, int base){ 
 	static char repr[]= "0123456789abcdef";
 	static char buffer[50]; 
 	char *ptr; 
 
-	ptr = &buffer[49]; 
+	ptr = &buffer[50]; 
 	*ptr = '\0'; 
 
 	do {

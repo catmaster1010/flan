@@ -21,10 +21,8 @@ static void done(void) {
 // The following will be our kernel's entry point.
 void _start(void) {
 
-  printf("\033[0;31mHello World! \n\n"); //clean this
-  
+  printf("%sHello World!%s \n\n",cRED,cNONE); 
   gdt_load();
   idt_init();
-  
   done();
 }
