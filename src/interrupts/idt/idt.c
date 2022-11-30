@@ -25,10 +25,6 @@ void isr_init(){
     for (uint8_t vector = 0; vector < 32; vector++) {
         idt[vector] = encode_idt_entry(&isr_stub_table[vector],0x8e);//0b10001110 hardware interupts ignore this. (which is this since its the first 32 entries)
        int n = itoa(vector,10);printf("Loading isr_stub_"); printf(n);printf("...\n");
-       //int  n = itoa(&isr_stub_table[vector], 10);
-       //printf(n);printf("...\n");
-        
-
     }
    printf("All ISRs have been loaded.");
 }
@@ -52,6 +48,4 @@ void exception_handler(void);
 void exception_handler(){
     printf("EXCEPTION RECIVED!!");
     __asm__ volatile ("cli; hlt"); 
-} 
-
-
+}
