@@ -25,6 +25,5 @@ typedef struct gdt_register gdt_register_t;
 
 void encodeGdtEntry();
 void gdt_init();
-void gdt_load();
 
 #endif

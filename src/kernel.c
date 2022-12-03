@@ -3,6 +3,7 @@
 
 #include "interrupts/idt/idt.h"
 #include "std/stdio.h"
+#include "memmory/pmm.h"
 #include <limine.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -22,7 +23,8 @@ static void done(void) {
 void _start(void) {
 
   printf("%sHello World!%s \n\n",cRED,cNONE); 
-  gdt_load();
+  gdt_init();
   idt_init();
+  pmm_init();
   done();
 }

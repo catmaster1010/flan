@@ -18,7 +18,7 @@ uint64_t gdt[7] =
 gdt_register_t gdtr;
 
 
-void gdt_load() {
+void gdt_init() {
   gdtr.limit = (sizeof(gdt) - 1);
   gdtr.base = (uint64_t)&gdt;
   extern void load_gdt(uint64_t gdtr);

@@ -25,9 +25,9 @@ void printf(char* fmt, ... ){
         case 's':
           out(va_arg(args,char*));break;
         case 'd':
-          out(itoa(va_arg(args,uint32_t),10));break;
+          out(itoa(va_arg(args,uint64_t),10));break;
         case 'x':
-          out(itoa(va_arg(args,uint32_t),16));break;
+          out(itoa(va_arg(args,uint64_t),16));break;
           }
     }
     else{
@@ -35,7 +35,7 @@ void printf(char* fmt, ... ){
       out(str);
     }
   }         
-  va_end(args); //Not needed for GCC or clang. Here for compatibility. 
+  va_end(args); //Not needed for GCC (or clang). Here for compatibility. 
 }
 
 
