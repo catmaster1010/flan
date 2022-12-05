@@ -32,7 +32,7 @@ void pmm_init()
                );
         if (memmap_request.response->entries[i]->type ==0)
         {
-           add_block(memmap_request.response->entries[i]->base,memmap_request.response->entries[i]->length);
+       //    add_block(memmap_request.response->entries[i]->base,memmap_request.response->entries[i]->length);
         }
     }   
 }
