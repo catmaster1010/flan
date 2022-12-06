@@ -3,7 +3,7 @@ extern exception_handler
 %macro isr_err_stub 1
 isr_stub_%1:
     ;pushal
-    call exception_handler ;Located in IDT.c ; It is written as no return this will be eddited later on
+    call exception_handler ;Located in IDT.c ; It is written with no return
    ;popal
     iretq ;Preform long jump.
 %endmacro
