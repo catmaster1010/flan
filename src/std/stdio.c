@@ -37,8 +37,3 @@ void printf(char* fmt, ... ){
   }         
   va_end(args); //Not needed for GCC (or clang). Here for compatibility. 
 }
-
-
-        
-
-
