@@ -5,10 +5,11 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc(just edit makefile) 
 
 - [x] Load new GDT
 - [x] Load IDT 
-- [ ] pmm.c 
-    -malloc 
-    -free
+Mememory management
+ -[ ] malloc 
+ -[ ] free
 - [ ] vmm.c
+
 - [ ] parse ACPI tables 
 - [ ] Start up other CPUs
 - [ ] Set up APIC
