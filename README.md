@@ -5,9 +5,8 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc(just edit makefile) 
 
 - [x] Load new GDT
 - [x] Load IDT 
-Mememory management
- -[ ] malloc 
- -[ ] free
+ - [x] malloc 
+ - [ ] free
 - [ ] vmm.c
 
 - [ ] parse ACPI tables 
