@@ -11,7 +11,6 @@ volatile struct limine_memmap_request memmap_request = {
     .revision = 0
     };
 
-
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
 	next->prev = n;
 	n->next = next;
@@ -50,6 +49,9 @@ void pmm_init()
                 memmap_request.response->entries[i]->base+memmap_request.response->entries[i]->length 
             );
     }   
+
+    printf("\nTesting malloc...\n");
+    printf("Allocating 4 bytes 3 times...\n\n");
     for (int i = 0; i < 3; i++)
     {
         int *a=malloc(4);
@@ -70,14 +72,13 @@ void add_block(uint64_t *addr, uint64_t size){
 uint64_t* malloc(uint64_t size){
     void * ptr;
     alloc_node_t *block;
-
     // Try to find a big enough block to alloc (First fit)
   for (block = container_of(free_list.next,alloc_node_t,node); &block->node != &free_list; block=container_of(block->node.next,alloc_node_t,node))
     {      
         if (block->size>=size)
         {   
             ptr = &block->cBlock;
-            printf("Found block for requested size.\n");
+            printf("\nFound block for requested size.\n");
             break;
         }        
     }
@@ -86,9 +87,9 @@ uint64_t* malloc(uint64_t size){
     //Can block be split
     if((block->size - size) >= HEADER_SIZE)
         {
-            alloc_node_t *new_block = (alloc_node_t *)((&block->cBlock) + size);
-            new_block->size = block->size - (size - HEADER_SIZE);
-            block->size = size;
+            alloc_node_t *new_block = (alloc_node_t *)((uint64_t*)((char*)&block->cBlock + size));
+            new_block->size = block->size - size - HEADER_SIZE;
+            block->size =  size;
             //add new block to list
             dll_list_add(&new_block->node,&block->node,block->node.next);
         }
@@ -98,8 +99,7 @@ uint64_t* malloc(uint64_t size){
     block->node.next=NULL;
     block->node.prev=NULL;
     //Finally, return pointer to newly allocated adress
-    return ptr;
-    
+    return ptr;  
 }
 
 void free(){}
