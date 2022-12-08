@@ -2,13 +2,11 @@
 This is a hobby os in development. I will work on it when I get the chance to.  probably during winter break
 
 This can be compiled ussing a cross compiler x86_64-elf-gcc(just edit makefile) or your host systems compiler(if AMD64) and nasm. Any VM of your choice should work. 
-##memory management
 - [x] Load new GDT
 - [x] Load IDT 
  - [x] malloc()
  - [ ] free()
 - [ ] vmm.c
-##other stuff
 - [ ] parse ACPI tables 
 - [ ] Start up other CPUs
 - [ ] Set up APIC
