@@ -7,8 +7,8 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc(just edit makefile) 
 - [x] Load IDT 
 - [ ] pmm.c
 - [ ]vmm.c
-- [ ] parse ACPI tables 
+- [] parse ACPI tables 
 - [ ]Start up other CPUs
 - [ ]Set up APIC
 - [ ]configure timer
-- [ ] Implment scheduler 
+- [] Implment scheduler 
