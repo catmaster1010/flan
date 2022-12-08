@@ -12,3 +12,4 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc(just edit makefile) 
 - [ ] Set up APIC
 - [ ] configure timer
 - [ ] Implment scheduler 
+- [ ] implement VFS
