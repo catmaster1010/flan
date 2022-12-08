@@ -54,10 +54,12 @@ void pmm_init()
     printf("Allocating 4 bytes 3 times...\n\n");
     for (int i = 0; i < 3; i++)
     {
+        printf("%s>malloc(4)%s\n",cRED,cNONE);
         int *a=malloc(4);
-        printf("Adress of malloc: %d\n\n",a);
+        printf("Adress of malloc: %x\n\n",a);
     }
 }
+
 
 void add_block(uint64_t *addr, uint64_t size){
     alloc_node_t *block = (uint64_t *) ALIGN_UP((uint64_t)addr, 8);
@@ -66,7 +68,6 @@ void add_block(uint64_t *addr, uint64_t size){
     
     dll_list_add(&block->node,&free_list,&free_list.next);
 };
-
 
 
 uint64_t* malloc(uint64_t size){
@@ -78,7 +79,7 @@ uint64_t* malloc(uint64_t size){
         if (block->size>=size)
         {   
             ptr = &block->cBlock;
-            printf("\nFound block for requested size.\n");
+            //printf("\nFound block for requested size.\n");
             break;
         }        
     }
@@ -101,5 +102,6 @@ uint64_t* malloc(uint64_t size){
     //Finally, return pointer to newly allocated adress
     return ptr;  
 }
+
 
 void free(){}

@@ -27,5 +27,6 @@ void _start(void) {
   gdt_init();
   idt_init();
   pmm_init();
+  printf("%s>%s",cRED,cNONE);
   done();
 }
