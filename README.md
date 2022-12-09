@@ -1,6 +1,8 @@
 # **cat-kernel**
 This is a hobby os in development. I will work on it when I get the chance to.  probably during winter break or summer break as I am very busy during school time
 
+This supports the limine boot protocall and uses limine v4.2
+
 This can be compiled ussing a cross compiler x86_64-elf-gcc (just edit makefile) and nasm. Any VM of your choice should work. 
 
 ---
