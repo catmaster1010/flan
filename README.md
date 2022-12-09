@@ -9,7 +9,7 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc (just edit makefile)
 	- [X] `GDT`
 	- [X] `malloc()`
 	- [ ] `free()`
-	- [ ] `vmm()`
+	- [ ] `vmm.c`
 - [x] IDT
 - [ ] parse ACPI tables 
 - [ ] Start up other CPUs
