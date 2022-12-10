@@ -20,7 +20,7 @@ void add_block(uint64_t *addr, uint64_t size);
 uint64_t* malloc(uint64_t size);
 
 void pmm_init();
-void free();
+void free(uint64_t ptr);
 
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next);
 

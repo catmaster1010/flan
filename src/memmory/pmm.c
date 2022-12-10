@@ -50,14 +50,16 @@ void pmm_init()
             );
     }   
 
-    printf("\nTesting malloc...\n");
     printf("Allocating 4 bytes 3 times...\n\n");
     for (int i = 0; i < 3; i++)
     {
         printf("%s>malloc(4)%s\n",cRED,cNONE);
-        int *a=malloc(4);
-        printf("Adress of malloc: %x\n\n",a);
+        int *a=malloc(6);
+        printf("Adress of malloc: %d\n",a);
+        //printf("%s>free(malloc)%s\n\n",cRED,cNONE);
+        //free(a);
     }
+
 }
 
 
@@ -104,4 +106,17 @@ uint64_t* malloc(uint64_t size){
 }
 
 
-void free(){}
+void free(uint64_t ptr){
+    alloc_node_t *block, *free_block;
+    block = container_of(ptr, alloc_node_t,cBlock);
+    printf("%d",block);
+    /*for (free_block = container_of(block,alloc_node_t,node); &block->node != &free_list; block=container_of(block->node.next,alloc_node_t,node))
+    {
+       if (free_block>block)
+       {
+       // dll_list_add(&block->node,&free_block->node,free_block->node.next);
+       }
+    }*/
+    //free_block->node.next=&block->node;
+    //*block->node.prev=free_block->node;
+}
