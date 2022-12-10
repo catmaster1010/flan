@@ -24,6 +24,6 @@ void gdt_init() {
   extern void load_gdt(uint64_t gdtr);
 
   load_gdt((uint64_t)&gdtr);
-  printf("GDT loaded.\n");  
+  printf("%sGDT initialized.%s\n",cBLUE,cNONE);  
 }
 

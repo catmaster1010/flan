@@ -22,7 +22,7 @@ void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
 
 void pmm_init()
 {
-    printf("There are %d entries in the mmap\n", memmap_request.response->entry_count);
+    printf("There are %d entries in the mmap.\n", memmap_request.response->entry_count);
     for (int i = 0; i < memmap_request.response->entry_count; i++)
     {
         if (memmap_request.response->entries[i]->type ==0)
@@ -34,11 +34,9 @@ void pmm_init()
                 block->size = memmap_request.response->entries[i]->base + memmap_request.response->entries[i]->length - (uint64_t)block - HEADER_SIZE;
                 free_list.next=&block->node;
                 block->node.prev=&free_list;
-                printf("%d made the first block in freelist.\n",i+1);//--
             }
             else{
                 add_block(memmap_request.response->entries[i]->base,memmap_request.response->entries[i]->length);
-                printf("%d another block in freelist. \n",i+1); //--
             }   
         }
         printf("entry %d    base: %d    length: %x    type: %d    tail: %x\n",
@@ -49,17 +47,15 @@ void pmm_init()
                 memmap_request.response->entries[i]->base+memmap_request.response->entries[i]->length 
             );
     }   
-
-    printf("Allocating 4 bytes 3 times...\n\n");
-    for (int i = 0; i < 3; i++)
-    {
-        printf("%s>malloc(4)%s\n",cRED,cNONE);
-        int *a=malloc(6);
-        printf("Adress of malloc: %d\n",a);
-        //printf("%s>free(malloc)%s\n\n",cRED,cNONE);
-        //free(a);
-    }
-
+    //Testing malloc() and free()
+    printf("%sFrame alocator initialized.%s\n",cBLUE,cNONE); 
+    printf("Testing malloc() and free()...\n\n");
+    printf("Allocating 6 bytes 2 times...\n\n");
+    int *a=malloc(6);printf("Adress of malloc: %d\n",a);
+    a=malloc(6);printf("Adress of malloc: %d\n",a);
+    printf("Freeing last malloc()...\n\n");
+    free(a);
+    printf("Allocating 6 bytes 1 times...\n\n");a=malloc(6);printf("Adress of malloc: %d\n",a);
 }
 
 
@@ -109,14 +105,22 @@ uint64_t* malloc(uint64_t size){
 void free(uint64_t ptr){
     alloc_node_t *block, *free_block;
     block = container_of(ptr, alloc_node_t,cBlock);
-    printf("%d",block);
-    /*for (free_block = container_of(block,alloc_node_t,node); &block->node != &free_list; block=container_of(block->node.next,alloc_node_t,node))
+    for (free_block = container_of(free_list.next,alloc_node_t,node); &free_block->node!= &free_list; free_block=container_of(free_block->node.next,alloc_node_t,node))
     {
        if (free_block>block)
        {
-       // dll_list_add(&block->node,&free_block->node,free_block->node.next);
+
+        dll_list_add(&block->node,free_block->node.prev,&free_block->node);
+        coalesce_dll(); //prevent fragmentation 
+        return;
        }
-    }*/
-    //free_block->node.next=&block->node;
-    //*block->node.prev=free_block->node;
+    }
+    dll_list_add(&block->node,&free_block->node,free_block->node.next);
+    coalesce_dll();//prevent fragmentation 
+}
+
+void coalesce_dll(){
+    alloc_node_t *block, *last_block = NULL, *t;
+
+
 }

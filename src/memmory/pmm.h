@@ -22,6 +22,8 @@ uint64_t* malloc(uint64_t size);
 void pmm_init();
 void free(uint64_t ptr);
 
+void coalesce_dll();
+
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next);
 
 

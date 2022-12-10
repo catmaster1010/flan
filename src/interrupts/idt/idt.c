@@ -36,7 +36,7 @@ void idt_init(){
                      :
                      : "m"(idtr));
     __asm__ volatile("sti");
-    printf("IDT Loaded.\n");
+    printf("%sIDT initialized.%s\n",cBLUE,cNONE); 
 
     
 }
