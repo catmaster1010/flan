@@ -25,8 +25,6 @@ void pmm_init()
     {
         if (memmap_request.response->entries[i]->type ==0)
         {
-
-            printf("yes");
             alloc_node_t *block = (uint64_t *) ALIGN_UP((uint64_t)memmap_request.response->entries[i]->base, 8); 
             block->size = memmap_request.response->entries[i]->base + memmap_request.response->entries[i]->length - (uint64_t)block - HEADER_SIZE;
             dll_list_add(&block->node,&free_list,free_list.next);
