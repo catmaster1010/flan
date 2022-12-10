@@ -26,6 +26,7 @@ void coalesce_dll();
 
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next);
 
+void test_pmm();
 
 #define ALIGN_UP(num,align) (((num) + align - 1) & ~(align - 1)) 
 #define ALIGN_DOWN(num,align) ((num) & ~(align - 1))

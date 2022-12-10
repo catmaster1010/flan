@@ -10,7 +10,7 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 - [ ] MM stuffs
 	- [X] `GDT`
 	- [X] `malloc()`
-	- [ ] `free()`
+	- [x] `free()`
 	- [ ] `vmm.c`
 - [x] IDT
 - [ ] parse ACPI tables 
