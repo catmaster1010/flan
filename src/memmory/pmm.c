@@ -30,7 +30,7 @@ void pmm_init()
             dll_list_add(&block->node,&free_list,free_list.next);
         }
 
-        printf("entry %d    base: %d    length: %x    type: %d    tail: %x\n",
+        printf("entry %d    base: %x    length: %x    type: %d    tail: %x\n",
                 i+1,
                 memmap_request.response->entries[i]->base,
                 memmap_request.response->entries[i]->length,
@@ -38,7 +38,7 @@ void pmm_init()
                 memmap_request.response->entries[i]->base+memmap_request.response->entries[i]->length 
             );
     }   
-    printf("%sFrame alocator initialized.%s\n",cBLUE,cNONE); 
+    printf("%sPage frame alocator initialized.%s\n",cBLUE,cNONE); 
     //Testing malloc() and free()
     test_pmm();
 }
@@ -120,17 +120,17 @@ void coalesce_dll(){
 }
 
 void test_pmm(){
-    printf("Testing pmm...\n\n");
+    printf("Testing PMM...\n\n");
     printf("Allocating 6 bytes 2 times...\n\n");
-    int *a=malloc(6);printf("Adress of malloc: %d\n",a);
-    int *b=malloc(6);printf("Adress of malloc: %d\n",b);
+    int *a=malloc(6);printf("Adress of malloc: %x\n",a);
+    int *b=malloc(6);printf("Adress of malloc: %x\n",b);
     printf("Freeing the last 2 malloc()...\n\n");
     free(a);
     free(b);
-    printf("Allocating 6 bytes 1 times...\n\n");a=malloc(6);printf("Adress of malloc: %d\n",a);
+    printf("Allocating 6 bytes 1 times...\n\n");a=malloc(6);printf("Adress of malloc: %x\n",a);
     /*
     for (alloc_node_t* block=container_of(free_list.next,alloc_node_t,node); &block->node!= &free_list; block=container_of(block->node.next,alloc_node_t,node)){
         printf("%d\n",block);
      }*/
-    printf("Done pmm test.\n");
+    printf("Done PMM test.\n");
 }
