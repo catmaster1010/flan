@@ -3,6 +3,15 @@
 #include <limine.h>
 #include "std/stddef.h"
 
+#define LIMINE_MEMMAP_USABLE                 0
+#define LIMINE_MEMMAP_RESERVED               1
+#define LIMINE_MEMMAP_ACPI_RECLAIMABLE       2
+#define LIMINE_MEMMAP_ACPI_NVS               3
+#define LIMINE_MEMMAP_BAD_MEMORY             4
+#define LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE 5
+#define LIMINE_MEMMAP_KERNEL_AND_MODULES     6
+#define LIMINE_MEMMAP_FRAMEBUFFER            7
+
 #define HEADER_SIZE 24
 static dll_t free_list={.next=&free_list,.prev=&free_list};
 
@@ -132,5 +141,5 @@ void test_pmm(){
     for (alloc_node_t* block=container_of(free_list.next,alloc_node_t,node); &block->node!= &free_list; block=container_of(block->node.next,alloc_node_t,node)){
         printf("%d\n",block);
      }*/
-    printf("Done PMM test.\n");
+    printf("Done PMM test.\n\n");
 }

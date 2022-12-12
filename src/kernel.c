@@ -1,9 +1,9 @@
 #include "memmory/gdt/gdt.h"
 #include "memmory/pmm.h"
-
 #include "interrupts/idt/idt.h"
 #include "std/stdio.h"
 #include "memmory/pmm.h"
+#include "fb/fb.h"
 #include <limine.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -21,12 +21,12 @@ static void done(void) {
 
 // The following will be our kernel's entry point.
 void _start(void) {
-
-
+  fb_colour_background();
   printf("%sHello World!%s \n\n",cRED,cNONE); 
   gdt_init();
   idt_init();
   pmm_init();
+  fb_info();
   printf("%s>%s",cRED,cNONE);
   done();
 }
