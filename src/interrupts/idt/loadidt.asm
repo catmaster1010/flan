@@ -1,4 +1,3 @@
-bits 64
 extern exception_handler
 %macro isr_err_stub 1
 isr_stub_%1:
