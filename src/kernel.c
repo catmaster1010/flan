@@ -3,12 +3,11 @@
 #include "interrupts/idt/idt.h"
 #include "std/stdio.h"
 #include "memmory/pmm.h"
+#include "memmory/vmm.h"
 #include "fb/fb.h"
 #include <limine.h>
 #include <stddef.h>
 #include <stdint.h>
-
-
 // The Limine requests can be placed anywhere, but it is important that
 // the compiler does not optimise them away, so, usually, they should
 // be made volatile or equivalent.

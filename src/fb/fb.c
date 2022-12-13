@@ -29,12 +29,12 @@ void plot_pixel(uint8_t*screen, uint64_t x,uint64_t y, uint32_t colour) {
 
 
 void fb_colour_background(){
-  void* fb_place = fb_adress();
+  uint8_t* fb_place = fb_adress();
   for (uint64_t x = 0; x < fb.response->framebuffers[0]->width; x++)
   {
     for (uint64_t y = 0; y < fb.response->framebuffers[0]->height; y++)
       {
-        plot_pixel(fb_place, x,y, 0x338086);
+        plot_pixel(fb_place, x,y, 0x8c4c4c);
     }
     
   }

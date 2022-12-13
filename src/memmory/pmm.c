@@ -47,7 +47,7 @@ void pmm_init()
                 memmap_request.response->entries[i]->base+memmap_request.response->entries[i]->length 
             );
     }   
-    printf("Page frame alocator initialized.\n"); 
+    printf("PMM initialized.\n"); 
     //Testing malloc() and free()
     test_pmm();
 }
