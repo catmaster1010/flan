@@ -14,13 +14,13 @@ struct limine_framebuffer* fb_adress(){
 void fb_info(x,y,colour){
   struct limine_framebuffer* fb_adresss=fb_adress();
   printf("Our frame buffer is at %x.\n",fb_adresss);
-  printf("Resolution: %d, %d\n",fb.response->framebuffers[0]->width,fb.response->framebuffers[0]->height);
+  printf("Resolution: %dx%d\n",fb.response->framebuffers[0]->width,fb.response->framebuffers[0]->height);
   printf("Depth: %d\n",fb.response->framebuffers[0]->bpp);
 }
 
 void plot_pixel(uint8_t*screen, uint64_t x,uint64_t y, uint32_t colour) {
   uint64_t pitch   = fb.response->framebuffers[0]->pitch;
-  uint64_t pix_wid = fb.response->framebuffers[0]->bpp;
+  uint64_t pix_wid = (fb.response->framebuffers[0]->bpp)/8;
   unsigned where = x*pix_wid+y*pitch;
     screen[where] = colour & 255;              // BLUE
     screen[where + 1] = (colour >> 8) & 255;   // GREEN
@@ -34,7 +34,7 @@ void fb_colour_background(){
   {
     for (uint64_t y = 0; y < fb.response->framebuffers[0]->height; y++)
       {
-        plot_pixel(fb_place, x,y, cBLUE);
+        plot_pixel(fb_place, x,y, 0x338086);
     }
     
   }

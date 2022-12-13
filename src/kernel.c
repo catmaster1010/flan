@@ -22,11 +22,10 @@ static void done(void) {
 // The following will be our kernel's entry point.
 void _start(void) {
   fb_colour_background();
-  printf("%sHello World!%s \n\n",cRED,cNONE); 
+  printf("%s%sHello World! \n\n",cBLACK,cNONE); 
   gdt_init();
   idt_init();
   pmm_init();
   fb_info();
-  printf("%s>%s",cRED,cNONE);
   done();
 }
