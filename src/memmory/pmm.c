@@ -102,8 +102,9 @@ uint64_t* calloc(uint64_t size){
         {
             ((uint8_t*)ptr)[i]=(uint8_t)0;
         }
+	return ptr;
     }
-    return ptr;
+	return NULL;
 }
 void free(uint64_t ptr){
     alloc_node_t *block, *free_block;
