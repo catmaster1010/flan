@@ -1,5 +1,5 @@
 #include "gdt.h"
-#include "std/stdio.h"
+#include "lib/stdio.h"
 #include <stdint.h>
 
 uint64_t gdt[7] =

@@ -14,13 +14,14 @@ struct alloc_node {
 }__attribute__((packed));
 typedef struct alloc_node alloc_node_t;
 
+void pmm_init();
 
 void dll_add( dll_t* n,  dll_t* head);
 void add_block(uint64_t *addr, uint64_t size);
-uint64_t* malloc(uint64_t size);
 
-void pmm_init();
+uint64_t* malloc(uint64_t size);
 void free(uint64_t ptr);
+uint64_t* calloc(uint64_t size);
 
 void coalesce_dll();
 

@@ -1,5 +1,5 @@
 #include "idt.h"
-#include "std/stdio.h"
+#include "lib/stdio.h"
 #include <stdint.h>
 
 static idt_gate_t idt[256];

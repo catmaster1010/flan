@@ -1,7 +1,7 @@
-#include "std/stdio.h"
+#include "lib/stdio.h"
 #include "memmory/pmm.h"
 #include <limine.h>
-#include "std/stddef.h"
+#include "lib/stddef.h"
 
 #define LIMINE_MEMMAP_USABLE                 0
 #define LIMINE_MEMMAP_RESERVED               1
@@ -63,8 +63,8 @@ void add_block(uint64_t *addr, uint64_t size){
 
 
 uint64_t* malloc(uint64_t size){
-    void *ptr;
-    alloc_node_t *block;
+    uint64_t* ptr;
+    alloc_node_t* block;
     // Try to find a big enough block to alloc (First fit)
   for (block = container_of(free_list.next,alloc_node_t,node); &block->node != &free_list; block=container_of(block->node.next,alloc_node_t,node))
     {      
@@ -94,7 +94,17 @@ uint64_t* malloc(uint64_t size){
     return ptr;  
 }
 
-
+uint64_t* calloc(uint64_t size){
+    uint64_t* ptr = malloc(size);
+    if (ptr!=NULL)
+    {
+        for (uint64_t i = 0; i < size; i++)
+        {
+            ((uint8_t*)ptr)[i]=(uint8_t)0;
+        }
+    }
+    return ptr;
+}
 void free(uint64_t ptr){
     alloc_node_t *block, *free_block;
     block = container_of(ptr, alloc_node_t,cBlock);
@@ -129,17 +139,20 @@ void coalesce_dll(){
 }
 
 void test_pmm(){
-    printf("Testing PMM...\n\n");
-    printf("Allocating 6 bytes 2 times...\n\n");
+    printf("Testing PMM...\n");
+    printf("Allocating 6 bytes 2 times...\n");
     int *a=malloc(6);printf("Adress of malloc: %x\n",a);
     int *b=malloc(6);printf("Adress of malloc: %x\n",b);
-    printf("Freeing the last 2 malloc()...\n\n");
+    printf("Freeing the last 2 malloc()...\n");
     free(a);
     free(b);
-    printf("Allocating 6 bytes 1 times...\n\n");a=malloc(6);printf("Adress of malloc: %x\n",a);
+    printf("Allocating 6 bytes 1 times...\n");
+    a=malloc(6);
+    printf("Adress of malloc: %x\n",a);
+    free(a);
     /*
     for (alloc_node_t* block=container_of(free_list.next,alloc_node_t,node); &block->node!= &free_list; block=container_of(block->node.next,alloc_node_t,node)){
         printf("%d\n",block);
      }*/
-    printf("Done PMM test.\n\n");
+    printf("Done PMM test.\n");
 }
