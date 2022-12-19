@@ -20,7 +20,7 @@ static void done(void) {
 
 // The following will be our kernel's entry point.
 void _start(void) {
-  printf("%sHello World! \n\n",cRED); 
+  printf("%sHello world! %s \n\n","\033[1;96m",cNONE); 
   fb_info();
   gdt_init();
   idt_init();

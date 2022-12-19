@@ -2,7 +2,7 @@
 #include "memmory/pmm.h"
 #include <limine.h>
 #include "lib/stddef.h"
-
+#include "lib/assert.h"
 #define LIMINE_MEMMAP_USABLE                 0
 #define LIMINE_MEMMAP_RESERVED               1
 #define LIMINE_MEMMAP_ACPI_RECLAIMABLE       2
@@ -29,15 +29,12 @@ void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
 
 void pmm_init()
 {
+    uint64_t usable =NULL;
+    uint64_t available=NULL;
     printf("There are %d entries in the mmap.\n", memmap_request.response->entry_count);
     for (int i = 0; i < memmap_request.response->entry_count; i++)
     {
-        if (memmap_request.response->entries[i]->type ==0)
-        {
-            alloc_node_t *block = (uint64_t *) ALIGN_UP((uint64_t)memmap_request.response->entries[i]->base, 8); 
-            block->size = memmap_request.response->entries[i]->base + memmap_request.response->entries[i]->length - (uint64_t)block - HEADER_SIZE;
-            dll_list_add(&block->node,&free_list,free_list.next);
-        }
+        available+=memmap_request.response->entries[i]->length;
 
         printf("entry %d    base: %x    length: %x    type: %d    tail: %x\n",
                 i+1,
@@ -46,7 +43,14 @@ void pmm_init()
                 memmap_request.response->entries[i]->type,
                 memmap_request.response->entries[i]->base+memmap_request.response->entries[i]->length 
             );
+        if (!memmap_request.response->entries[i]->type ==0){continue;}
+        usable+=memmap_request.response->entries[i]->length;
+        alloc_node_t *block = (uint64_t *) ALIGN_UP((uint64_t)memmap_request.response->entries[i]->base, 8); 
+        block->size = memmap_request.response->entries[i]->base + memmap_request.response->entries[i]->length - (uint64_t)block - HEADER_SIZE;
+        dll_list_add(&block->node,&free_list,free_list.next);
+        
     }   
+    printf("%dMiB/%dMiB of usable memmory\n",usable/1024 / 1024,available/1024 / 1024);
     printf("PMM initialized.\n"); 
     //Testing malloc() and free()
     test_pmm();
@@ -76,7 +80,7 @@ uint64_t* malloc(uint64_t size){
         }        
     }
 
-    if (!ptr){printf("Could not find block for requested size."); return NULL;}
+    if (!ptr){printf("Could not find block for requested size.\n"); return NULL;}
     //Can block be split
 
     if((block->size - size) >= HEADER_SIZE)
@@ -142,13 +146,18 @@ void coalesce_dll(){
 void test_pmm(){
     printf("Testing PMM...\n");
     printf("Allocating 6 bytes 2 times...\n");
-    int *a=malloc(6);printf("Adress of malloc: %x\n",a);
-    int *b=malloc(6);printf("Adress of malloc: %x\n",b);
+    uint64_t a=malloc(6);
+    assert(a);
+    printf("Adress of malloc: %x\n",a);
+    uint64_t b=malloc(6);
+    assert(b);
+    printf("Adress of malloc: %x\n",b);
     printf("Freeing the last 2 malloc()...\n");
     free(a);
     free(b);
     printf("Allocating 6 bytes 1 times...\n");
     a=malloc(6);
+    assert(a);
     printf("Adress of malloc: %x\n",a);
     free(a);
     /*
