@@ -13,21 +13,39 @@
 #define LIMINE_MEMMAP_KERNEL_AND_MODULES     6
 #define LIMINE_MEMMAP_FRAMEBUFFER            7
 
-#define HEADER_SIZE 24
-static dll_t free_list={.next=&free_list,.prev=&free_list};
-
 volatile struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST,
     .revision = 0
     };
+void pmm_init()
+{
+    uint64_t usable =NULL;
+    uint64_t available=NULL;
+    printf("There are %d entries in the mmap.\n", memmap_request.response->entry_count);
+    for (int i = 0; i < memmap_request.response->entry_count; i++)
+    {
+        available+=memmap_request.response->entries[i]->length;
 
+        printf("entry %d    base: %x    length: %x    type: %d    tail: %x\n",
+                i+1,
+                memmap_request.response->entries[i]->base,
+                memmap_request.response->entries[i]->length,
+                memmap_request.response->entries[i]->type,
+                memmap_request.response->entries[i]->base+memmap_request.response->entries[i]->length 
+            );
+        if (!memmap_request.response->entries[i]->type ==0){continue;}
+        usable+=memmap_request.response->entries[i]->length;
+    }   
+    printf("%dMiB/%dMiB of usable memmory\n",usable/1024 / 1024,available/1024 / 1024);
+    printf("PMM initialized.\n"); }
+
+/*
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
 	next->prev = n;
 	n->next = next;
 	n->prev = prev;
 	prev->next = n;
 }
-
 void pmm_init()
 {
     uint64_t usable =NULL;
@@ -140,6 +158,14 @@ void coalesce_dll(){
     }
 }
 
+uint64_t* pmm_alloc(uint64_t num_frames){
+    uint64_t ptr;
+    ptr=pmm_malloc(num_frames*PAGE_SIZE);
+    assert(ptr);
+    if(ptr != NULL) memset(ptr + HIGHER_HALF, 0, num_frames * 0x1000); // clear memory page
+    return ptr;
+}
+
 void test_pmm(){
     printf("Testing PMM...\n");
     printf("Allocating 6 bytes 2 times...\n");
@@ -157,10 +183,9 @@ void test_pmm(){
     assert(a);
     printf("Adress of pmm_malloc: %x\n",a);
     pmm_free(a);
-    /*
-    for (alloc_node_t* block=container_of(free_list.next,alloc_node_t,node); &block->node!= &free_list; block=container_of(block->node.next,alloc_node_t,node)){
-        printf("%d\n",block);
-     }*/
+    
     printf("Done PMM test.\n");
 }
-
+#define HEADER_SIZE 24
+static dll_t free_list={.next=&free_list,.prev=&free_list};
+*/
