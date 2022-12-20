@@ -57,7 +57,6 @@ void pmm_init()
     test_pmm();
 }
 
-
 void add_block(uint64_t *addr, uint64_t size){
     alloc_node_t *block = (uint64_t *) ALIGN_UP((uint64_t)addr, 8);
     //actual size - alignment-headerspace 
@@ -67,7 +66,7 @@ void add_block(uint64_t *addr, uint64_t size){
 };
 
 
-uint64_t* malloc(uint64_t size){
+uint64_t* pmm_malloc(uint64_t size){
     uint64_t* ptr;
     alloc_node_t* block;
     // Try to find a big enough block to alloc (First fit)
@@ -99,8 +98,8 @@ uint64_t* malloc(uint64_t size){
     return ptr;  
 }
 
-uint64_t* calloc(uint64_t size){
-    uint64_t* ptr = malloc(size);
+uint64_t* pmm_calloc(uint64_t size){
+    uint64_t* ptr = pmm_malloc(size);
     if (ptr!=NULL)
     {
         memset(ptr,0,size);
@@ -108,7 +107,7 @@ uint64_t* calloc(uint64_t size){
     }
 	return NULL;
 }
-void free(uint64_t ptr){
+void pmm_free(uint64_t ptr){
     alloc_node_t *block, *free_block;
     block = container_of(ptr, alloc_node_t,cBlock);
     for (free_block = container_of(free_list.next,alloc_node_t,node); &free_block->node!= &free_list; free_block=container_of(free_block->node.next,alloc_node_t,node))
@@ -144,20 +143,20 @@ void coalesce_dll(){
 void test_pmm(){
     printf("Testing PMM...\n");
     printf("Allocating 6 bytes 2 times...\n");
-    uint64_t a=malloc(6);
+    uint64_t a=pmm_malloc(6);
     assert(a);
     printf("Adress of malloc: %x\n",a);
-    uint64_t b=malloc(6);
+    uint64_t b=pmm_malloc(6);
     assert(b);
     printf("Adress of malloc: %x\n",b);
-    printf("Freeing the last 2 malloc()...\n");
-    free(a);
-    free(b);
+    printf("Freeing the last 2 pmm_malloc()...\n");
+    pmm_free(a);
+    pmm_free(b);
     printf("Allocating 6 bytes 1 times...\n");
-    a=malloc(6);
+    a=pmm_malloc(6);
     assert(a);
-    printf("Adress of malloc: %x\n",a);
-    free(a);
+    printf("Adress of pmm_malloc: %x\n",a);
+    pmm_free(a);
     /*
     for (alloc_node_t* block=container_of(free_list.next,alloc_node_t,node); &block->node!= &free_list; block=container_of(block->node.next,alloc_node_t,node)){
         printf("%d\n",block);
@@ -165,11 +164,3 @@ void test_pmm(){
     printf("Done PMM test.\n");
 }
 
-uint64_t *pmm_alloc(uint64_t num_frames){
-    uint64_t* ptr;
-    for (uint64_t i = 0; i < num_frames; i++)
-    {
-        /* code */
-    }
-}
-void pmm_free(uint64_t *addr, uint64_t num_frames){}

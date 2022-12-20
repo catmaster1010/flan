@@ -14,7 +14,7 @@ static volatile struct limine_kernel_address_request kernel_address_request  = {
 void vmm_init(){
     printf("Our kernel's physical base: %x\n",kernel_address_request.response->physical_base);
     printf("Our kernel's virtual base: %x\n",kernel_address_request.response->virtual_base);
-    kernel_page_map = malloc(sizeof(pagemap_t));
+    kernel_page_map = pmm_malloc(sizeof(pagemap_t));
     assert(kernel_page_map);
 
 }

@@ -19,13 +19,11 @@ void pmm_init();
 void dll_add( dll_t* n,  dll_t* head);
 void add_block(uint64_t *addr, uint64_t size);
 
-uint64_t* malloc(uint64_t size);
-void free(uint64_t ptr);
-uint64_t* calloc(uint64_t size);
+uint64_t* pmm_malloc(uint64_t size);
+void pmm_free(uint64_t ptr);
+uint64_t* pmm_calloc(uint64_t size);
 
 uint64_t *pmm_alloc(uint64_t num_frames);
-void pmm_free(uint64_t *addr, uint64_t num_frames);
-
 
 void coalesce_dll();
 
