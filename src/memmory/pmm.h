@@ -1,6 +1,6 @@
 #ifndef pmm_h
 #define pmm_h
-
+#define PAGE_SIZE 0x1000 /* 4096 bytes pages, 4kb */
 struct dll {
      struct dll *next;
      struct dll *prev;
@@ -22,6 +22,10 @@ void add_block(uint64_t *addr, uint64_t size);
 uint64_t* malloc(uint64_t size);
 void free(uint64_t ptr);
 uint64_t* calloc(uint64_t size);
+
+uint64_t *pmm_alloc(uint64_t num_frames);
+void pmm_free(uint64_t *addr, uint64_t num_frames);
+
 
 void coalesce_dll();
 

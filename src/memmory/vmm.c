@@ -4,14 +4,17 @@
 #include "memmory/vmm.h"
 #include "lib/stddef.h"
 #include"memmory/pmm.h"
-page_map_t *kernel_page_map = NULL;
+pagemap_t *kernel_page_map = NULL;
 
 static volatile struct limine_kernel_address_request kernel_address_request  = {
     .id = LIMINE_KERNEL_ADDRESS_REQUEST,
     .revision = 0
 };
+
 void vmm_init(){
     printf("Our kernel's physical base: %x\n",kernel_address_request.response->physical_base);
     printf("Our kernel's virtual base: %x\n",kernel_address_request.response->virtual_base);
-    kernel_page_map = malloc(sizeof(page_map_t));
+    kernel_page_map = malloc(sizeof(pagemap_t));
+    assert(kernel_page_map);
+
 }

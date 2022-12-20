@@ -1,4 +1,5 @@
 #include "lib/str.h"
+#include "lib/stddef.h"
 int strlen(char* f){
   int ct = 0;
   for(*f |= '\0'; *f++;) ct++;
@@ -19,4 +20,15 @@ char* itoa(uint64_t num, int base){
 	} while(num != 0); 
 
 	return(ptr); 
+}
+
+void memset(uint64_t*ptr,int n,uint64_t size){
+	if (ptr!=NULL)
+    {
+        for (uint64_t i = 0; i < size; i++)
+        {
+            ((uint8_t*)ptr)[i]=(uint8_t)n;
+        }
+	    return ptr;
+    }
 }

@@ -3,6 +3,7 @@
 #include <limine.h>
 #include "lib/stddef.h"
 #include "lib/assert.h"
+#include  "lib/str.h"
 #define LIMINE_MEMMAP_USABLE                 0
 #define LIMINE_MEMMAP_RESERVED               1
 #define LIMINE_MEMMAP_ACPI_RECLAIMABLE       2
@@ -102,11 +103,8 @@ uint64_t* calloc(uint64_t size){
     uint64_t* ptr = malloc(size);
     if (ptr!=NULL)
     {
-        for (uint64_t i = 0; i < size; i++)
-        {
-            ((uint8_t*)ptr)[i]=(uint8_t)0;
-        }
-	return ptr;
+        memset(ptr,0,size);
+	    return ptr;
     }
 	return NULL;
 }
@@ -166,3 +164,12 @@ void test_pmm(){
      }*/
     printf("Done PMM test.\n");
 }
+
+uint64_t *pmm_alloc(uint64_t num_frames){
+    uint64_t* ptr;
+    for (uint64_t i = 0; i < num_frames; i++)
+    {
+        /* code */
+    }
+}
+void pmm_free(uint64_t *addr, uint64_t num_frames){}

@@ -2,6 +2,7 @@
 #define vmm_h
 #include <stdint.h>
 #include"lib/assert.h"
+#include"lib/lock.h"
 #define PTE_PRESENT ((uint64_t)1 << (uint64_t)0)
 #define PTE_WRITABLE ((uint64_t)1 << (uint64_t)1)
 #define PTE_USER ((uint64_t)1 << (uint64_t)2)
@@ -10,9 +11,8 @@
 
 void vmm_init();
 
-struct page_map{
+typedef struct{
     uint64_t *top;
-};
-typedef struct page_map page_map_t;
+} pagemap_t;
 
 #endif
