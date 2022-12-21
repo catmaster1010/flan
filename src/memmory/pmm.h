@@ -7,17 +7,22 @@
 
 void pmm_init();
 
-uint64_t* pmm_malloc(uint64_t size);
 void pmm_free(uint64_t ptr);
-uint64_t* pmm_calloc(uint64_t size);
 
-uint64_t *pmm_alloc(uint64_t num_frames);
+uint64_t* pmm_alloc(uint64_t frames);
+uint64_t* pmm_malloc(uint64_t frames);
 
 void test_pmm();
 
 #define ALIGN_UP(num,align) (((num) + align - 1) & ~(align - 1)) 
 #define ALIGN_DOWN(num,align) ((num) & ~(align - 1))
 #define container_of(ptr, type, member) ((type *)( (char *)ptr - offsetof(type,member) ))
+
+#define BIT_SET(__bit) (bitmap[(__bit) / 8] |= (1<< ((__bit) % 8))) //sets bit to  one
+#define BIT_CLEAR(__bit) (bitmap[(__bit) / 8] &= ~(1 << ((__bit) % 8))) //sets bit to  zero 
+
+
+
 #endif
 
 

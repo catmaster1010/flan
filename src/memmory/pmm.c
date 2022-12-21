@@ -4,40 +4,76 @@
 #include "lib/stddef.h"
 #include "lib/assert.h"
 #include  "lib/str.h"
-#define LIMINE_MEMMAP_USABLE                 0
-#define LIMINE_MEMMAP_RESERVED               1
-#define LIMINE_MEMMAP_ACPI_RECLAIMABLE       2
-#define LIMINE_MEMMAP_ACPI_NVS               3
-#define LIMINE_MEMMAP_BAD_MEMORY             4
-#define LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE 5
-#define LIMINE_MEMMAP_KERNEL_AND_MODULES     6
-#define LIMINE_MEMMAP_FRAMEBUFFER            7
 
 volatile struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST,
     .revision = 0
     };
+
+uint8_t* bitmap;
+uint64_t limit;
+
 void pmm_init()
 {
-    uint64_t usable =NULL;
-    uint64_t available=NULL;
+    uint64_t usable;
+    uint64_t available;
+    uint64_t  highest;
+    struct  limine_memmap_entry **mmaps = memmap_request.response->entries;
+    uint64_t mmmap_count = memmap_request.response->entry_count;
+
     printf("There are %d entries in the mmap.\n", memmap_request.response->entry_count);
-    for (int i = 0; i < memmap_request.response->entry_count; i++)
+    for (int i = 0; i < mmmap_count; i++)
     {
-        available+=memmap_request.response->entries[i]->length;
+        available+=mmaps[i]->length;
 
         printf("entry %d    base: %x    length: %x    type: %d    tail: %x\n",
                 i+1,
-                memmap_request.response->entries[i]->base,
-                memmap_request.response->entries[i]->length,
-                memmap_request.response->entries[i]->type,
-                memmap_request.response->entries[i]->base+memmap_request.response->entries[i]->length 
+                mmaps[i]->base,
+                mmaps[i]->length,
+                mmaps[i]->type,
+                mmaps[i]->base+mmaps[i]->length 
             );
-        if (!memmap_request.response->entries[i]->type ==0){continue;}
-        usable+=memmap_request.response->entries[i]->length;
+        if (!mmaps[i]->type ==LIMINE_MEMMAP_USABLE){continue;}
+        usable+=mmaps[i]->length;
+        uint64_t top = mmaps[i]->base+mmaps[i]->length;
+        if (top > highest) highest = top;
     }   
+    limit=highest/PAGE_SIZE;
+    uint64_t bitmap_size=ALIGN_UP((highest / 0x1000) / 8, 0x1000);
+
+    for (uint64_t i = 0; i < mmmap_count; i++)
+    {
+        if (mmaps[i]->type != LIMINE_MEMMAP_USABLE) continue;
+        if (mmaps[i]->length >=bitmap_size)
+        {
+            bitmap  = (uint8_t*) mmaps[i]->base;
+            memset(bitmap, 0xff, bitmap_size);
+            mmaps[i]->length -= bitmap_size;
+            mmaps[i]->base += bitmap_size;
+            available-=bitmap_size;
+            break;
+        }
+    }
+    for (uint64_t i = 0; i < mmmap_count; i++)
+    {
+        if (mmaps[i]->type != LIMINE_MEMMAP_USABLE) continue;
+
+        for (uint64_t t = 0; t < mmaps[i]->length; t += 0x1000)
+        {
+            pmm_free(mmaps[i]->base+t);
+        }
+    }
     printf("%dMiB/%dMiB of usable memmory\n",usable/1024 / 1024,available/1024 / 1024);
-    printf("PMM initialized.\n"); }
+    printf("PMM initialized.\n"); 
+}
+
+void pmm_free(uint64_t ptr){
+    uint64_t index = ptr / PAGE_SIZE;
+    BIT_CLEAR(index);
+}
+
+uint64_t* pmm_malloc(uint64_t frames){}
+uint64_t* pmm_alloc(uint64_t frames){}
 
 /*
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){

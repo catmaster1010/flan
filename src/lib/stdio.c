@@ -29,6 +29,9 @@ void printf(char* fmt, ... ){
         case 'x':
           out("0x");
           out(itoa(va_arg(args,uint64_t),16));break;
+        case 'b':
+          out("0b");
+          out(itoa(va_arg(args,uint64_t),2));break;
           }
     }
     else{
