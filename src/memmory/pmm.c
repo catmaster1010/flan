@@ -38,12 +38,12 @@ void pmm_init()
         uint64_t top = mmaps[i]->base+mmaps[i]->length;
         if (top > highest) highest = top;
     }   
-    limit=highest/PAGE_SIZE;
-    uint64_t bitmap_size=ALIGN_UP((highest / 0x1000) / 8, 0x1000);
+    limit=highest/FRAME_SIZE;
+    uint64_t bitmap_size=ALIGN_UP(highest/0x1000/ 8, 0x1000);
 
     for (uint64_t i = 0; i < mmmap_count; i++)
     {
-        if (mmaps[i]->type != LIMINE_MEMMAP_USABLE) continue;
+        if (!mmaps[i]->type == LIMINE_MEMMAP_USABLE) continue;;
         if (mmaps[i]->length >=bitmap_size)
         {
             bitmap  = (uint8_t*) mmaps[i]->base;
@@ -60,21 +60,93 @@ void pmm_init()
 
         for (uint64_t t = 0; t < mmaps[i]->length; t += 0x1000)
         {
-            pmm_free(mmaps[i]->base+t);
+            pmm_free(mmaps[i]->base+t,1);
         }
     }
     printf("%dMiB/%dMiB of usable memmory\n",usable/1024 / 1024,available/1024 / 1024);
     printf("PMM initialized.\n"); 
+    test_pmm();
 }
 
-void pmm_free(uint64_t ptr){
-    uint64_t index = ptr / PAGE_SIZE;
-    BIT_CLEAR(index);
+void pmm_free(uint64_t ptr,uint64_t frames){
+    for (uint64_t i = 0; i < frames; i++,ptr+=FRAME_SIZE)
+    {
+        BIT_CLEAR((uintptr_t) ptr / FRAME_SIZE);
+    }
+    
+
 }
 
-uint64_t* pmm_malloc(uint64_t frames){}
+void set_frames(uint64_t* addr, uint64_t frame_count){
+    for (uint64_t i = 0; i < frame_count; i++)
+    {
+        BIT_SET((uint64_t)addr / FRAME_SIZE);
+    }
+    
+}
+
+uint64_t* pmm_malloc(uint64_t wanted_frames){
+    uint64_t* ptr;
+    
+    uint64_t available_frames;
+    for (uint64_t frame = 0; frame < limit; frame++)
+    {
+        if (!BIT_TEST(frame)) {
+            available_frames++;
+        } else if (available_frames != wanted_frames)
+            {available_frames = 0;
+            continue;
+            }
+        if (available_frames == wanted_frames) {
+            uint64_t i;
+            for  (i = 0; i < wanted_frames; i++)
+            {
+                BIT_SET(frame-i);
+            }
+            frame -= i - 1;
+            return (void *) (FRAME_SIZE * frame);
+            }
+   
+            /*            
+            size_t j;
+            for (j = 0; j < pages; j++) {
+                BIT_SET(i - j);
+            }
+            i -= j - 1;
+            mutex_unlock(&pmm_mutex);
+            return (void *) (MM_PAGE_SIZE * i);*/
+        }
+        return NULL;
+    }
+ 
+
+
 uint64_t* pmm_alloc(uint64_t frames){}
 
+void test_pmm(){
+    printf("Testing PMM...\n");
+    printf("Allocating 6 bytes 2 times...\n");
+    uint64_t a=pmm_malloc(6);
+    assert(a);
+    printf("Adress of malloc: %x\n",a);
+    uint64_t b=pmm_malloc(6);
+    assert(b);
+    printf("Adress of malloc: %x\n",b);
+    printf("Freeing the last 2 pmm_malloc()...\n");
+    pmm_free(a,6);
+    pmm_free(b,6);
+    printf("Allocating 6 bytes 1 times...\n");
+    a=pmm_malloc(6);
+    assert(a);
+    printf("Adress of pmm_malloc: %x\n",a);
+    b=pmm_malloc(6);
+    assert(a);
+    printf("Adress of pmm_malloc: %x\n",b);
+    pmm_free(a,6);
+    pmm_free(b,6);
+    
+    printf("Done PMM test.\n");
+}
 /*
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
 	next->prev = n;

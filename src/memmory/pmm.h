@@ -1,26 +1,27 @@
 #ifndef pmm_h
 #define pmm_h
 #include <stdint.h>
-#define PAGE_SIZE 0x1000 /* 4096 bytes pages, 4kb */
+#define FRAME_SIZE 0x1000 /* 4096 bytes pages, 4kb */
 #define HIGHER_HALF 0xffff800000000000
 
 
 void pmm_init();
 
-void pmm_free(uint64_t ptr);
+void pmm_free(uint64_t ptr,uint64_t frames);
 
 uint64_t* pmm_alloc(uint64_t frames);
 uint64_t* pmm_malloc(uint64_t frames);
 
+void set_frames(uint64_t* addr, uint64_t frame_count);
 void test_pmm();
 
 #define ALIGN_UP(num,align) (((num) + align - 1) & ~(align - 1)) 
 #define ALIGN_DOWN(num,align) ((num) & ~(align - 1))
 #define container_of(ptr, type, member) ((type *)( (char *)ptr - offsetof(type,member) ))
 
-#define BIT_SET(__bit) (bitmap[(__bit) / 8] |= (1<< ((__bit) % 8))) //sets bit to  one
-#define BIT_CLEAR(__bit) (bitmap[(__bit) / 8] &= ~(1 << ((__bit) % 8))) //sets bit to  zero 
-
+#define BIT_SET(bit) (bitmap[(bit) / 8] |= (1<< ((bit) % 8))) //sets bit to  one
+#define BIT_CLEAR(bit) (bitmap[(bit) / 8] &= ~(1 << ((bit) % 8))) //sets bit to  zero 
+#define BIT_TEST(bit) ((bitmap[(bit) / 8] >> ((bit) % 8)) & 1) // returns the bit
 
 
 #endif
