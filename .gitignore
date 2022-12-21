@@ -7,3 +7,4 @@ kernel/limine.h
 *.hdd
 *.o
 *.d
+.vscode

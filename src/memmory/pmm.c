@@ -4,6 +4,15 @@
 #include "lib/stddef.h"
 #include "lib/assert.h"
 #include  "lib/str.h"
+#include "lib/lock.h"
+
+#define ALIGN_UP(num,align) (((num) + align - 1) & ~(align - 1)) 
+#define ALIGN_DOWN(num,align) ((num) & ~(align - 1))
+#define container_of(ptr, type, member) ((type *)( (char *)ptr - offsetof(type,member) ))
+
+#define BIT_SET(bit) (bitmap[(bit) / 8] |= (1<< ((bit) % 8))) //sets bit to  one
+#define BIT_CLEAR(bit) (bitmap[(bit) / 8] &= ~(1 << ((bit) % 8))) //sets bit to  zero 
+#define BIT_TEST(bit) ((bitmap[(bit) / 8] >> ((bit) % 8)) & 1) // returns the bit
 
 volatile struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST,
@@ -12,6 +21,8 @@ volatile struct limine_memmap_request memmap_request = {
 
 uint8_t* bitmap;
 uint64_t limit;
+
+spinlock_t pmm_lock;
 
 void pmm_init()
 {
@@ -35,11 +46,12 @@ void pmm_init()
             );
         if (!mmaps[i]->type ==LIMINE_MEMMAP_USABLE){continue;}
         usable+=mmaps[i]->length;
+        printf("%x",usable);
         uint64_t top = mmaps[i]->base+mmaps[i]->length;
         if (top > highest) highest = top;
     }   
     limit=highest/FRAME_SIZE;
-    uint64_t bitmap_size=ALIGN_UP(highest/0x1000/ 8, 0x1000);
+    uint64_t bitmap_size=ALIGN_UP(highest/FRAME_SIZE/8, FRAME_SIZE);
 
     for (uint64_t i = 0; i < mmmap_count; i++)
     {
@@ -58,7 +70,7 @@ void pmm_init()
     {
         if (mmaps[i]->type != LIMINE_MEMMAP_USABLE) continue;
 
-        for (uint64_t t = 0; t < mmaps[i]->length; t += 0x1000)
+        for (uint64_t t = 0; t < mmaps[i]->length; t += FRAME_SIZE)
         {
             pmm_free(mmaps[i]->base+t,1);
         }
@@ -69,23 +81,16 @@ void pmm_init()
 }
 
 void pmm_free(uint64_t ptr,uint64_t frames){
+    spinlock_aquire(&pmm_lock);
     for (uint64_t i = 0; i < frames; i++,ptr+=FRAME_SIZE)
     {
         BIT_CLEAR((uintptr_t) ptr / FRAME_SIZE);
     }
-    
-
-}
-
-void set_frames(uint64_t* addr, uint64_t frame_count){
-    for (uint64_t i = 0; i < frame_count; i++)
-    {
-        BIT_SET((uint64_t)addr / FRAME_SIZE);
-    }
-    
+    spinlock_release(&pmm_lock);
 }
 
 uint64_t* pmm_malloc(uint64_t wanted_frames){
+    spinlock_aquire(&pmm_lock);
     uint64_t* ptr;
     
     uint64_t available_frames;
@@ -104,15 +109,25 @@ uint64_t* pmm_malloc(uint64_t wanted_frames){
                 BIT_SET(frame-i);
             }
             frame -= i - 1;
+            spinlock_release(&pmm_lock);
             return (void *) (FRAME_SIZE * frame);
             }
         }
+        spinlock_release(&pmm_lock);
         return NULL;
     }
  
 
 
-uint64_t* pmm_alloc(uint64_t frames){}
+uint64_t* pmm_alloc(uint64_t frames){
+    uint64_t ptr;
+
+
+
+
+
+
+}
 
 void test_pmm(){
     printf("Testing PMM...\n");
@@ -129,12 +144,9 @@ void test_pmm(){
     printf("Allocating 6 bytes 1 times...\n");
     a=pmm_malloc(6);
     assert(a);
-    printf("Adress of pmm_malloc: %x\n",a);
-    b=pmm_malloc(6);
-    assert(a);
     printf("Adress of pmm_malloc: %x\n",b);
     pmm_free(a,6);
-    pmm_free(b,6);
+
     
     printf("Done PMM test.\n");
 }

@@ -5,7 +5,7 @@ all: barebones.iso
 all-hdd: barebones.hdd
 limine:
 	git clone https://github.com/limine-bootloader/limine.git --branch=v4.x-branch-binary --depth=1
-	make -C limine
+	make -C limine    printf("what");
 
 .PHONY: kernel
 kernel:
@@ -32,3 +32,6 @@ clean:
 distclean: clean
 	rm -rf limine ovmf-x64
 	$(MAKE) -C src distclean
+.PHONY: run
+run: barebones.iso
+	qemu-system-x86_64 barebones.iso
