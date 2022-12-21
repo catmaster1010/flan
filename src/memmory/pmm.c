@@ -106,15 +106,6 @@ uint64_t* pmm_malloc(uint64_t wanted_frames){
             frame -= i - 1;
             return (void *) (FRAME_SIZE * frame);
             }
-   
-            /*            
-            size_t j;
-            for (j = 0; j < pages; j++) {
-                BIT_SET(i - j);
-            }
-            i -= j - 1;
-            mutex_unlock(&pmm_mutex);
-            return (void *) (MM_PAGE_SIZE * i);*/
         }
         return NULL;
     }
