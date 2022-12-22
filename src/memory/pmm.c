@@ -1,22 +1,11 @@
 #include "lib/stdio.h"
-#include "memmory/pmm.h"
+#include "memory/pmm.h"
 #include <limine.h>
 #include "lib/stddef.h"
 #include "lib/assert.h"
 #include  "lib/str.h"
 #include "lib/lock.h"
-
-#define FRAME_SIZE 0x1000 // 4096 bytes pages, 4kb 
-#define HIGHER_HALF 0xffff800000000000
-
-#define ALIGN_UP(num,align) (((num) + align - 1) & ~(align - 1)) 
-#define ALIGN_DOWN(num,align) ((num) & ~(align - 1))
-#define container_of(ptr, type, member) ((type *)( (char *)ptr - offsetof(type,member) ))
-
-#define BIT_SET(bit) (bitmap[(bit) / 8] |= (1<< ((bit) % 8))) //sets bit to  one
-#define BIT_CLEAR(bit) (bitmap[(bit) / 8] &= ~(1 << ((bit) % 8))) //sets bit to  zero 
-#define BIT_TEST(bit) ((bitmap[(bit) / 8] >> ((bit) % 8)) & 1) // returns the bit
-
+#include "memory/vmm.h"
 volatile struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST,
     .revision = 0
@@ -70,7 +59,7 @@ void pmm_init()
     }
     for (uint64_t i = 0; i < mmmap_count; i++)
     {
-        if (mmaps[i]->type != LIMINE_MEMMAP_USABLE) continue;
+        if (!mmaps[i]->type == LIMINE_MEMMAP_USABLE) continue;
 
         for (uint64_t t = 0; t < mmaps[i]->length; t += FRAME_SIZE)
         {
@@ -96,7 +85,7 @@ uint64_t* pmm_malloc(uint64_t wanted_frames){
     uint64_t* ptr;
     
     uint64_t available_frames;
-    for (uint64_t frame = 0; frame < limit; frame++)
+    for (uint64_t frame = 1; frame < limit; frame++)
     {
         if (!BIT_TEST(frame)) {
             available_frames++;
@@ -112,39 +101,32 @@ uint64_t* pmm_malloc(uint64_t wanted_frames){
             }
             frame -= i - 1;
             spinlock_release(&pmm_lock);
-            return (void *) (FRAME_SIZE * frame);
+
+            ptr=FRAME_SIZE * frame;
+            return ptr;
             }
         }
         spinlock_release(&pmm_lock);
         return NULL;
     }
- 
-
-uint64_t* pmm_alloc(uint64_t frames){
-    void* ret = pmm_malloc(frames);
-    printf("%x ",ret+HIGHER_HALF);
-    uint64_t* new=ret+HIGHER_HALF;
-    memset(new, 0, frames * FRAME_SIZE); // clear memory page
-    return ret;
-}
 
 void test_pmm(){
     printf("Testing PMM...\n");
     printf("Allocating 6 bytes 2 times...\n");
-    uint64_t a=pmm_malloc(6);
+    uint64_t a=pmm_malloc(1);
     assert(a);
     printf("Adress of malloc: %x\n",a);
-    uint64_t b=pmm_malloc(6);
+    uint64_t b=pmm_malloc(1);
     assert(b);
     printf("Adress of malloc: %x\n",b);
     printf("Freeing the last 2 pmm_malloc()...\n");
-    pmm_free(a,6);
-    pmm_free(b,6);
+    pmm_free(a,1);
+    pmm_free(b,1);
     printf("Allocating 6 bytes 1 times...\n");
-    a=pmm_malloc(6);
+    a=pmm_malloc(1);
     assert(a);
     printf("Adress of pmm_malloc: %x\n",a);
-    pmm_free(a,6);
+    pmm_free(a,1);
 
     
     printf("Done PMM test.\n");

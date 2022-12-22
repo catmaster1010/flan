@@ -29,6 +29,5 @@ void memset(uint64_t*ptr,uint8_t n,uint64_t size){
         {
             ((uint8_t*)ptr)[i]=(uint8_t)n;
         }
-	    return ptr;
     }
 }

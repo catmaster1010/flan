@@ -1,9 +1,9 @@
-#include "memmory/gdt/gdt.h"
-#include "memmory/pmm.h"
+#include "memory/gdt/gdt.h"
+#include "memory/pmm.h"
 #include "interrupts/idt/idt.h"
 #include "lib/stdio.h"
-#include "memmory/pmm.h"
-#include "memmory/vmm.h"
+#include "memory/pmm.h"
+#include "memory/vmm.h"
 #include "fb/fb.h"
 #include <limine.h>
 #include <stddef.h>

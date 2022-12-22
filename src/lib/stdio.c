@@ -1,6 +1,5 @@
 #include "limine.h"
 #include "lib/str.h"
-#include "memmory/gdt/gdt.h"
 #include <stdarg.h>
 
 static volatile struct limine_terminal_request terminal_request = {

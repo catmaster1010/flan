@@ -13,4 +13,6 @@ typedef struct{
     uint64_t *top;
 } pagemap_t;
 
+extern volatile struct limine_hhdm_request hhdm_request;
+#define HIGHER_HALF (hhdm_request.response->offset)
 #endif
