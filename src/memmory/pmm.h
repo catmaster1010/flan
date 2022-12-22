@@ -1,9 +1,8 @@
+#pragma once
 #ifndef pmm_h
 #define pmm_h
 #include <stdint.h>
-#define FRAME_SIZE 0x1000 // 4096 bytes pages, 4kb 
-#define HIGHER_HALF 0xffff800000000000
-
+#include <limine.h>
 void pmm_init();
 
 void pmm_free(uint64_t ptr,uint64_t frames);
@@ -12,7 +11,6 @@ uint64_t* pmm_alloc(uint64_t frames);
 uint64_t* pmm_malloc(uint64_t frames);
 
 void test_pmm();
-
 #endif
 
 

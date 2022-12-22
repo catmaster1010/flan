@@ -6,6 +6,9 @@
 #include  "lib/str.h"
 #include "lib/lock.h"
 
+#define FRAME_SIZE 0x1000 // 4096 bytes pages, 4kb 
+#define HIGHER_HALF 0xffff800000000000
+
 #define ALIGN_UP(num,align) (((num) + align - 1) & ~(align - 1)) 
 #define ALIGN_DOWN(num,align) ((num) & ~(align - 1))
 #define container_of(ptr, type, member) ((type *)( (char *)ptr - offsetof(type,member) ))
@@ -26,8 +29,8 @@ spinlock_t pmm_lock;
 
 void pmm_init()
 {
-    uint64_t usable;
-    uint64_t available;
+    uint64_t usable=0;
+    uint64_t available=0;
     uint64_t  highest;
     struct  limine_memmap_entry **mmaps = memmap_request.response->entries;
     uint64_t mmmap_count = memmap_request.response->entry_count;
@@ -46,7 +49,6 @@ void pmm_init()
             );
         if (!mmaps[i]->type ==LIMINE_MEMMAP_USABLE){continue;}
         usable+=mmaps[i]->length;
-        printf("%x",usable);
         uint64_t top = mmaps[i]->base+mmaps[i]->length;
         if (top > highest) highest = top;
     }   
@@ -118,15 +120,12 @@ uint64_t* pmm_malloc(uint64_t wanted_frames){
     }
  
 
-
 uint64_t* pmm_alloc(uint64_t frames){
-    uint64_t ptr;
-
-
-
-
-
-
+    void* ret = pmm_malloc(frames);
+    printf("%x ",ret+HIGHER_HALF);
+    uint64_t* new=ret+HIGHER_HALF;
+    memset(new, 0, frames * FRAME_SIZE); // clear memory page
+    return ret;
 }
 
 void test_pmm(){
@@ -144,7 +143,7 @@ void test_pmm(){
     printf("Allocating 6 bytes 1 times...\n");
     a=pmm_malloc(6);
     assert(a);
-    printf("Adress of pmm_malloc: %x\n",b);
+    printf("Adress of pmm_malloc: %x\n",a);
     pmm_free(a,6);
 
     

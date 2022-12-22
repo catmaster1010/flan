@@ -22,7 +22,7 @@ char* itoa(uint64_t num, int base){
 	return(ptr); 
 }
 
-void memset(uint64_t*ptr,int n,uint64_t size){
+void memset(uint64_t*ptr,uint8_t n,uint64_t size){
 	if (ptr!=NULL)
     {
         for (uint64_t i = 0; i < size; i++)

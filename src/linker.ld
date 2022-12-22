@@ -32,7 +32,6 @@ SECTIONS
     .rodata : {
         *(.rodata .rodata.*)
     } :rodata
-    rodata_end=.;
 
     /* Move to the next memory page for .data */
     . += CONSTANT(MAXPAGESIZE);
