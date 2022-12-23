@@ -5,7 +5,7 @@ all: barebones.iso
 all-hdd: barebones.hdd
 limine:
 	git clone https://github.com/limine-bootloader/limine.git --branch=v4.x-branch-binary --depth=1
-	make -C limine    printf("what");
+	make -C limine
 
 .PHONY: kernel
 kernel:
@@ -25,7 +25,7 @@ barebones.iso: limine kernel
 	rm -rf iso_root
 .PHONY: clean
 clean:
-	rm -rf iso_root barebones.iso barebones.hdd
+	rm -rf iso_root barebones.iso
 	$(MAKE) -C src clean
 
 .PHONY: distclean
