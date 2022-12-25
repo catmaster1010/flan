@@ -10,7 +10,11 @@
 #include  "fb/fb.h"
 spinlock_t vmm_lock;
 
-static pagemap_t* kernel_pagemap;   
+extern uint64_t text_start_addr, text_end_addr;
+extern uint64_t rodata_start_addr, rodata_end_addr;
+extern uint64_t data_start_addr, data_end_addr;
+
+static pagemap_t kernel_pagemap;   
 
 volatile struct limine_hhdm_request hhdm_request = {
     .id = LIMINE_HHDM_REQUEST,
@@ -49,8 +53,10 @@ void vmm_map_page(pagemap_t* pagemap, uint64_t physical_address, uint64_t virtua
 void vmm_switch_pagemap(pagemap_t* pagemap)
 {
     uint64_t *top = pagemap->top;
+    printf("switching");
+
     __asm__ volatile (
-        "mov cr3, %0"
+        "mov cr3, %0\n"
         : : "r" (top)
         : "memory"
     );
@@ -61,17 +67,22 @@ void vmm_init(){
     printf("Our kernel's virtual base: %x\n",KERNEL_OFFSET);
     printf("Our HHDM is %x\n",HHDM_OFFSET);
 
-    kernel_pagemap->top=pmm_calloc(1);
-    assert(kernel_pagemap->top);
-    for (uintptr_t i = 0; i < 0x80000000; i += FRAME_SIZE) {
-        vmm_map_page(kernel_pagemap, i, i + KERNEL_OFFSET, 0b111);
-    }
 
-    for (uintptr_t i = 0; i < 0x200000000; i += FRAME_SIZE) {
-        vmm_map_page(kernel_pagemap, i, i, 0b11);
-        vmm_map_page(kernel_pagemap, i, i + HHDM_OFFSET, 0b111);
+      kernel_pagemap.top=pmm_calloc(1);
+    assert(kernel_pagemap.top);
+
+
+    for ( uintptr_t i = 0; i < 0x400000000; i += FRAME_SIZE) {
+        vmm_map_page(&kernel_pagemap, i, i, 0b11);
+        vmm_map_page(&kernel_pagemap, i, i + HHDM_OFFSET, 0b111);
     }
-    vmm_switch_pagemap(kernel_pagemap);
-//printf("ao;je");
+      
+         for (uintptr_t i = 0; i < 0x80000000; i += FRAME_SIZE) {
+        vmm_map_page(&kernel_pagemap, i, i + KERNEL_OFFSET, 0b11);
+    }
+        
+
+   vmm_switch_pagemap(&kernel_pagemap);
+     
 
 }

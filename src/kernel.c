@@ -13,6 +13,7 @@
 // be made volatile or equivalent.
 
 static void done(void) {
+  printf("Halting...");
   for (;;) {
     __asm__("hlt");
   }
