@@ -1,6 +1,5 @@
 limine
 ovmf-x64
-kernel/limine.h
 .vscode
 *.elf
 *.iso

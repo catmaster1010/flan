@@ -7,7 +7,8 @@ void pmm_init();
 
 void pmm_free(uint64_t ptr,uint64_t frames);
 
-uint64_t* pmm_malloc(uint64_t frames);
+void* pmm_malloc(uint64_t frames);
+void* pmm_calloc(uint64_t frames);
 
 void test_pmm();
 
@@ -20,7 +21,7 @@ void test_pmm();
 #define BIT_SET(bit) (bitmap[(bit) / 8] |= (1<< ((bit) % 8))) //sets bit to  one
 #define BIT_CLEAR(bit) (bitmap[(bit) / 8] &= ~(1 << ((bit) % 8))) //sets bit to  zero 
 #define BIT_TEST(bit) ((bitmap[(bit) / 8] >> ((bit) % 8)) & 1) // returns the bit
-
+extern  volatile struct limine_memmap_request memmap_request;
 #endif
 
 

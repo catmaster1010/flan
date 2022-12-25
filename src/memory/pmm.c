@@ -68,7 +68,6 @@ void pmm_init()
     }
     printf("%dMiB/%dMiB of usable memmory\n",usable/1024 / 1024,available/1024 / 1024);
     printf("PMM initialized.\n"); 
-    test_pmm();
 }
 
 void pmm_free(uint64_t ptr,uint64_t frames){
@@ -80,7 +79,7 @@ void pmm_free(uint64_t ptr,uint64_t frames){
     spinlock_release(&pmm_lock);
 }
 
-uint64_t* pmm_malloc(uint64_t wanted_frames){
+void* pmm_malloc(uint64_t wanted_frames){
     spinlock_aquire(&pmm_lock);
     uint64_t* ptr;
     
@@ -109,28 +108,14 @@ uint64_t* pmm_malloc(uint64_t wanted_frames){
         spinlock_release(&pmm_lock);
         return NULL;
     }
-
-void test_pmm(){
-    printf("Testing PMM...\n");
-    printf("Allocating 6 bytes 2 times...\n");
-    uint64_t a=pmm_malloc(1);
-    assert(a);
-    printf("Adress of malloc: %x\n",a);
-    uint64_t b=pmm_malloc(1);
-    assert(b);
-    printf("Adress of malloc: %x\n",b);
-    printf("Freeing the last 2 pmm_malloc()...\n");
-    pmm_free(a,1);
-    pmm_free(b,1);
-    printf("Allocating 6 bytes 1 times...\n");
-    a=pmm_malloc(1);
-    assert(a);
-    printf("Adress of pmm_malloc: %x\n",a);
-    pmm_free(a,1);
-
-    
-    printf("Done PMM test.\n");
+void* pmm_calloc(uint64_t frames){
+    void* ptr;
+    ptr  = pmm_malloc(1);
+    memset(ptr+HHDM_OFFSET,0,frames*FRAME_SIZE);
+    return ptr;
 }
+
+
 /*
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
 	next->prev = n;

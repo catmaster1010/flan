@@ -23,6 +23,7 @@ barebones.iso: limine kernel
 		iso_root -o barebones.iso
 	limine/limine-deploy barebones.iso
 	rm -rf iso_root
+	$(MAKE) -C src clean
 .PHONY: clean
 clean:
 	rm -rf iso_root barebones.iso
@@ -35,3 +36,7 @@ distclean: clean
 .PHONY: run
 run: barebones.iso
 	qemu-system-x86_64 barebones.iso
+.PHONY: debug
+debug: barebones.iso
+	qemu-system-x86_64 -no-reboot -no-shutdown -monitor stdio -enable-kvm  barebones.iso
+	

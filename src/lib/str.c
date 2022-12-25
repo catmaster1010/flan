@@ -27,7 +27,7 @@ void memset(uint64_t*ptr,uint8_t n,uint64_t size){
     {
         for (uint64_t i = 0; i < size; i++)
         {
-            ((uint8_t*)ptr)[i]=(uint8_t)n;
+            ((uint8_t*)ptr)[i]=(uint8_t)n;			
         }
     }
 }

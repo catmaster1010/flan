@@ -12,9 +12,9 @@ define DEFAULT_VAR =
     endif
 endef
 
-cc:=x86_64-elf-gcc
+#cc:=x86_64-elf-gcc
 
-cc=x86_64-elf-ld
+#cc=x86_64-elf-ld
 
 
 # User controllable CFLAGS.
