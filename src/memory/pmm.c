@@ -66,10 +66,7 @@ void pmm_init()
             pmm_free(mmaps[i]->base+t,1);
         }
     }
-    uint64_t a=pmm_malloc(6);
-    assert(a);
-    printf("Adress of malloc: %x\n",a);
-    uint64_t b=pmm_malloc(6);
+    printf("PMM intilasized.\n");
 }
 
 void pmm_free(uint64_t ptr,uint64_t frames){
