@@ -1,8 +1,5 @@
-# This is the name that our final kernel executable will have.
-# Change as needed.
 override KERNEL := kernel.elf
 
-# Convenience macro to reliably declare overridable command variables.
 define DEFAULT_VAR =
     ifeq ($(origin $1),default)
         override $(1) := $(2)
@@ -17,13 +14,10 @@ endef
 #cc=x86_64-elf-ld
 
 
-# User controllable CFLAGS.
 CFLAGS ?= -g -O2 -pipe -Wall -Wextra -Wimplicit-function-declaration
 
-# User controllable nasm flags.
 NASMFLAGS ?= -F dwarf -g
 
-# User controllable linker flags. We set none by default.
 LDFLAGS ?=
 
 # Internal C flags that should not be changed by the user.
@@ -46,7 +40,7 @@ override CFLAGS +=       \
     -mcmodel=kernel      \
     -MMD                 \
     -I.                  \
-    -masm=intel 
+    -masm=intel
 
 # Internal linker flags that should not be changed by the user.
 override LDFLAGS +=         \
@@ -65,35 +59,29 @@ endif
 override NASMFLAGS += \
     -f elf64
 
-# Use find to glob all *.c, *.S, and *.asm files in the directory and extract the object names.
 override CFILES := $(shell find . -type f -name '*.c')
 override NASMFILES := $(shell find . -type f -name '*.asm')
 override OBJ := $(CFILES:.c=.o) $(ASFILES:.S=.o) $(NASMFILES:.asm=.o)
 override HEADER_DEPS := $(CFILES:.c=.d) $(ASFILES:.S=.d)
 
-# Default target.
 .PHONY: all
 all: $(KERNEL)
 
 limine.h:
 	curl https://raw.githubusercontent.com/limine-bootloader/limine/trunk/limine.h -o $@
 
-# Link rules for the final kernel executable.
 $(KERNEL): $(OBJ)
 	$(LD) $(OBJ) $(LDFLAGS) -o $@
 
-# Include header dependencies.
+
 -include $(HEADER_DEPS)
 
-# Compilation rules for *.c files.
 %.o: %.c limine.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-# Compilation rules for *.asm (nasm) files.
 %.o: %.asm
 	nasm $(NASMFLAGS) $< -o $@
 
-# Remove object files and the final executable.
 .PHONY: clean
 clean:
 	rm -rf $(KERNEL) $(OBJ) $(HEADER_DEPS)

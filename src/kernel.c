@@ -8,6 +8,7 @@
 #include <limine.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "acpi/acpi.h"
 
 static void done(void) {
   printf("Nothing to be done now...");
@@ -23,5 +24,6 @@ void _start(void) {
   idt_init();
   pmm_init();
   vmm_init();
+  acpi_init();
   done();
 }
