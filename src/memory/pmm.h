@@ -9,6 +9,7 @@ void pmm_free(uint64_t ptr,uint64_t frames);
 
 void* pmm_malloc(uint64_t frames);
 void* pmm_calloc(uint64_t frames);
+void* alloc(uint64_t size);
 
 void test_pmm();
 

@@ -7,13 +7,12 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 
 ---
 # **TODO**
-- [ ] MM stuffs
+- [x] MM stuffs
 	- [X] `GDT`
 	- [x] `pmm.c`
 		- [X] `malloc()`
 		- [x] `free()`
-	- [ ] `vmm.c`
-		- [ ] `Five level paging support`
+	- [x] `vmm.c`
 - [x] IDT
 - [ ] parse ACPI tables 
 - [ ] Start up other CPUs
