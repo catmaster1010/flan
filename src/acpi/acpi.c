@@ -47,7 +47,7 @@ void* acpi_find_sdt(char signature[4], uint64_t index){
             sdt = (sdt_header_t*) (*((uint32_t*)rsdt->data + i) + HHDM_OFFSET);
         }
 
-        if (memcmp(sdt->signature, signature, 4)!=0) {
+        if (memcmp(sdt->signature, signature, 4)) {
             continue;
         }
 
