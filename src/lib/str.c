@@ -31,3 +31,10 @@ void memset(uint64_t*ptr,uint8_t n,uint64_t size){
         }
     }
 }
+
+int memcmp(void *s1, void *s2, uint64_t size) {
+    for(uint64_t i = 0; i < size; i++)
+        if(((uint8_t *)s1)[i] != ((uint8_t *)s2)[i]) return ((uint8_t *)s1)[i] < ((uint8_t *)s2)[i] ? -1 : 1; // different (with comparison)
+
+    return 0; // equal
+}

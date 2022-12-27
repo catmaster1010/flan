@@ -6,7 +6,7 @@ typedef struct{
  char signature[8];         // This 8-byte string (not null terminated!) must contain "RSD PTR "  
  uint8_t checksum;          // The value to add to calculate the Checksum of this table. If this value added isn't equal to 0, the table must be ignored.
  char oem_id[6];            // The specification says: "An OEM-supplied string that identifies the OEM".
- uint8_t revision;          // Version of  ACPI.
+ uint8_t revision;          // Version of ACPI.
  uint32_t rsdt_address;     // 32-bit *physical* address of the RSDT table.
  //v2
  uint32_t length;           // The size of the entire table since offset 0 to the end.
@@ -26,16 +26,17 @@ struct acpi_sdt_header {
     uint32_t creator_id;
     uint32_t creator_revision;
 };
-typedef struct acpi_sdt_header acpi_sdt_header_t;
+typedef struct acpi_sdt_header sdt_header_t;
 
 typedef struct {
-    acpi_sdt_header_t header;
+    sdt_header_t header;
     char data[];
 } rsdt_t;
 
 
 void acpi_init();
-void*  acpi_find_sdt(char signature[4], uint64_t index);
+void* acpi_find_sdt(char signature[4], uint64_t index);
+int use_xsdt();
 #endif
 
 /*//Version 1.0
