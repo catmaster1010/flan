@@ -15,6 +15,7 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 	- [x] `vmm.c`
 - [x] IDT
 - [ ] parse ACPI tables 
+	-  [ ] MADT
 - [ ] Start up other CPUs
 - [ ] Set up APIC
 - [ ] configure timer
