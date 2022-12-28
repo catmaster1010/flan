@@ -11,7 +11,7 @@
 #include "acpi/acpi.h"
 
 static void done(void) {
-  printf("Nothing to be done now...");
+  printf("\nNothing to be done now...");
   for (;;) {
     __asm__("hlt");
   }

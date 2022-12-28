@@ -15,15 +15,16 @@ typedef struct{
  uint8_t reserved[3];       // 3 bytes to be ignored in reading and that must not be written.
 }rsdp_descriptor_t;
 
+//https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf
 struct acpi_sdt_header {
     char signature[4];      // Used to determine what table are you working with.
-    uint32_t length;
-    uint8_t revision;
+    uint32_t length;        // Length of  table including header. 
+    uint8_t revision;       // Revision of the structure corresponding to the signature field for this table.
     uint8_t checksum;
     char oem_id[6];
     char oem_table_id[6];
-    uint32_t oem_revision;
-    uint32_t creator_id;
+    uint32_t oem_revision;  
+    uint32_t creator_id;    //Vendor ID of utility that created the table. For tables containing Definition Blocks, this is the ID for the ASL Compiler.
     uint32_t creator_revision;
 };
 typedef struct acpi_sdt_header sdt_header_t;
@@ -39,12 +40,3 @@ void* acpi_find_sdt(char signature[4], uint64_t index);
 int use_xsdt();
 #endif
 
-/*//Version 1.0
- struct rsdp_descriptor{
- char signature[8];         // This 8-byte string (not null terminated!) must contain "RSD PTR "  
- uint8_t checksum;          // The value to add to calculate the Checksum of this table. If this value added isn't equal to 0, the table must be ignored.
- char oem_id[6];            // The specification says: "An OEM-supplied string that identifies the OEM".
- uint8_t revision;          // Version of  ACPI.
- uint32_t rsdt_address;     // 32-bit *physical* address of the RSDT table.
-} ;
-*/
