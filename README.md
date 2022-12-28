@@ -1,5 +1,5 @@
 # **cat-os**
-This is a hobby os in development. I will work on it when I get the chance to.  probably during winter break or summer break as I am very busy during school time
+This is a hobby os in development. 
 
 This supports the limine boot protocall and uses limine v4.2
 

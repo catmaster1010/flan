@@ -1,3 +1,4 @@
+#define cRED    "\033[1;31m"
 #define assert(check) ({ \
     if(!(check)) { \
         printf("%sPANIC in %s() (%s:%d)\n", cRED,__func__, __FILE__, __LINE__); \

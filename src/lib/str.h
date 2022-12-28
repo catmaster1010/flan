@@ -8,4 +8,5 @@ int strlen(char* f);
 char* itoa(uint64_t num, int base);
 void  memset(uint64_t*ptr,uint8_t n,uint64_t size);
 int memcmp(void *s1, void *s2, uint64_t size);
+void memcpy(uint8_t* dest, uint8_t* src, uint64_t n);
 #endif
