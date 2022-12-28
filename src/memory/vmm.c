@@ -7,7 +7,6 @@
 #include  "lib/assert.h"
 #include "lib/lock.h"
 #include <stddef.h>
-#include  "fb/fb.h"
 
 spinlock_t vmm_lock;
 extern char kernel_end_addr[];
