@@ -66,7 +66,7 @@ void vmm_init(){
    /* printf("Our kernel's physical base: %x\n",kernel_address_request.response->physical_base);
     printf("Our kernel's virtual base: %x\n",KERNEL_OFFSET);
     printf("Our HHDM is %x\n",HHDM_OFFSET);*/
-    pagemap_t* kernel_pagemap=malloc(sizeof(kernel_pagemap));
+    pagemap_t* kernel_pagemap=alloc(sizeof(kernel_pagemap));
       
     kernel_pagemap->top=pmm_calloc(1);
     assert(kernel_pagemap->top);

@@ -8,5 +8,5 @@ void madt_init(){
     madt_t* madt =acpi_find_sdt("APIC", 0);
     assert(madt);
 
-    uint64_t=offset;
+    //uint64_t=offset;
 }

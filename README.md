@@ -9,12 +9,13 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 # **TODO**
 - [x] MM stuffs
 	- [X] `GDT`
-	- [x] `pmm.c`
+	- [x] `PMM`
 		- [X] `malloc()`
 		- [x] `free()`
-	- [x] `vmm.c`
+	- [x] `VMM`
+	- [x] `KHEAP`
 - [x] IDT
-- [ ] parse ACPI tables 
+- [ ] Parse ACPI tables 
 	-  [ ] MADT
 - [ ] Start up other CPUs
 - [ ] Set up APIC

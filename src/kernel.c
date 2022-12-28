@@ -24,6 +24,7 @@ void _start(void) {
   idt_init();
   pmm_init();
   vmm_init();
+  kheap_init();
   acpi_init();
   done();
 }
