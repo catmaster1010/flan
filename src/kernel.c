@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "acpi/acpi.h"
+#include "cpu/smp.h"
 
 static void done(void) {
   printf("\nNothing to be done now...");
@@ -26,5 +27,6 @@ void _start(void) {
   vmm_init();
   kheap_init();
   acpi_init();
+  smp_init();
   done();
 }

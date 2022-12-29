@@ -101,4 +101,3 @@ isr_stub_table:
 
 
 ;IRETQ (Return from interrupts) POPS RIP  CS (RIP:CS) -- quad since 64 bit.
-
