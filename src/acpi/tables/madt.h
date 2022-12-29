@@ -8,7 +8,7 @@ typedef struct __attribute__((packed)){
     sdt_header_t header;
     uint32_t local_controller_address;
     uint32_t flags;
-    char entires_data[];
+    char data[];
 } madt_t;
 
 typedef struct __attribute__((packed)) {

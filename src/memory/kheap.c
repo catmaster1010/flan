@@ -111,22 +111,22 @@ void kheap_free(uint64_t ptr){
     coalesce_dll();//prevent fragmentation 
 
 }
-void* kheap_realloc(void *ptr, uint64_t newsize, uint64_t oldsize){
-    if (!ptr && !newsize) {
+void* kheap_realloc(void *ptr, uint64_t new_size, uint64_t old_size){
+    if (!ptr && !new_size) {
         return NULL;
     }
-    if (!newsize) {
+    if (!new_size) {
         kheap_free(ptr);
         return NULL;
     }
     if (!ptr) {
-        return kheap_malloc(newsize);
+        return kheap_malloc(new_size);
     }
-    void *ret = kheap_malloc(newsize);
+    void *ret = kheap_malloc(new_size);
     if (!ret) {
         return NULL;
     }
-    memcpy(ret, ptr, oldsize);
+    memcpy(ret, ptr, old_size);
     return ret;
 }
 

@@ -9,4 +9,5 @@
     a > b ? a : b; \
 })
 #define NULL 0
+
 #endif
