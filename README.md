@@ -1,4 +1,4 @@
-# **cat-os**
+# **flan-os**
 This is a hobby os in development. 
 
 This supports the limine boot protocall and uses limine v4.2
