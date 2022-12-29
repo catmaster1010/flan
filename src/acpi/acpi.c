@@ -30,7 +30,7 @@ void acpi_init(){
     }
 
     printf("ACPI version: %d\n", rsdp->revision);
-    printf("RSDT at %x\n", rsdt);
+    //printf("RSDT at %x\n", rsdt);
     if(use_xsdt()) {printf("Using XSDT.\n");};
     madt_init();
 }
@@ -54,7 +54,7 @@ void* acpi_find_sdt(char signature[4], uint64_t index){
             continue;
         }
 
-        printf("Found %s at %x\n", signature,sdt);
+     //   printf("Found %s at %x\n", signature,sdt);
         return sdt;
     }
     printf("Cannot find  %s",signature);
