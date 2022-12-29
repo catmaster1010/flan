@@ -1,6 +1,6 @@
 #include "memory/gdt/gdt.h"
 #include "memory/pmm.h"
-#include "interrupts/idt/idt.h"
+#include "cpu/interrupts/idt.h"
 #include "lib/stdio.h"
 #include "memory/pmm.h"
 #include "memory/vmm.h"

@@ -1,8 +1,7 @@
-#include <stdint.h>
-
-
 #ifndef idt_h
 #define idt_h
+#include <stdint.h>
+#include "cpu/interrupts/idt.h"
 
 
 struct idt_register {
