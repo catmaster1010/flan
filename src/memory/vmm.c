@@ -78,6 +78,7 @@ void vmm_init(){
         vmm_map_page(kernel_pagemap,  physical + i,virtual + i, 0b11);
     }
 
+    //4gb
     for ( uintptr_t i = 0; i < 0x100000000; i += FRAME_SIZE) {
         vmm_map_page(kernel_pagemap, i, i, 0b11);
         vmm_map_page(kernel_pagemap, i, i + HHDM_OFFSET, 0b111);
