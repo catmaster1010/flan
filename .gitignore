@@ -3,7 +3,5 @@ ovmf-x64
 .vscode
 *.elf
 *.iso
-*.hdd
 *.o
 *.d
-.vscode
