@@ -17,4 +17,5 @@ pagemap_t vmm_new_pagemap();
 
 extern volatile struct limine_hhdm_request hhdm_request;
 #define HHDM_OFFSET (hhdm_request.response->offset)
+extern pagemap_t* kernel_pagemap;
 #endif

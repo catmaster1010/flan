@@ -8,6 +8,13 @@ gdt_register_t gdtr;
 
 static spinlock_t gdt_lock;
 
+void gdt_load(){
+    gdtr.limit = (sizeof(gdt) - 1);
+    gdtr.base = (uint64_t)&gdt;
+    extern void load_gdt(uint64_t gdtr);
+
+    load_gdt((uint64_t)&gdtr);
+}
 void gdt_init() {
 
     gdt[0] = (gdt_entry_t) {
@@ -107,12 +114,7 @@ void gdt_init() {
       .baselow16 = 0,
     };
 
-
-  gdtr.limit = (sizeof(gdt) - 1);
-  gdtr.base = (uint64_t)&gdt;
-  extern void load_gdt(uint64_t gdtr);
-
-  load_gdt((uint64_t)&gdtr);
+  gdt_load();
   printf("GDT initialized.\n");  
 }
 

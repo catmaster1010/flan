@@ -5,20 +5,28 @@
 static idt_gate_t idt[256];
 
 static idt_register_t idtr;
-static idt_gate_t encode_idt_entry(uint64_t offset, uint8_t type);
+
+void idt_load(){
+    idtr.limit = (uint16_t) (sizeof(idt_gate_t) *256 - 1); 
+    idtr.base = (uint64_t)&idt;
+    __asm__ volatile("lidt %0"
+                     :
+                     : "m"(idtr));
+    __asm__ volatile("sti");
+}
+
 static idt_gate_t encode_idt_entry(uint64_t offset, uint8_t type)
 {
     return (idt_gate_t){
         .lowOffset16 = offset & 0xFFFF,
         .selector16 = 0x28,         //Kernel code segmment . 
-        .ist8 = 0,                  ///not using IST. (this is null sector + ist)
+        .ist8 = 1,                  ///not using IST. (this is null sector + ist)
         .typeAttributes8 = type,    //gate type, dpl, p (must be set to 1).
         .midOffset16 = (offset >> 16) & 0xFFFF,
         .highOffset32 = (offset >> 32) & 0xFFFFFFFF,
         .reserved32 = 0};           //reserved for the upper bit of 64bit gdt. Set to 0.
 
 }
-
 
 void isr_init(){
     extern uintptr_t *isr_stub_table[];
@@ -30,15 +38,8 @@ void isr_init(){
 
 void idt_init(){
     isr_init();
-    idtr.limit = (uint16_t) (sizeof(idt_gate_t) *256 - 1); 
-    idtr.base = (uint64_t)&idt;
-    __asm__ volatile("lidt %0"
-                     :
-                     : "m"(idtr));
-    __asm__ volatile("sti");
+    idt_load();
     printf("IDT initialized.\n"); 
-
-    
 }
 
 __attribute__((noreturn))
