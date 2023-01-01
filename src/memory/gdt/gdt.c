@@ -6,7 +6,7 @@
 gdt_entry_t gdt[11];
 gdt_register_t gdtr;
 
-static spinlock_t gdt_lock;
+static spinlock_t gdt_lock=LOCK_INIT;
 
 void gdt_load(){
     gdtr.limit = (sizeof(gdt) - 1);
@@ -119,7 +119,7 @@ void gdt_init() {
 }
 
 void gdt_load_tss(tss_t* tss){
-  spinlock_aquire(&gdt_lock);
+  spinlock_acquire(&gdt_lock);
   gdt[9] = (gdt_entry_t) {
     .limit = 104,
     .baselow16 = (uint16_t)((uint64_t)tss),

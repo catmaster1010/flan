@@ -14,7 +14,7 @@ volatile struct limine_memmap_request memmap_request = {
 uint8_t* bitmap;
 uint64_t limit;
 
-spinlock_t pmm_lock;
+spinlock_t pmm_lock=LOCK_INIT;
 
 void pmm_init()
 {
@@ -71,7 +71,7 @@ void pmm_init()
 }
 
 void pmm_free(uint64_t ptr,uint64_t frames){
-    spinlock_aquire(&pmm_lock);
+    spinlock_acquire(&pmm_lock);
     for (uint64_t i = 0; i < frames; i++,ptr+=FRAME_SIZE)
     {
         BIT_CLEAR((uintptr_t) ptr / FRAME_SIZE);
@@ -80,7 +80,7 @@ void pmm_free(uint64_t ptr,uint64_t frames){
 }
 
 void* pmm_malloc(uint64_t wanted_frames){
-    spinlock_aquire(&pmm_lock);
+    spinlock_acquire(&pmm_lock);
     uint64_t* ptr;
     
     uint64_t available_frames;

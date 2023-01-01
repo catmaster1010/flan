@@ -5,7 +5,7 @@
 #include "lib/stddef.h"
 #include"memory/pmm.h"
 #include  "lib/assert.h"
-#include "lib/lock.h"
+//#include "lib/lock.h"
 #include <stddef.h>
 
 spinlock_t vmm_lock;
@@ -38,7 +38,7 @@ static uint64_t *get_next_level(uint64_t *current_level, uint64_t index){
 
 
 void vmm_map_page(pagemap_t* pagemap, uintptr_t physical_address, uintptr_t virtual_address, uint64_t flags){
-    spinlock_aquire(&vmm_lock);
+
     size_t pml4_index = (virtual_address & ((size_t) 0x1ff << 39)) >> 39;
     size_t pml3_index = (virtual_address & ((size_t) 0x1ff << 30)) >> 30;
     size_t pml2_index = (virtual_address & ((size_t) 0x1ff << 21)) >> 21;
@@ -49,18 +49,19 @@ void vmm_map_page(pagemap_t* pagemap, uintptr_t physical_address, uintptr_t virt
     uint64_t* pml1 = get_next_level(pml2, pml2_index);
 
     pml1[pml1_index] = physical_address|flags;
-    uint64_t* a =  pml1[pml1_index] ;
-    spinlock_release(&vmm_lock);
+
 }
 
 void vmm_switch_pagemap(pagemap_t* pagemap)
-{
+{   
+    spinlock_acquire(&vmm_lock);
     uint64_t *top = pagemap->top;
     __asm__ volatile (
         "mov cr3, %0\n"
         : : "r" (top)
         : "memory"
     );
+    spinlock_release(&vmm_lock);
 }
 
 void vmm_init(){

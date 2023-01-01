@@ -3,12 +3,10 @@
 #include <stdint.h>
 #include "cpu/interrupts/idt.h"
 
-
-struct idt_register {
-    uint16_t limit;  // length-1
-    uint64_t base;      //GDT BASE
-} __attribute__((packed));
-typedef struct idt_register idt_register_t;
+typedef struct __attribute__((packed)) {
+    uint16_t limit;
+    uint64_t base;
+} idtptr_t;
 
 struct idt_gate {
    uint16_t lowOffset16;        // offset bits 0..15

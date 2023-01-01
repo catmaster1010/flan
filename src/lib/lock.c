@@ -1,28 +1,20 @@
 #include "lib/lock.h"
 
-int spinlock_test_aquire(spinlock_t*  lock){
-    int ret;
-    __asm__ volatile (
-        "lock bts %0, 0;"
-        : "+m" (lock->lock), "=@ccc" (ret) //carry flag into ret
-        : 
-        : "memory"
-    );
-    return ret;
+int spinlock_test_and_acq(spinlock_t*  lock){
+        return CAS(lock, 0, 1);
 }
 
-void spinlock_aquire(spinlock_t* lock){
-        for (;;) {
-            if (spinlock_test_aquire(lock)) {break;}
-            __asm__ volatile("pause");
+void spinlock_acquire(spinlock_t* lock){
+    for (;;) {
+        if (spinlock_test_and_acq(lock)) {
+            break;
         }
+
+        __asm__ volatile ("pause");
+
+    }
 }
 
 void spinlock_release(spinlock_t* lock){
-    __asm__ volatile (
-        "lock bts %0, 0;"
-        : "+m" (lock->lock)
-        :
-        : "memory", "cc"
-    );
+   CAS(lock, 1, 0);
 }

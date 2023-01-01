@@ -22,6 +22,6 @@ typedef struct __attribute__((packed)) {
 
 void encodeGdtEntry();
 void gdt_init();
-void gdt_load_tss(tss_t* tss);
 void gdt_load();
+void gdt_load_tss(tss_t* tss);
 #endif

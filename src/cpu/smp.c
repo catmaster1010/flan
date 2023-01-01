@@ -7,50 +7,70 @@
 #include "memory/gdt/gdt.h"
 #include "memory/vmm.h"
 #include "memory/pmm.h"
+#include "lib/stdio.h"
+#include "lib/lock.h"
+#include "fb/fb.h"
 
-#define CPU_STACK_SIZE 0x10000
+spinlock_t cpu_lock=LOCK_INIT;
+static int  cpus_running;
 
 static volatile struct limine_smp_request smp_request = {
     .id = LIMINE_SMP_REQUEST,
     .revision = 0
 };
 
-static void  core_init(struct limine_smp_info* info){
+
+
+void core_init(struct limine_smp_info *info) {
     cpu_local_t* local= (void *)info->extra_argument;
     int cpu_number = local->cpu_number;
     local->lapic_id = info->lapic_id;
-
     gdt_load();
+    
     idt_load();
-    gdt_load_tss(&local->tss);
     vmm_switch_pagemap(kernel_pagemap);
+    set_gs_base((uint64_t)local->cpu_number);
+    set_kgs_base((uint64_t)local->cpu_number);
 
-    cpu_set_gs_base((uint64_t)local->cpu_number);
+    // enable SSE and SSE2 for SIMD
+    uint64_t cr0 = read_cr0();
+    cr0 &= ~(1 << 2);
+    cr0 |= (1 << 1);
+    write_cr0(cr0);
 
-    uint64_t* int_stack_phys = pmm_calloc(CPU_STACK_SIZE / FRAME_SIZE);
-    assert(int_stack_phys);
+    uint64_t cr4 = read_cr4();
+    cr4 |= (3 << 9);
+    write_cr4(cr4);
+    cpus_running++;
+    printf("Processor #%d is running.\n",cpu_number);
+    if (!local->bsp){
+        for (;;) {
+            
+        __asm__("hlt");
+        }
+    }
 
-    local->tss.rsp0 = (uint64_t)((void*)int_stack_phys + CPU_STACK_SIZE + HHDM_OFFSET);
-
-    uint64_t* sched_stack_phys = pmm_calloc(CPU_STACK_SIZE / FRAME_SIZE);
-    assert(sched_stack_phys);
-    
-    uint64_t* sched_stack = (uint64_t)((void*)sched_stack_phys + CPU_STACK_SIZE + HHDM_OFFSET);
-    local->tss.ist1 = sched_stack;
-    
 }
 
+void smp_init(void) {
+    struct limine_smp_response *smp_response = smp_request.response;
 
-void  smp_init(){
-     for (uint64_t i = 0; i < smp_request.response->cpu_count; i++) {
-            struct limine_smp_info* cpu = smp_request.response->cpus[i];
-
-            if  (cpu->lapic_id==smp_request.response->bsp_lapic_id) {core_init(cpu);}
-
-            cpu_local_t* local = kheap_malloc(sizeof(cpu_local_t));
-            cpu->extra_argument = (uint64_t)local;
-            local->cpu_number = i;
-            cpu->goto_address=core_init;
+    for (uint64_t i = 0; i < smp_response->cpu_count; i++) {
+        struct limine_smp_info *cpu = smp_response->cpus[i];
+        cpu_local_t* local = kheap_malloc(sizeof(cpu_local_t));
+        cpu->extra_argument = (uint64_t)local;
+        local->cpu_number = i;
+        cpu->goto_address=core_init;
+        if (cpu->lapic_id != smp_response->bsp_lapic_id) {
+            smp_response->cpus[i]->goto_address = core_init;
+        } 
+        else{
+            local->bsp=1;
+            core_init(cpu);
+        }
     }
-    
+    while (cpus_running != smp_response->cpu_count) {
+        __asm__ ("pause");
+    }
+
 }

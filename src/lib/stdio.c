@@ -1,8 +1,11 @@
 #include "limine.h"
 #include "lib/str.h"
 #include <stdarg.h>
+#include "lib/lock.h"
 
-static volatile struct limine_terminal_request terminal_request = {
+spinlock_t print_lock=LOCK_INIT;
+
+ volatile struct limine_terminal_request terminal_request = {
     .id = LIMINE_TERMINAL_REQUEST,
     .revision = 0
 };
@@ -14,7 +17,7 @@ void out(char* str){
 }
 
 void printf(char* fmt, ... ){
-  
+  spinlock_acquire(&print_lock);
   va_list args; 
   va_start(args, fmt);
   for (char* c=fmt;*c!='\0';c++){
@@ -39,4 +42,5 @@ void printf(char* fmt, ... ){
     }
   }         
   va_end(args); //Not needed for GCC (or clang). Here for compatibility. 
+  spinlock_release(&print_lock);
 }

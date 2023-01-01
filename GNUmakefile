@@ -38,5 +38,5 @@ run: barebones.iso
 	qemu-system-x86_64 barebones.iso
 .PHONY: debug
 debug: barebones.iso
-	qemu-system-x86_64 -no-reboot -no-shutdown -monitor stdio -m 2G -smp cores=4 barebones.iso
+	qemu-system-x86_64 -no-reboot -no-shutdown -monitor stdio -m 2G -smp cores=4 --enable-kvm barebones.iso
 	

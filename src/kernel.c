@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include "acpi/acpi.h"
 #include "cpu/smp.h"
+#include "cpu/cpu.h"
 
 static void done(void) {
   printf("\nNothing to be done now...");
@@ -19,7 +20,7 @@ static void done(void) {
 }
 
 void _start(void) {
-  printf("%sHello world! %s \n\n","\033[1;96m",cNONE); 
+  printf("%sHello world! %s \n","\033[1;96m",cNONE); 
   fb_info();
   gdt_init();
   idt_init();

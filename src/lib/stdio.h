@@ -12,4 +12,6 @@
 
 void printf(char* str,...);
 void put(char* str);
+
+extern  volatile struct limine_terminal_request terminal_request;
 #endif
