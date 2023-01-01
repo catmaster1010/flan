@@ -20,7 +20,7 @@ static void done(void) {
 }
 
 void _start(void) {
-  printf("%sHello world! %s \n","\033[1;96m",cNONE); 
+  printf("%sHello world! %s \n",cRED,cNONE); 
   fb_info();
   gdt_init();
   idt_init();

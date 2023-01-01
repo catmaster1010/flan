@@ -24,12 +24,12 @@ void madt_init(){
         switch(header->id) {
             case 0:
                 madt_lapic_t* lapic=(madt_lapic_t*)header;
-                printf("Found local LAPIC id: %d\n",lapic->apic_id);
+                //printf("Found local LAPIC id: %d\n",lapic->apic_id);
                 vector_push(&madt_lapics, (madt_lapic_t*)header);
                 break;
             case 1:
                 madt_ioapic_t* ioapic=(madt_ioapic_t*)header;
-                printf("Found IO APIC id: %d\n",ioapic->header.id);
+                //printf("Found IO APIC id: %d\n",ioapic->header.id);
                 vector_push(&madt_ioapics, (madt_ioapic_t*)header);
                 break;
             case 2:
