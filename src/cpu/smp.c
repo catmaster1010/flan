@@ -41,8 +41,8 @@ void core_init(struct limine_smp_info *info) {
     uint64_t cr4 = read_cr4();
     cr4 |= (3 << 9);
     write_cr4(cr4);
-    cpus_running++;
     printf("Processor #%d is running.\n",cpu_number);
+    cpus_running++;
     if (!local->bsp){
         for (;;) {
             
