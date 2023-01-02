@@ -3,13 +3,13 @@
 #include <limine.h>
 #include <stdint.h>
 #include "memory/kheap.h"
-#include "cpu/interrupts/idt.h"
+#include "cpu/idt/idt.h"
 #include "memory/gdt/gdt.h"
 #include "memory/vmm.h"
 #include "memory/pmm.h"
 #include "lib/stdio.h"
 #include "lib/lock.h"
-#include "fb/fb.h"
+#include "dev/apic/lapic.h"
 
 spinlock_t cpu_lock=LOCK_INIT;
 static int  cpus_running;
@@ -18,8 +18,6 @@ static volatile struct limine_smp_request smp_request = {
     .id = LIMINE_SMP_REQUEST,
     .revision = 0
 };
-
-
 
 void core_init(struct limine_smp_info *info) {
     cpu_local_t* local= (void *)info->extra_argument;
@@ -31,7 +29,7 @@ void core_init(struct limine_smp_info *info) {
     vmm_switch_pagemap(kernel_pagemap);
     set_gs_base((uint64_t)local->cpu_number);
     set_kgs_base((uint64_t)local->cpu_number);
-
+ 
     // enable SSE and SSE2 for SIMD
     uint64_t cr0 = read_cr0();
     cr0 &= ~(1 << 2);
@@ -40,12 +38,12 @@ void core_init(struct limine_smp_info *info) {
 
     uint64_t cr4 = read_cr4();
     cr4 |= (3 << 9);
-    write_cr4(cr4);
+    write_cr4(cr4); 
+    lapic_init();
     printf("Processor #%d is running.\n",cpu_number);
-    cpus_running++;
+    cpus_running++;  ;
     if (!local->bsp){
         for (;;) {
-            
         __asm__("hlt");
         }
     }
@@ -72,5 +70,4 @@ void smp_init(void) {
     while (cpus_running != smp_response->cpu_count) {
         __asm__ ("pause");
     }
-
 }

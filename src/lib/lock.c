@@ -9,9 +9,7 @@ void spinlock_acquire(spinlock_t* lock){
         if (spinlock_test_and_acq(lock)) {
             break;
         }
-
         __asm__ volatile ("pause");
-
     }
 }
 

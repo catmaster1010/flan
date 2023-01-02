@@ -1,16 +1,15 @@
+#include "acpi/acpi.h"
+#include "cpu/cpu.h"
+#include "cpu/idt/idt.h"
+#include "cpu/smp.h"
+#include "fb/fb.h"
+#include "lib/stdio.h"
 #include "memory/gdt/gdt.h"
 #include "memory/pmm.h"
-#include "cpu/interrupts/idt.h"
-#include "lib/stdio.h"
-#include "memory/pmm.h"
 #include "memory/vmm.h"
-#include "fb/fb.h"
 #include <limine.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "acpi/acpi.h"
-#include "cpu/smp.h"
-#include "cpu/cpu.h"
 
 static void done(void) {
   printf("\nNothing to be done now...");
@@ -20,7 +19,7 @@ static void done(void) {
 }
 
 void _start(void) {
-  printf("%sHello world! %s \n",cRED,cNONE); 
+  printf("%sHello world! %s \n", cRED, cNONE);
   fb_info();
   gdt_init();
   idt_init();

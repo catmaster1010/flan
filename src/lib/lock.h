@@ -5,7 +5,7 @@
 #define LOCK_INIT 0
 typedef int spinlock_t;
 
-int spinlock_test_acq(spinlock_t*  lock);
+int spinlock_test_acq(spinlock_t* lock);
 void spinlock_acquire(spinlock_t* lock);
 void spinlock_release(spinlock_t* lock);
 #endif
