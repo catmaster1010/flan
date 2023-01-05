@@ -10,12 +10,10 @@ static dll_t free_list={.next=&free_list,.prev=&free_list};
 static spinlock_t kheap_lock=LOCK_INIT;
 
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
-    spinlock_acquire(&kheap_lock);
 	next->prev = n;
 	n->next = next;
 	n->prev = prev;
 	prev->next = n;
-    spinlock_release(&kheap_lock);
 }
 
 void add_block(uint64_t *addr, uint64_t size){
@@ -25,7 +23,6 @@ void add_block(uint64_t *addr, uint64_t size){
 };
 
 void coalesce_dll(){
-    spinlock_acquire(&kheap_lock);
     alloc_node_t *prevBlock;
     for (alloc_node_t* block=container_of(free_list.next,alloc_node_t,node); &block->node!= &free_list; block=container_of(block->node.next,alloc_node_t,node)){
         if ((uint64_t*)((char*)prevBlock+prevBlock->size+HEADER_SIZE)==block)
@@ -38,7 +35,6 @@ void coalesce_dll(){
         }
         prevBlock=block;
     }
-    spinlock_release(&kheap_lock);
 }
 
 void* kheap_malloc(uint64_t size){
@@ -96,20 +92,20 @@ void* kheap_calloc(uint64_t size){
 void kheap_free(uint64_t ptr){
     alloc_node_t *block, *free_block;
     block = container_of(ptr, alloc_node_t,cBlock);
+    spinlock_acquire(&kheap_lock);
     for (free_block = container_of(free_list.next,alloc_node_t,node); &free_block->node!= &free_list; free_block=container_of(free_block->node.next,alloc_node_t,node))
     {
-        spinlock_acquire(&kheap_lock);
        if (free_block>block)
        {
         dll_list_add(&block->node,free_block->node.prev,&free_block->node);
         coalesce_dll(); //prevent fragmentation 
         return;
        }
-       spinlock_release(&kheap_lock);
     }
     dll_list_add(&block->node,&free_block->node,free_block->node.next);
+    
     coalesce_dll();//prevent fragmentation 
-
+    spinlock_release(&kheap_lock);
 }
 void* kheap_realloc(void *ptr, uint64_t new_size, uint64_t old_size){
     if (!ptr && !new_size) {
