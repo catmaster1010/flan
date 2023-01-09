@@ -46,6 +46,5 @@ typedef struct __attribute__((packed)) {
     uint8_t lint;
 } madt_nmi_t;
 
-
 void madt_init();
 #endif

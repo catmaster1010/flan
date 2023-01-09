@@ -7,7 +7,7 @@
 
 #define HEADER_SIZE 24
 static dll_t free_list={.next=&free_list,.prev=&free_list};
-static spinlock_t kheap_lock=LOCK_INIT;
+spinlock_t kheap_lock=LOCK_INIT;
 
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
 	next->prev = n;

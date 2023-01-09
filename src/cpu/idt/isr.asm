@@ -1,12 +1,7 @@
-
 extern isr
 
 %macro stub 1
-global isr_stub%1
 isr_stub_%1:
-%if %1 != 8 && %1 != 10 && %1 != 11 && %1 != 12 && %1 != 13 && %1 != 14 && %1 != 17 && %1 != 30
-    push 0
-%endif
     push r15
     push r14
     push r13
@@ -26,8 +21,6 @@ isr_stub_%1:
     push rax
     mov eax, ds
     push rax
-
-    cld
 
     mov eax, 0x30
     mov ds, eax

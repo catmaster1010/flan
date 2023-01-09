@@ -3,7 +3,7 @@
 #include "lib/stdio.h"
 #include "memory/vmm.h"
 
-static uint64_t lapic_base() {
+static inline uint64_t lapic_base() {
     return (rdmsr(0x1b) & 0xfffff000) + HHDM_OFFSET;
 }
 
