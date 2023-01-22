@@ -66,7 +66,7 @@ void pmm_init()
             pmm_free(mmaps[i]->base+t,1);
         }
     }
-    printf("%dMiB/%dMiB of usable memmory\n",usable/1024 / 1024,available/1024 / 1024);
+    printf("%dMiB/%dMiB of usable memmory\n",usable/1000 / 1000,available/1000 / 1000);
     printf("PMM initialized.\n"); 
 }
 
