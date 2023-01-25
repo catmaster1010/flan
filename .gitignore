@@ -1,7 +1,0 @@
-limine
-ovmf-x64
-.vscode
-*.elf
-*.iso
-*.o
-*.d
