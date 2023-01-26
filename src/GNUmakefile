@@ -16,7 +16,7 @@ endef
 
 CFLAGS ?= -g -O2 -pipe -Wall -Wextra -Wimplicit-function-declaration
 
-NASMFLAGS ?= -F dwarf -g
+NASMFLAGS ?= -F dwarf -g -f elf64
 
 LDFLAGS ?=
 
@@ -85,10 +85,5 @@ $(KERNEL): $(OBJ)
 
 .PHONY: clean
 clean:
-	rm -rf $(KERNEL) $(OBJ) $(HEADER_DEPS)
-
-.PHONY: cleandebug
-cleandebug:
-	rm -rf $(OBJ) $(HEADER_DEPS)
-
+	rm -rf  $(OBJ) $(HEADER_DEPS)
 

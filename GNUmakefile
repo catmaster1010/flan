@@ -24,6 +24,7 @@ barebones.iso: limine kernel
 	limine/limine-deploy barebones.iso
 	rm -rf iso_root
 	$(MAKE) -C src clean
+
 .PHONY: clean
 clean:
 	rm -rf iso_root barebones.iso
@@ -33,10 +34,18 @@ clean:
 distclean: clean
 	rm -rf limine ovmf-x64
 	$(MAKE) -C src distclean
+
 .PHONY: run
 run: barebones.iso
 	qemu-system-x86_64 barebones.iso
+
 .PHONY: debug
 debug: barebones.iso
-	qemu-system-x86_64 -no-reboot -no-shutdown -monitor stdio -m 2G -smp cores=4 --enable-kvm barebones.iso
-	
+	qemu-system-x86_64 -no-reboot -no-shutdown -monitor stdio -m 2G -smp cores=4 --enable-kvm barebones.iso	
+
+.PHONY: gdb
+gdb: barebones.iso
+	mv src/kernel.elf ./
+	qemu-system-x86_64 -s -S -no-reboot -no-shutdown -monitor stdio -m 2G -smp cores=4 --enable-kvm barebones.iso	
+
+
