@@ -36,7 +36,7 @@ static madt_ioapic_t* ioapic_from_gsi(uint32_t gsi){
 void ioapic_redirect_gsi(uint8_t lapic_id, uint32_t gsi, uint8_t vector, uint64_t flags){
     uint64_t ioredtbl_data = ((uint64_t) lapic_id << 56) | ((uint64_t) vector) | flags;
     madt_ioapic_t* ioapic = ioapic_from_gsi(gsi);
-    uint64_t ioredtbl = (gsi - ioapic->gsib) * 2 + 16; //+16 for legacy IRQs (8259 PIC)
+    uint64_t ioredtbl = (gsi - ioapic->gsib) * 2;
     ioapic_write(ioapic->address + HHDM_OFFSET, ioredtbl, (uint32_t) ioredtbl_data);
     ioapic_write(ioapic->address + HHDM_OFFSET, ioredtbl + 1, (uint32_t) (ioredtbl_data >> 32));   
 }
