@@ -28,5 +28,6 @@ void _start(void) {
   kheap_init();
   acpi_init();
   smp_init();
+  
   done();
 }

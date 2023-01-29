@@ -14,5 +14,5 @@ void* vector_get(vector_t* vector, uint64_t index);
 void vector_push(vector_t* vector, void* data);
 void vector_remove(vector_t* vector, uint64_t index);
 void vector_delete(vector_t* vector);
-
+uint64_t vector_size(vector_t* vector);
 #endif

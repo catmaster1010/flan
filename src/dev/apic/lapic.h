@@ -59,7 +59,7 @@
 #define LAPIC_TIMER_DIVIDE_CFG_REG 0x3e0
 
 uint32_t lapic_read(uint32_t reg);
-void lapic_write(uint32_t reg, uint32_t val);
+void lapic_write(uint32_t reg, uint32_t data);
 void  lapic_init();
 void lapic_ipi(uint8_t lapic_id, uint8_t vector);
 #endif

@@ -5,7 +5,6 @@
 
 #define IOAPIC_IOREGSEL 0x00
 #define IOAPIC_IOWIN 0x10
-#define IOAPIC_VER 0x01
 
 uint32_t ioapic_read(uint64_t ioapic_address, uint64_t reg);
 void ioapic_write(uint64_t ioapic_address, uint64_t reg, uint32_t data);

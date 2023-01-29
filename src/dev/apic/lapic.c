@@ -11,11 +11,12 @@ uint32_t lapic_read(uint32_t reg){
     return *((volatile uint32_t *) (lapic_base() + reg));
 }
 
-void lapic_write(uint32_t reg, uint32_t val){
-    *((volatile uint32_t *) (lapic_base() + reg)) = val;
+void lapic_write(uint32_t reg, uint32_t data){
+    *((volatile uint32_t *) (lapic_base() + reg)) = data;
 }
 
-void  lapic_init(){
+void lapic_init(){
+   // printf("%x\n",lapic_base());
     lapic_write(LAPIC_SPURIOUS_IVR, lapic_read(LAPIC_SPURIOUS_IVR) | (1 << 8) | 0xff);
 }
 

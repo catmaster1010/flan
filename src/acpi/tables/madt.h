@@ -3,6 +3,8 @@
 
 #include  "acpi/acpi.h"
 #include  <stdint.h>
+#include "lib/vector.h"
+
 
 typedef struct __attribute__((packed)){
     sdt_header_t header;
@@ -47,4 +49,7 @@ typedef struct __attribute__((packed)) {
 } madt_nmi_t;
 
 void madt_init();
+extern vector_t madt_ioapics;
+extern vector_t madt_isos;
+
 #endif

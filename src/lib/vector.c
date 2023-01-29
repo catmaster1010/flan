@@ -10,6 +10,10 @@ void vector_create(vector_t* vector, uint64_t item_size){
     vector->data = 0;
 }
 
+uint64_t vector_size(vector_t* vector){
+    return vector->items*vector->item_size;
+}
+
 uint64_t vector_get_items(vector_t* vector) {
     spinlock_acquire(&vector_lock);
     uint64_t items = vector->items;
