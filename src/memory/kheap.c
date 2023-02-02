@@ -128,4 +128,5 @@ void* kheap_realloc(void *ptr, uint64_t new_size, uint64_t old_size){
 
 void kheap_init(){
 	add_block(pmm_malloc(1),FRAME_SIZE);
+    printf("Kernel heap initialized.\n");
 }

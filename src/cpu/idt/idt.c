@@ -51,7 +51,6 @@ void idt_load(){
 }
 
 
-
 static void encode_idt_entry(uint8_t vector, void* handler, uint8_t flags) {
     uint64_t ptr = (uint64_t)handler;
 

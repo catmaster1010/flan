@@ -16,7 +16,7 @@ typedef struct __attribute__((packed)) {
     uint32_t offset_high32;
     uint32_t reserved;
 } idt_gate_t;
-
+extern void* isr[];
 void idt_init();
 void isr_init();
 void idt_load();

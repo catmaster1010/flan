@@ -10,7 +10,7 @@
 #include <limine.h>
 #include <stddef.h>
 #include <stdint.h>
-
+#include "dev/pit.h"
 static void done(void) {
   printf("\nNothing to be done now...");
   for (;;) {
@@ -28,6 +28,7 @@ void _start(void) {
   kheap_init();
   acpi_init();
   smp_init();
+  pit_init();
   
   done();
 }

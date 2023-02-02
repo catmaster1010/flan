@@ -19,7 +19,7 @@ void ioapic_write(uint64_t ioapic_address, uint64_t reg, uint32_t data){
 
 
 static uint64_t ioapic_gsi_count(madt_ioapic_t* ioapic) {
-    return (ioapic_read((uint64_t)ioapic, 1) & 0xff0000) >> 16;
+    return (ioapic_read((uint64_t)ioapic->address, 1) & 0xff0000) >> 16;
 }
 
 static madt_ioapic_t* ioapic_from_gsi(uint32_t gsi){
@@ -33,15 +33,15 @@ static madt_ioapic_t* ioapic_from_gsi(uint32_t gsi){
     assert(0);
 }
 
-void ioapic_redirect_gsi(uint8_t lapic_id, uint32_t gsi, uint8_t vector, uint64_t flags){
+void ioapic_redirect_gsi(uint32_t lapic_id, uint32_t gsi, uint8_t vector, uint64_t flags){
     uint64_t ioredtbl_data = ((uint64_t) lapic_id << 56) | ((uint64_t) vector) | flags;
     madt_ioapic_t* ioapic = ioapic_from_gsi(gsi);
     uint64_t ioredtbl = (gsi - ioapic->gsib) * 2;
-    ioapic_write(ioapic->address + HHDM_OFFSET, ioredtbl, (uint32_t) ioredtbl_data);
-    ioapic_write(ioapic->address + HHDM_OFFSET, ioredtbl + 1, (uint32_t) (ioredtbl_data >> 32));   
+    ioapic_write(ioapic->address, ioredtbl, (uint32_t) ioredtbl_data);
+    ioapic_write(ioapic->address, ioredtbl + 1, (uint32_t) (ioredtbl_data >> 32));   
 }
 
-void ioapic_redirect_irq(uint8_t lapic_id, uint8_t irq, uint8_t vector, uint64_t flags){
+void ioapic_redirect_irq(uint32_t lapic_id, uint8_t irq, uint8_t vector, uint64_t flags){
     for (uint64_t i = 0; i < madt_isos.items; i++) {
         madt_iso_t* iso = vector_get(&madt_isos, i);
         if (iso->irq_source == irq) {
