@@ -12,18 +12,17 @@ void pit_set_reload_value(uint16_t count){
 }
 
 static void pit(){
-    printf(".");
+   // printf("a");
+    lapic_eoi();
 }
 
 void pit_init(){
-    uint16_t divisor = 1193182 / 1000;
-    outb(0x46, 0x36);           
-    outb(0x40, divisor & 0xFF);   
-    outb(0x40, divisor >> 8);
     isr[32] =pit;
-    ioapic_redirect_irq(lapic_id(), 0, 32, 1);
-   // __asm__("int 32");
-    printf("PIT initialized");
+    ioapic_redirect_irq(0, 0, 32, 0);
+    uint16_t divisor = 1193182 / 1000;
+    pit_set_reload_value(divisor);
+
+    printf("PIT initialized\n");
 }
 
 

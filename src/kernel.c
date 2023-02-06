@@ -26,9 +26,9 @@ void _start(void) {
   pmm_init();
   vmm_init();
   kheap_init();
-  acpi_init();
   smp_init();
+  acpi_init();
   pit_init();
-  
+
   done();
 }

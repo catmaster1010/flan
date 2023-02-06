@@ -64,8 +64,8 @@ static void encode_idt_entry(uint8_t vector, void* handler, uint8_t flags) {
 }
 
 static void exception_handler(uint32_t vec) {
-    printf("\n%sEXCEPTION RECIVED: %s\n",cRED,exception_names[vec]);
-    __asm__ volatile ("cli; hlt"); 
+    printf("%s--------------\nEXCEPTION RECIVED: %s\n--------------",cRED,exception_names[vec]);
+  //  __asm__ volatile ("cli; hlt"); 
 }
 
 static void isr_generic() {
