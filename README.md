@@ -19,7 +19,7 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 	-  [x] MADT
 - [x] Start up other CPUs
 - [x] Set up APIC
-- [ ] configure timer
+- [x] Configure the PIT
 - [ ] Implment scheduler 
 - [ ] implement VFS
 ---
