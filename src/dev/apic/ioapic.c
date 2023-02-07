@@ -1,5 +1,3 @@
-#ifndef ioapic_h
-#define ioapic_h
 #include <stdint.h>
 #include "dev/apic/ioapic.h"
 #include "acpi/tables/madt.h"
@@ -51,5 +49,3 @@ void ioapic_redirect_irq(uint32_t lapic_id, uint8_t irq, uint8_t vector, uint64_
     }
     ioapic_redirect_gsi(lapic_id, (uint32_t) irq, vector, flags);
 }
-
-#endif
