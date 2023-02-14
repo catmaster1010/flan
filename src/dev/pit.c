@@ -12,7 +12,7 @@ void pit_set_reload_value(uint16_t count){
 }
 
 static void pit(){
-   // printf("a");
+    //printf(".");
     lapic_eoi();
 }
 
@@ -22,7 +22,7 @@ void pit_init(){
     uint16_t divisor = 1193182 / 1000;
     pit_set_reload_value(divisor);
 
-    printf("PIT initialized\n");
+    printf("PIT initialized.\n");
 }
 
 

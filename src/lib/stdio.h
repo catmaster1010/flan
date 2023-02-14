@@ -1,5 +1,4 @@
 #ifndef stdio.h
-
 #define stdio.h
 
 #include <limine.h>

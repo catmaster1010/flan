@@ -1,3 +1,5 @@
+#ifndef assert_h
+#define assert_h
 #define cRED    "\033[1;31m"
 #define assert(check) ({ \
     if(!(check)) { \
@@ -5,3 +7,4 @@
         for(;;) __asm__("hlt"); \
     } \
 })
+#endif

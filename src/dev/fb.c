@@ -1,4 +1,4 @@
-#include "fb/fb.h"
+#include "dev/fb.h"
 #include <limine.h>
 #include "lib/stdio.h"
 
@@ -13,9 +13,10 @@ struct limine_framebuffer* fb_adress(){
 
 void fb_info(x,y,colour){
   struct limine_framebuffer* fb_adresss=fb_adress();
-  //printf("Our frame buffer is at %x.\n",fb_adresss);
-  printf("Resolution: %dx%d\n\n",fb.response->framebuffers[0]->width,fb.response->framebuffers[0]->height);
-  //printf("Depth: %d\n",fb.response->framebuffers[0]->bpp);
+  printf("Our frame buffer is at virtual address: %x\n",fb_adresss);
+  printf("Resolution: %dx%d\n",fb.response->framebuffers[0]->width,fb.response->framebuffers[0]->height);
+  printf("Depth: %d\n",fb.response->framebuffers[0]->bpp);
+  printf("\n");
 }
 
 void plot_pixel(uint8_t*screen, uint64_t x,uint64_t y, uint32_t colour) {
@@ -35,8 +36,6 @@ void fb_colour_background(){
     for (uint64_t y = 0; y < fb.response->framebuffers[0]->height; y++)
       {
         plot_pixel(fb_place, x,y, 0x8c4c4c);
-    }
-    
+    } 
   }
-  
 }

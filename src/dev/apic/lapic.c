@@ -25,7 +25,7 @@ void lapic_eoi() {
 }
 
 void lapic_ipi(uint32_t lapic_id, uint8_t vector) {
-    lapic_write(LAPIC_ICR1, (uint32_t) lapic_id << 24);
+    lapic_write(LAPIC_ICR1, lapic_id << 24);
     lapic_write(LAPIC_ICR0, vector);
 }
 

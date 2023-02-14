@@ -3,18 +3,23 @@
 #include  "acpi/tables/madt.h"
 #include "lib/assert.h"
 #include  "lib/vector.h"
+#include "lib/lock.h"
 
 
+spinlock_t ioapics_lock;
+spinlock_t lapics_lock;
+spinlock_t isos_lock;
 vector_t madt_lapics;
 vector_t madt_ioapics;
 vector_t madt_isos;
+
 void madt_init(){
     madt_t* madt =acpi_find_sdt("APIC", 0);
     assert(madt);
 
-    vector_create(&madt_lapics, sizeof(madt_lapic_t));
-    vector_create(&madt_ioapics,sizeof(madt_ioapic_t));
-    vector_create(&madt_isos, sizeof(madt_iso_t));
+    vector_create(&madt_lapics, sizeof(madt_lapic_t),lapics_lock);
+    vector_create(&madt_ioapics,sizeof(madt_ioapic_t),ioapics_lock);
+    vector_create(&madt_isos, sizeof(madt_iso_t),isos_lock);
 
     uint64_t offset;
 
@@ -26,7 +31,7 @@ void madt_init(){
         switch(header->id) {
             case 0:
                 madt_lapic_t* lapic=(madt_lapic_t*)header;
-            //printf("Found local LAPIC id: %d\n",lapic->apic_id);
+                //printf("Found local LAPIC id: %d (%d)\n",lapic->apic_id,lapic->processor_id);
                 vector_push(&madt_lapics, (madt_lapic_t*)header);
                 break;
             case 1:

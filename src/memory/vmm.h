@@ -10,7 +10,8 @@ typedef struct{
 
 void vmm_init();
 void vmm_switch_pagemap(pagemap_t* pagemap);
-void vmm_map_page(pagemap_t* pagemap, uintptr_t physical_address, uintptr_t virtual_address, uint64_t flags);
+void vmm_map_page(pagemap_t* pagemap, uint64_t physical_address, uint64_t virtual_address, uint64_t flags);
+void vmm_unmap_page(pagemap_t* pagemap, uint64_t virtual_address);
 pagemap_t*  new_pagemap();
 pagemap_t vmm_new_pagemap();
 

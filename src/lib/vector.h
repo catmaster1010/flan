@@ -1,14 +1,17 @@
 #ifndef vector_h
 #define vector_h
 #include <stdint.h>
+#include  "lib/lock.h"
 
 typedef struct {
     uint64_t items;
     uint64_t item_size;
+    spinlock_t lock;
     void* data;
+
 }vector_t;
 
-void vector_create(vector_t* vector, uint64_t item_size);
+void vector_create(vector_t* vector, uint64_t item_size,spinlock_t lock);
 uint64_t vector_get_items(vector_t* vector);
 void* vector_get(vector_t* vector, uint64_t index);
 void vector_push(vector_t* vector, void* data);

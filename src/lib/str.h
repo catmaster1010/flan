@@ -1,4 +1,3 @@
-
 #ifndef str_h
 #define str_h
 
