@@ -5,6 +5,8 @@
 #include  "acpi/acpi.h"
 #include  "lib/str.h"
 #include  "acpi/tables/madt.h"
+#include "lib/assert.h"
+
 static volatile struct limine_rsdp_request rsdp_request = {
     .id = LIMINE_RSDP_REQUEST,
     .revision = 0
@@ -29,8 +31,9 @@ void acpi_init(){
         rsdt = (rsdt_t*)((uint64_t)rsdp->rsdt_address + HHDM_OFFSET);
     }
 
-    printf("ACPI version: %d\n", rsdp->revision);
-    printf("RSDT at %x\n", rsdt);
+    printf("ACPI version: %d \n", rsdp->revision);
+    printf("OEM ID: %s \n",rsdp->oem_id);
+    //printf("RSDT at %x\n", rsdt);
     if(use_xsdt()) {printf("Using XSDT.\n");};
     madt_init();
 }

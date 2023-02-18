@@ -15,7 +15,10 @@ typedef struct {
     uint64_t tid;
     process_t* process; 
     interrupt_frame_t state;
+    uint8_t timeslice;
 } thread_t;
 
-void sched_init();
+__attribute__((__noreturn__)) void sched_await();
+
+__attribute__((__noreturn__)) void sched_init(void* (*start)(void* ));
 #endif

@@ -1,8 +1,6 @@
 #ifndef vmm_h
 #define vmm_h
 #include <stdint.h>
-#include"lib/assert.h"
-#include"lib/lock.h"
 
 typedef struct{
     uint64_t top;

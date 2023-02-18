@@ -10,7 +10,7 @@
 #include "lib/stdio.h"
 #include "lib/lock.h"
 #include "dev/apic/lapic.h"
-
+#include "proc/sched.h"
 spinlock_t cpu_lock=LOCK_INIT;
 static int  cpus_running;
 
@@ -41,13 +41,12 @@ void core_init(struct limine_smp_info *info) {
     write_cr4(cr4); 
 
     lapic_init();
-    printf("Processor #%d is running.(%d)\n",cpu_number,lapic_id());
+    printf("Processor #%d is running. \n",cpu_number);
     
     cpus_running++;  
     if (!local->bsp){
-        for (;;) {
-        __asm__("hlt");
-        }
+        sched_await();      
+        __builtin_unreachable(); 
     }
 
 }

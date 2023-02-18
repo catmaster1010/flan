@@ -19,7 +19,7 @@ static void pit(){
 void pit_init(){
     isr[32] =pit;
     ioapic_redirect_irq(0, 0, 32, 0);
-    uint16_t divisor = 1193182 / 1000;
+    uint16_t divisor = OSCILATOR_FREQ/TIMER_FREQ;
     pit_set_reload_value(divisor);
 
     printf("PIT initialized.\n");

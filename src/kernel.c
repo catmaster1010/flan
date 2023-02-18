@@ -20,6 +20,11 @@ static void done(void) {
   }
 }
 
+void kernel_thread(){
+  printf("yes\n");
+  done();
+}
+
 void _start(void) {
   printf("%sHello world! %s \n", cRED, cNONE);
   fb_info();
@@ -31,7 +36,5 @@ void _start(void) {
   acpi_init();
   smp_init();
   pit_init();
-  sched_init();
-
-  done();
+  sched_init(kernel_thread);
 }
