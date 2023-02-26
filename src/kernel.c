@@ -37,4 +37,5 @@ void _start(void) {
   smp_init();
   pit_init();
   sched_init(kernel_thread);
+ //done();
 }

@@ -41,11 +41,11 @@ run: barebones.iso
 
 .PHONY: debug
 debug: barebones.iso
-	qemu-system-x86_64 -no-reboot -no-shutdown -monitor stdio -m 2G -smp cores=4 --enable-kvm barebones.iso	
+	qemu-system-x86_64 -no-reboot -no-shutdown -monitor stdio -m 2G -smp cores=4 -cpu host --enable-kvm barebones.iso	
 
 .PHONY: gdb
 gdb: barebones.iso
 	mv src/kernel.elf ./
-	qemu-system-x86_64 -s -S -no-reboot -no-shutdown -monitor stdio -m 2G -smp cores=4 --enable-kvm barebones.iso	
+	qemu-system-x86_64 -s -S -no-reboot -no-shutdown -monitor stdio -m 2G -smp cores=4 -cpu host --enable-kvm barebones.iso	
 
 

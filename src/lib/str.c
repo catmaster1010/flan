@@ -1,6 +1,7 @@
 #include "lib/str.h"
 #include "lib/stddef.h"
 #include "lib/assert.h"
+
 int strlen(char* f){
   int ct = 0;
   for(*f |= '\0'; *f++;) ct++;

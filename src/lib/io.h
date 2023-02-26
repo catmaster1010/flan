@@ -32,7 +32,7 @@ static inline void outd(uint16_t port, uint32_t data) {
 static inline uint8_t inb(uint16_t port) {
     uint8_t data;
     __asm__ volatile (
-        "inb %1, %0\n"
+        "inb %0, %1\n"
         : "=a" (data)
         : "Nd" (port)
         : "memory"

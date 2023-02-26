@@ -1,5 +1,7 @@
 #ifndef cpu_h
 #define cpu_h
+#include <stdint.h>
+#define cpuid(in,a,b,c,d) __asm__ volatile ("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(in)); 
 
 typedef struct __attribute__((packed)) {
     uint32_t rsvd0;
@@ -111,4 +113,5 @@ static inline void write_cr4(uint64_t val) {
         : "memory"
     );
 }
+
 #endif

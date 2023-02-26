@@ -117,7 +117,7 @@ void vmm_init(){
     struct  limine_memmap_entry **mmaps = memmap_request.response->entries;
     uint64_t mmmap_count = memmap_request.response->entry_count;
     
-    for (int i = 0; i < mmmap_count; i++){
+   for (int i = 0; i < mmmap_count; i++){
         uint64_t base = ALIGN_DOWN(mmaps[i]->base,FRAME_SIZE);
         uint64_t tail = ALIGN_UP(mmaps[i]->base+mmaps[i]->length,FRAME_SIZE);
 
