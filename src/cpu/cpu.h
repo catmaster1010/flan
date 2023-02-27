@@ -1,6 +1,8 @@
 #ifndef cpu_h
 #define cpu_h
 #include <stdint.h>
+#include  <stdbool.h>
+
 #define cpuid(in,a,b,c,d) __asm__ volatile ("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(in)); 
 
 typedef struct __attribute__((packed)) {
@@ -46,6 +48,15 @@ struct interrupt_frame {
 } __attribute__((__packed__));
 typedef struct interrupt_frame interrupt_frame_t;
 
+typedef struct {
+    int cpu_number;
+    bool bsp;
+    bool active;
+    int last_run_queue_index;
+    uint32_t lapic_freq;
+} cpu_local_t;
+
+
 static inline uint64_t wrmsr(uint32_t msr, uint64_t val) {
     uint32_t eax = (uint32_t)val, edx = (uint32_t)(val >> 32);
     __asm__ volatile (
@@ -67,6 +78,9 @@ static inline uint64_t rdmsr(uint32_t msr) {
     return ((uint64_t)edx << 32) | eax;
 }
 
+static inline uint64_t read_gs_base() {
+    return rdmsr(0xc0000101);
+}
 
 static inline void set_gs_base(void *addr) {
     wrmsr(0xc0000101, (uint64_t)addr);

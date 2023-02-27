@@ -20,6 +20,7 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 - [x] Start up other CPUs
 - [x] Set up APIC
 - [x] Configure the PIT
+- [x] Calibrate the APIC timer
 - [ ] Implment scheduler 
 - [ ] implement VFS
 ---

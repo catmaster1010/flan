@@ -113,7 +113,7 @@ void vmm_init(){
         vmm_map_page(kernel_pagemap, i, i, 0b11);
         vmm_map_page(kernel_pagemap, i, i + HHDM_OFFSET, 0b111);
     }
-
+    /*
     struct  limine_memmap_entry **mmaps = memmap_request.response->entries;
     uint64_t mmmap_count = memmap_request.response->entry_count;
     
@@ -129,7 +129,7 @@ void vmm_init(){
         }
         
     }
-    
+    */
     vmm_switch_pagemap(kernel_pagemap);
     printf("VMM intilasized.\n");
 }

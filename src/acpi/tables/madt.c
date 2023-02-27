@@ -6,9 +6,9 @@
 #include "lib/lock.h"
 
 
-spinlock_t ioapics_lock;
-spinlock_t lapics_lock;
-spinlock_t isos_lock;
+spinlock_t ioapics_lock=LOCK_INIT;
+spinlock_t lapics_lock=LOCK_INIT;
+spinlock_t isos_lock=LOCK_INIT;
 vector_t madt_lapics;
 vector_t madt_ioapics;
 vector_t madt_isos;
@@ -17,9 +17,9 @@ void madt_init(){
     madt_t* madt =acpi_find_sdt("APIC", 0);
     assert(madt);
 
-    vector_create(&madt_lapics, sizeof(madt_lapic_t),lapics_lock);
-    vector_create(&madt_ioapics,sizeof(madt_ioapic_t),ioapics_lock);
-    vector_create(&madt_isos, sizeof(madt_iso_t),isos_lock);
+    vector_create(&madt_lapics, sizeof(madt_lapic_t),&lapics_lock);
+    vector_create(&madt_ioapics,sizeof(madt_ioapic_t),&ioapics_lock);
+    vector_create(&madt_isos, sizeof(madt_iso_t),&isos_lock);
 
     uint64_t offset;
 

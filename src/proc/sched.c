@@ -12,7 +12,6 @@ __attribute__((__noreturn__)) void sched_await(){
 }
 
 __attribute__((__noreturn__)) void sched_init(void* (*start)(void* )){
-    lapic_calibrate();
     sched_await();
    __builtin_unreachable(); 
    assert(0);

@@ -4,6 +4,13 @@
 #include "memory/vmm.h"
 #include "dev/apic/lapic.h"
 #include "dev/pit.h"
+#include "lib/lock.h"
+#include "cpu/smp.h"
+#include "lib/vector.h"
+#include <limine.h>
+#include "cpu/cpu.h"
+
+spinlock_t lapic_lock;
 
 static inline uint64_t lapic_base() {
     return (rdmsr(0x1b) & 0xfffff000) + HHDM_OFFSET;
@@ -20,6 +27,7 @@ void lapic_write(uint32_t reg, uint32_t data){
 void lapic_init(){
    // printf("%x\n",lapic_base());
     lapic_write(LAPIC_SPURIOUS_IVR, lapic_read(LAPIC_SPURIOUS_IVR) | (1 << 8) | 0xff);
+    lapic_calibrate();
 }
 
 void lapic_eoi() {
@@ -40,7 +48,21 @@ void lapic_stop(){
     lapic_write(LAPIC_LVT_TIMER_REG,1<<16);
 }
 
-void lapic_calibrate(){
+void lapic_timer_oneshot(uint64_t ms,uint8_t vector){
+    __asm__ volatile ("cli");
+
+    lapic_stop();
+    uint64_t ticks = ms * (this_cpu()->lapic_freq / 1000);
+
+    lapic_write(LAPIC_LVT_TIMER_REG, vector);
+    lapic_write(LAPIC_TIMER_DIVIDE_CFG_REG, 0);
+    lapic_write(LAPIC_TIMER_INIT_COUNT, ticks);
+
+    __asm__ volatile ("sti");
+}
+
+uint64_t lapic_calibrate(){
+    spinlock_acquire(&lapic_lock);
     lapic_stop();
     pit_set_reload_value(0xffff);
     uint16_t tick_first = pit_get_current_count();
@@ -53,7 +75,12 @@ void lapic_calibrate(){
     uint64_t tick_total = tick_first-tick_last;
 
     uint64_t freq=0xfffff/tick_total*OSCILATOR_FREQ;
-    printf("%d freq",freq);
+    //printf("%d freq",freq);
     
 
+    this_cpu()->lapic_freq=freq;
+
+    lapic_stop();
+
+    spinlock_release(&lapic_lock);
 }

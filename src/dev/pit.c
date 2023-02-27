@@ -17,7 +17,7 @@ void pit_set_reload_value(uint16_t count){
     __asm__ volatile("cli");
     outb(0x43,0x34);
     outb(0x40,(uint8_t) count);
-    outb(0x40,(uint8_t) count>>8&0xff);
+    outb(0x40,(uint8_t) (count>>8));
     __asm__ volatile("sti");
 }
 
@@ -36,8 +36,7 @@ void sleep(uint64_t ms){
 void pit_init(){
     isr[32] =pit;
     ioapic_redirect_irq(0, 0, 32, 0);
-    uint16_t divisor=OSCILATOR_FREQ/1000;//TIMER_FREQ;
-    printf("%d\n",divisor);
+    uint16_t divisor=OSCILATOR_FREQ/TIMER_FREQ;
     pit_set_reload_value(divisor);
     
     printf("PIT initialized.\n");
