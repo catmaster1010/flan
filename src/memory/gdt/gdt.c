@@ -132,6 +132,6 @@ void gdt_load_tss(tss_t* tss){
       .limit = (uint16_t)((uint64_t)tss >> 32),
       .baselow16 = (uint16_t)((uint64_t)tss >> 48)
   };
-  __asm__ volatile ("ltr %0" : : "rm" ((uint16_t)0x48) : "memory");
+  asm volatile ("ltr %0" : : "rm" ((uint16_t)0x48) : "memory");
   spinlock_release(&gdt_lock);
 }

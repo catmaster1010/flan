@@ -2,10 +2,10 @@
 #include "lib/vector.h"
 #include "lib/assert.h"
 
-void vector_create(vector_t* vector, uint64_t item_size,spinlock_t lock){
+void vector_create(vector_t* vector, uint64_t item_size){
     vector->items = 0;
     vector->item_size = item_size;
-    vector->lock=lock;
+    vector->lock=kheap_calloc(sizeof(spinlock_t));
     vector->data = 0;
 }
 
@@ -78,4 +78,15 @@ void vector_resize(vector_t* vector, uint64_t items){
     }
     vector->items=items;
     spinlock_release(vector->lock);
+}
+
+uint64_t vector_get_index(vector_t* vector, void* data){
+    spinlock_acquire(vector->lock);
+    if (vector->data+vector->item_size*vector->items<data || data<vector->data)
+    {
+        assert(0);
+    }
+    uint64_t index=(data-vector->data)/vector->item_size; 
+    spinlock_release(vector->lock);
+    return index;
 }

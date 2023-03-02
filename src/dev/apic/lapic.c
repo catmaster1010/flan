@@ -49,7 +49,7 @@ void lapic_stop(){
 }
 
 void lapic_timer_oneshot(uint64_t ms,uint8_t vector){
-    __asm__ volatile ("cli");
+    asm volatile ("cli");
 
     lapic_stop();
     uint64_t ticks = ms * (this_cpu()->lapic_freq / 1000);
@@ -58,7 +58,7 @@ void lapic_timer_oneshot(uint64_t ms,uint8_t vector){
     lapic_write(LAPIC_TIMER_DIVIDE_CFG_REG, 0);
     lapic_write(LAPIC_TIMER_INIT_COUNT, ticks);
 
-    __asm__ volatile ("sti");
+    asm volatile ("sti");
 }
 
 uint64_t lapic_calibrate(){

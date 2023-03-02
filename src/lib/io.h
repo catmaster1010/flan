@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 static inline void outb(uint16_t port, uint8_t data) {
-    __asm__ volatile (
+    asm volatile (
         "outb %1, %0\n"
         :
         : "a" (data), "Nd" (port)
@@ -12,7 +12,7 @@ static inline void outb(uint16_t port, uint8_t data) {
 }
 
 static inline void outw(uint16_t port, uint16_t data) {
-    __asm__ volatile (
+    asm volatile (
         "outw %1, %0\n"
         :
         : "a" (data), "Nd" (port)
@@ -21,7 +21,7 @@ static inline void outw(uint16_t port, uint16_t data) {
 }
 
 static inline void outd(uint16_t port, uint32_t data) {
-    __asm__ volatile (
+    asm volatile (
         "outd %1, %0\n"
         :
         : "a" (data), "Nd" (port)
@@ -31,7 +31,7 @@ static inline void outd(uint16_t port, uint32_t data) {
 
 static inline uint8_t inb(uint16_t port) {
     uint8_t data;
-    __asm__ volatile (
+    asm volatile (
         "inb %0, %1\n"
         : "=a" (data)
         : "Nd" (port)
@@ -42,7 +42,7 @@ static inline uint8_t inb(uint16_t port) {
 
 static inline uint16_t inw(uint16_t port) {
     uint16_t data;
-    __asm__ volatile (
+    asm volatile (
         "inw %1, %0\n"
         : "=a" (data)
         : "Nd" (port)
@@ -53,7 +53,7 @@ static inline uint16_t inw(uint16_t port) {
 
 static inline uint32_t ind(uint16_t port) {
     uint32_t data;
-    __asm__ volatile (
+    asm volatile (
         "ind %1, %0\n"
         : "=a" (data)
         : "Nd" (port)

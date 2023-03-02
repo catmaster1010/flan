@@ -19,7 +19,7 @@ void spinlock_acquire(spinlock_t* lock){
              assert(0);
         }
         
-        __asm__ volatile ("pause");
+        asm volatile ("pause");
     }
 }
 

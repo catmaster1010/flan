@@ -21,5 +21,5 @@ extern void* isr[];
 void idt_init();
 void isr_init();
 void idt_load();
-
+void idt_set_ist(uint8_t vector, uint8_t ist);
 #endif

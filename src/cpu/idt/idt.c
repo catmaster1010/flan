@@ -2,6 +2,7 @@
 #include "lib/stdio.h"
 #include "lib/lock.h"
 #include "cpu/idt/idt.h"
+#include "cpu/cpu.h"
 
 spinlock_t idt_lock=LOCK_INIT;
 static idt_gate_t idt[256];
@@ -44,10 +45,10 @@ const char* exception_names[] = {
 };
 
 void idt_load(){
-    __asm__ volatile("lidt %0"
+    asm volatile("lidt %0"
                      :
                      : "m"(idtr));
-    __asm__ volatile("sti");
+    asm volatile("sti");
 }
 
 
@@ -63,12 +64,13 @@ static void encode_idt_entry(uint8_t vector, void* handler, uint8_t flags) {
     idt[vector].reserved = 0;
 }
 
-static void exception_handler(uint32_t vec) {
-    printf("%s\nEXCEPTION RECIVED: %s\n",cRED,exception_names[vec]);
-    __asm__ volatile ("cli; hlt"); 
+static void exception_handler(uint8_t vector,interrupt_frame_t* state) {
+    printf("%s\nEXCEPTION RECIVED: %s %s %x",
+    cRED,exception_names[vector],cNONE,state->r15);
+    asm volatile ("cli; hlt"); 
 }
 
-static void isr_generic() {
+static void isr_generic(uint8_t vector,interrupt_frame_t* state) {
     printf("Something\n");
 }
 
@@ -89,4 +91,8 @@ void idt_init(){
     }
     idt_load();
     printf("IDT initialized.\n"); 
+}
+
+void idt_set_ist(uint8_t vector, uint8_t ist){
+    idt[vector].ist=ist;
 }

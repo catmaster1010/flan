@@ -53,7 +53,7 @@ void vmm_unmap_page(pagemap_t* pagemap, uint64_t virtual_address){
 
     pml1[pml1_index] = 0;
 
-    __asm__ volatile (
+    asm volatile (
         "invlpg [%0]"
         :
         : "r" (virtual_address)
@@ -83,7 +83,7 @@ void vmm_switch_pagemap(pagemap_t* pagemap)
 {   
     spinlock_acquire(&vmm_lock);
     uint64_t *top = pagemap->top;
-    __asm__ volatile (
+    asm volatile (
         "mov cr3, %0\n"
         : : "r" (top)
         : "memory"

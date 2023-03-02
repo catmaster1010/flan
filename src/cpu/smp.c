@@ -14,7 +14,6 @@
 
 static int  cpus_running;
 vector_t cpus;
-spinlock_t cpus_lock=LOCK_INIT;
 
 static volatile struct limine_smp_request smp_request = {
     .id = LIMINE_SMP_REQUEST,
@@ -24,13 +23,16 @@ static volatile struct limine_smp_request smp_request = {
 void core_init(struct limine_smp_info *info) {
     cpu_local_t* local= (void *)info->extra_argument;
     int cpu_number = local->cpu_number;
+    vector_t* queue = kheap_malloc(sizeof(vector_t));
+    vector_create(queue,sizeof(process_t));
+    local->queue=queue;
     vector_insert(&cpus,info,cpu_number);
     gdt_load();
     
     idt_load();
     vmm_switch_pagemap(kernel_pagemap);
-    set_gs_base((uint64_t)local->cpu_number);
-    set_kgs_base((uint64_t)local->cpu_number);
+    set_gs_base((uint64_t)&cpus);
+    set_kgs_base((uint64_t)&cpus);
  
     // enable SSE and SSE2 for SIMD
     uint64_t cr0 = read_cr0();
@@ -55,7 +57,7 @@ void core_init(struct limine_smp_info *info) {
 
 void smp_init(void) {
     struct limine_smp_response *smp_response = smp_request.response;
-    vector_create(&cpus,sizeof(struct limine_smp_info),&cpus_lock);
+    vector_create(&cpus,sizeof(struct limine_smp_info));
     vector_resize(&cpus,smp_response->cpu_count);
 
     for (uint64_t i = 0; i < smp_response->cpu_count; i++) {
@@ -73,12 +75,11 @@ void smp_init(void) {
         }
     }
     while (cpus_running != smp_response->cpu_count) {
-        __asm__ ("pause");
+        asm ("pause");
     }
 }
 cpu_local_t* this_cpu(){
-    uint64_t cpu_number = read_gs_base();
-    struct limine_smp_info* info = vector_get(&cpus,cpu_number);
+    struct limine_smp_info* info = read_gs_base();
 
     cpu_local_t* this_cpu= (void *)info->extra_argument;
     return this_cpu;

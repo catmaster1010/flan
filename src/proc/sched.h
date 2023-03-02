@@ -18,7 +18,9 @@ typedef struct {
     uint8_t timeslice;
 } thread_t;
 
-__attribute__((__noreturn__)) void sched_await();
 
+process_t* sched_process(pagemap_t* pagemap);
+__attribute__((__noreturn__)) void sched_await();
 __attribute__((__noreturn__)) void sched_init(void* (*start)(void* ));
+
 #endif

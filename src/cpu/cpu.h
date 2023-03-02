@@ -2,8 +2,10 @@
 #define cpu_h
 #include <stdint.h>
 #include  <stdbool.h>
+#include "lib/vector.h"
+#include "lib/lock.h"
 
-#define cpuid(in,a,b,c,d) __asm__ volatile ("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(in)); 
+#define cpuid(in,a,b,c,d) asm volatile ("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(in)); 
 
 typedef struct __attribute__((packed)) {
     uint32_t rsvd0;
@@ -38,8 +40,8 @@ struct interrupt_frame {
     uint64_t rcx;
     uint64_t rbx;
     uint64_t rax;
-    uint64_t intno;
-    uint64_t err;
+   // uint64_t intno;
+   // uint64_t err;
     uint64_t rip;
     uint64_t cs;
     uint64_t rflags;
@@ -54,12 +56,13 @@ typedef struct {
     bool active;
     int last_run_queue_index;
     uint32_t lapic_freq;
+    vector_t* queue;
 } cpu_local_t;
 
 
 static inline uint64_t wrmsr(uint32_t msr, uint64_t val) {
     uint32_t eax = (uint32_t)val, edx = (uint32_t)(val >> 32);
-    __asm__ volatile (
+    asm volatile (
         "wrmsr"
         : : "a" (eax), "d" (edx), "c" (msr)
         : "memory"
@@ -69,7 +72,7 @@ static inline uint64_t wrmsr(uint32_t msr, uint64_t val) {
 
 static inline uint64_t rdmsr(uint32_t msr) {
     uint32_t edx = 0, eax = 0;
-    __asm__ volatile (
+    asm volatile (
         "rdmsr"
         : "=a" (eax), "=d" (edx)
         : "c" (msr)
@@ -96,7 +99,7 @@ static inline void set_kgs_base(void *addr) {
 
 static inline uint64_t read_cr0(void) {
     uint64_t ret = 0;
-    __asm__ volatile (
+    asm volatile (
         "mov %0, cr0"
         : "=r" (ret)
         : : "memory"
@@ -104,7 +107,7 @@ static inline uint64_t read_cr0(void) {
     return ret;
 }
 static inline void write_cr0(uint64_t val) {
-    __asm__ volatile (
+    asm volatile (
         "mov cr0, %0"
         : : "r" (val)
         : "memory"
@@ -113,7 +116,7 @@ static inline void write_cr0(uint64_t val) {
 
 static inline uint64_t read_cr4(void) {
     uint64_t ret = 0;
-    __asm__ volatile (
+    asm volatile (
         "mov %0, cr4"
         : "=r" (ret)
         : : "memory"
@@ -121,7 +124,7 @@ static inline uint64_t read_cr4(void) {
     return ret;
 }
 static inline void write_cr4(uint64_t val) {
-    __asm__ volatile (
+    asm volatile (
         "mov cr4, %0"
         : : "r" (val)
         : "memory"

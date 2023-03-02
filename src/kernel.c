@@ -16,7 +16,7 @@
 static void done(void) {
   printf("\nNothing to be done now...");
   for (;;) {
-    __asm__("hlt");
+    asm("hlt");
   }
 }
 

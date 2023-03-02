@@ -14,11 +14,11 @@ uint16_t pit_get_current_count() {
 }
 
 void pit_set_reload_value(uint16_t count){
-    __asm__ volatile("cli");
+    asm volatile("cli");
     outb(0x43,0x34);
     outb(0x40,(uint8_t) count);
     outb(0x40,(uint8_t) (count>>8));
-    __asm__ volatile("sti");
+    asm volatile("sti");
 }
 
 static void pit(){

@@ -4,7 +4,7 @@
 #define assert(check) ({ \
     if(!(check)) { \
         printf("%sPANIC in %s() (%s:%d)\n", cRED,__func__, __FILE__, __LINE__); \
-        for(;;) __asm__("hlt"); \
+        for(;;) asm("hlt"); \
     } \
 })
 #endif
