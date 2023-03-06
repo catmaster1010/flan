@@ -3,6 +3,7 @@
 #include "lib/lock.h"
 #include "cpu/idt/idt.h"
 #include "cpu/cpu.h"
+#include "cpu/smp.h"
 
 spinlock_t idt_lock=LOCK_INIT;
 static idt_gate_t idt[256];
@@ -65,8 +66,8 @@ static void encode_idt_entry(uint8_t vector, void* handler, uint8_t flags) {
 }
 
 static void exception_handler(uint8_t vector,interrupt_frame_t* state) {
-    printf("%s\nEXCEPTION RECIVED: %s %s %x",
-    cRED,exception_names[vector],cNONE,state->r15);
+    printf("%s\nEXCEPTION RECIVED: %s on core #%d%s\n",
+    cRED,exception_names[vector],this_cpu()->cpu_number,cNONE);
     asm volatile ("cli; hlt"); 
 }
 

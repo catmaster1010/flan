@@ -5,6 +5,8 @@
 #include "lib/vector.h"
 #include "lib/lock.h"
 
+#define STACK_SIZE 0x10000
+
 #define cpuid(in,a,b,c,d) asm volatile ("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(in)); 
 
 typedef struct __attribute__((packed)) {
@@ -41,7 +43,7 @@ struct interrupt_frame {
     uint64_t rbx;
     uint64_t rax;
    // uint64_t intno;
-   // uint64_t err;
+    uint64_t err;
     uint64_t rip;
     uint64_t cs;
     uint64_t rflags;
@@ -54,7 +56,7 @@ typedef struct {
     int cpu_number;
     bool bsp;
     bool active;
-    int last_run_queue_index;
+    int queue_index;
     uint32_t lapic_freq;
     vector_t* queue;
 } cpu_local_t;

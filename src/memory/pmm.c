@@ -116,7 +116,7 @@ void* pmm_calloc(uint64_t frames){
     return ptr;
 }
 
-void *alloc(uint64_t size)
+void *pmm_alloc(uint64_t size)
 {
     uint64_t frames = (size + (FRAME_SIZE - 1)) / FRAME_SIZE;
     void*  ptr = pmm_calloc(frames+1);

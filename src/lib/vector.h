@@ -6,7 +6,7 @@
 typedef struct {
     uint64_t items;
     uint64_t item_size;
-    spinlock_t* lock;
+    spinlock_t lock;
     void* data;
 
 }vector_t;

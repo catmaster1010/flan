@@ -16,7 +16,6 @@ void ioapic_write(uint64_t ioapic_address, uint64_t reg, uint32_t data){
     *((volatile uint32_t* ) (ioapic_address+HHDM_OFFSET+0x10)) = data;
 }
 
-
 static uint64_t ioapic_gsi_count(madt_ioapic_t* ioapic) {
     return (ioapic_read((uint64_t)ioapic->address, 1) & 0xff0000) >> 16;
 }
