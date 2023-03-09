@@ -21,7 +21,6 @@ static void done(void) {
 }
 
 void kernel_thread(){
-  printf("yes\n");
   done();
 }
 

@@ -41,7 +41,7 @@ extern isr
 isr_stub_%1:
     pushaq
     
-    ;cld
+    cld
     mov rdi, %1
     mov rax, (%1 * 8)
     lea rbx, qword [isr]

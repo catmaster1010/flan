@@ -59,9 +59,24 @@ void vector_pop(vector_t* vector){
     spinlock_release(&vector->lock);
 }
 
-void vector_insert(vector_t* vector, void* data, uint64_t index){
+
+void vector_replace(vector_t* vector, void* data, uint64_t index){
     void* ptr=vector_get(vector,index);
     spinlock_acquire(&vector->lock);
+    memcpy(ptr,data,vector->item_size);
+    spinlock_release(&vector->lock);
+}
+
+void vector_insert(vector_t* vector, void* data, uint64_t index)
+{ 
+    spinlock_acquire(&vector->lock);
+    uint64_t vector_size=vector->items * vector->item_size;
+    void* ptr = kheap_realloc(vector->data,vector_size+vector->item_size,vector_size);
+    assert(ptr);
+    vector->data=ptr;
+    vector->items+=1;
+    memcpy(vector->data + ((index + 1) * vector->item_size),vector->data + (index * vector->item_size),(vector->item_size*(vector->items))-(index*vector->item_size));
+    ptr = vector->data + (index * vector->item_size); 
     memcpy(ptr,data,vector->item_size);
     spinlock_release(&vector->lock);
 }

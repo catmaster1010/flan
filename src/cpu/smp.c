@@ -27,7 +27,7 @@ void core_init(struct limine_smp_info *info) {
     vector_t* queue = kheap_calloc(sizeof(vector_t));
     vector_create(queue,sizeof(thread_t));
     local->queue=queue;
-    vector_insert(&cpus,local,cpu_number);
+    vector_replace(&cpus,local,cpu_number);
     gdt_load();
     
     idt_load();

@@ -16,7 +16,7 @@ typedef struct {
     bool running; 
     process_t* process;
     spinlock_t lock; 
-    interrupt_frame_t state;
+    interrupt_frame_t* state;
     uint8_t timeslice;
     bool enqueued;
 } thread_t;
