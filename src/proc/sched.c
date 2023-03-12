@@ -11,11 +11,6 @@
 process_t *kernel_process;
 vector_t processes_vector;
 
-static inline thread_t *current_thread()
-{
-    return vector_get(this_cpu()->queue, 0);
-}
-
 static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
 {
     thread->running=1;

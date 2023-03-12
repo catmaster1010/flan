@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include "dev/pit.h"
 #include "proc/sched.h"
+#include "fs/vfs.h"
 
 static void done(void) {
   printf("\nNothing to be done now...");
@@ -21,6 +22,7 @@ static void done(void) {
 }
 
 void kernel_thread(){
+  vfs_init();
   done();
 }
 
@@ -36,5 +38,4 @@ void _start(void) {
   smp_init();
   pit_init();
   sched_init(kernel_thread);
- //done();
 }
