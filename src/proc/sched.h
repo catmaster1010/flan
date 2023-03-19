@@ -4,12 +4,17 @@
 #include "memory/vmm.h"
 #include "cpu/cpu.h"
 #include "lib/lock.h"
+#include "fs/vfs.h"
+
 #define TIME_QUANTUM 3
 #define MAX_THREADS 40
+
 typedef struct {
     uint64_t pid;
     pagemap_t* pagemap;
     vector_t* threads;
+    vfs_node_t* cwd;
+    vector_t* fildes;
 } process_t;
 
 typedef struct {
@@ -21,6 +26,7 @@ typedef struct {
     bool enqueued;
 } thread_t;
 
+thread_t* get_current_thread();
 thread_t* sched_thread();
 process_t* sched_process(pagemap_t* pagemap);
 __attribute__((__noreturn__)) void sched_await();

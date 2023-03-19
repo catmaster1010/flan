@@ -11,6 +11,13 @@
 process_t *kernel_process;
 vector_t processes_vector;
 
+thread_t* get_current_thread(){
+    vector_t *queue = this_cpu()->queue;
+    uint64_t last_queue_index = this_cpu()->last_run_queue_index;
+    thread_t* current_thread = vector_get(queue, last_queue_index);
+    return current_thread;
+}
+
 static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
 {
     thread->running=1;
@@ -49,6 +56,9 @@ process_t *sched_process(pagemap_t *pagemap)
     vector_create(threads, sizeof(thread_t));
     proc->threads = threads;
     proc->pagemap = pagemap;
+    proc->fildes = kheap_malloc(sizeof(vector_t));
+    vector_create(proc->fildes,sizeof(vfs_node_t));
+    proc->cwd=root;
     return proc;
 }
 
@@ -124,7 +134,6 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
     lapic_stop();
 
     vector_t *queue = this_cpu()->queue;
-    uint64_t last_queue_index = this_cpu()->last_run_queue_index;
     if (queue->items == 0)
     {
         if (!work_steal())
@@ -137,7 +146,7 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
             }
         }
     }
-    thread_t* current_thread = vector_get(queue, last_queue_index);
+    thread_t* current_thread = get_current_thread();
     if (current_thread->running){
         current_thread->state = state;
     }

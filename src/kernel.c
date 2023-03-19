@@ -22,7 +22,7 @@ static void done(void) {
 }
 
 void kernel_thread(){
-  vfs_init();
+  printf("%sHello world from kernel thread!%s\n",cRED,cNONE);
   done();
 }
 
@@ -37,5 +37,6 @@ void _start(void) {
   acpi_init();
   smp_init();
   pit_init();
+  vfs_init();
   sched_init(kernel_thread);
 }

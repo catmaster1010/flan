@@ -62,5 +62,4 @@ static inline uint32_t ind(uint16_t port) {
     return data;
 }
 
-
 #endif

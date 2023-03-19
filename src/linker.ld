@@ -1,6 +1,4 @@
-
 OUTPUT_FORMAT(elf64-x86-64)
-OUTPUT_ARCH(i386:x86-64)
 
 ENTRY(_start)
 
@@ -28,12 +26,6 @@ SECTIONS
 
     .rodata : {
         *(.rodata .rodata.*)
-    } :rodata
-
-    .drivers : {
-        drivers_start = .;
-        KEEP(*(.drivers*))
-        drivers_end = .;
     } :rodata
 
     . += CONSTANT(MAXPAGESIZE);

@@ -32,9 +32,10 @@ void memset(uint64_t*ptr,uint8_t n,uint64_t size){
     }
 }
 
-int memcmp(void *s1, void *s2, uint64_t size) {
+//returns 1 if  not equal
+bool memcmp(void *str1, void *str2, uint64_t size) {
     for(uint64_t i = 0; i < size; i++)
-        if(((uint8_t *)s1)[i] != ((uint8_t *)s2)[i]) return ((uint8_t *)s1)[i] < ((uint8_t *)s2)[i] ? -1 : 1; // different (with comparison)
+        if(((uint8_t *)str1)[i] != ((uint8_t *)str2)[i]) return ((uint8_t *)str1)[i] < ((uint8_t *)str2)[i] ? -1 : 1; // different (with comparison)
 
     return 0; // equal
 }
@@ -47,4 +48,11 @@ void memcpy(uint8_t* dest, uint8_t* src, uint64_t n) {
         ((uint8_t*)dest)[i]=(uint8_t)src[i];			
     }
     
+}
+
+bool strcmp(char* str1,char*  str2){
+    if(strlen(str1)==strlen(str2) && !(memcmp(str1,str2,strlen(str1)))){
+        return 0; //same
+    }
+    return 1;
 }

@@ -14,7 +14,7 @@ endef
 #cc=x86_64-elf-ld
 
 
-CFLAGS ?= -g -O2 -pipe -Wall -Wextra -Wimplicit-function-declaration
+CFLAGS ?= -g -O2 -pipe -Wimplicit-function-declaration
 
 NASMFLAGS ?= -F dwarf -g -f elf64
 
