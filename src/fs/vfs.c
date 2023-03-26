@@ -3,8 +3,20 @@
 #include "lib/str.h"
 #include "lib/vector.h"
 #include "lib/stddef.h"
+#include "lib/lock.h"
 
+spinlock_t vfs_lock=LOCK_INIT;
 vfs_node_t* root;
+
+static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
+    vfs_node_t* parent_node;
+    if(!parent){
+        parent_node = root;
+    }
+    else{
+        parent_node=parent;
+    }
+}
 
 vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name,bool dir){
     vfs_node_t* node=kheap_calloc(sizeof(vfs_node_t));
@@ -12,19 +24,23 @@ vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name,bo
     memcpy(node->name,name,strlen(name)+1);
     node->fs=fs;
     if(dir){
-        node->children = kheap_malloc(sizeof(vector_t));
-        vector_create(node->children,sizeof(vfs_node_t));
+        node->children = kheap_malloc(sizeof(hashmap_t));
+        hashmap_create(node->children,256);
     }
     if(!parent){
         parent=root;
     }
     if(parent){
         node->parent=parent;
-        vector_push(node->parent->children,node);
+        hashmap_set(parent->children,name,node);
     }
     return node;
 }
 
 void vfs_init(){
     root=vfs_create_node(NULL,NULL,"/",true);
+}
+
+bool vfs_mount(vfs_node_t* where, vfs_fs_t* fs,char*  dev){
+
 }

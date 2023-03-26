@@ -29,17 +29,17 @@ void madt_init(){
             case 0:
                 madt_lapic_t* lapic=(madt_lapic_t*)header;
                 //printf("Found local LAPIC id: %d (%d)\n",lapic->apic_id,lapic->processor_id);
-                vector_push(&madt_lapics, (madt_lapic_t*)header);
+                vector_push(&madt_lapics, header);
                 break;
             case 1:
                 madt_ioapic_t* ioapic=(madt_ioapic_t*)header;
                 printf("Found IO APIC id: %d\n",ioapic->header.id);
-                vector_push(&madt_ioapics, (madt_ioapic_t*)header);
+                vector_push(&madt_ioapics, header);
                 break;
             case 2:
                 madt_iso_t* isos=(madt_iso_t*)header;
                 printf("Found ISO IRQ %d redirected to GSI %d\n",isos->irq_source,isos->gsi);
-                vector_push(&madt_isos, (madt_iso_t*)header);
+                vector_push(&madt_isos, header);
                 break;
             default:
                 break;

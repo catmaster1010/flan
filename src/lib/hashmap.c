@@ -25,22 +25,24 @@ static inline hashmap_entry_t* hashmap_entry_get(hashmap_t* hashmap, char* key){
     return entry; 
 }
 
-void hashmap_create(hashmap_t* hashmap, uint64_t entry_count){
+bool hashmap_create(hashmap_t* hashmap, uint64_t entry_count){
     void* data=kheap_calloc(entry_count*sizeof(hashmap_entry_t));
-    assert(data);
+    if (!data){return 0;}
     hashmap->entries=data;
     hashmap->entry_count=entry_count;
+    hashmap->items=0;
+    return 1;
 }
 
-void hashmap_set(hashmap_t* hashmap, char* key, void* val){
+bool hashmap_set(hashmap_t* hashmap, char* key, void* val){
 
     hashmap_entry_t* entry=hashmap_entry_get(hashmap,key);
     if (entry){
         entry->val=val;
-        return;
+        return 1;
     }
     //key is not in hashmap
-    hashmap_entry_t* new_entry=kheap_malloc(sizeof(hashmap_entry_t));
+    hashmap_entry_t* new_entry=kheap_calloc(sizeof(hashmap_entry_t));
     assert(new_entry);
     new_entry->key=key;
     new_entry->val=val;
@@ -48,10 +50,31 @@ void hashmap_set(hashmap_t* hashmap, char* key, void* val){
     new_entry->next=&hashmap->entries[index];
     hashmap->entries[index]=*new_entry;
     hashmap->items++;
+    return 1;
 }
 
 void* hashmap_get(hashmap_t* hashmap, char* key){
     hashmap_entry_t* entry=hashmap_entry_get(hashmap,key);
     if(entry==NULL){return 0;}
     return entry->val;
+}
+
+bool hashmap_remove(hashmap_t* hashmap, char* key){
+    uint64_t index = INDEX(key,hashmap->entry_count); 
+    hashmap_entry_t* entry = &hashmap->entries[index];
+    hashmap_entry_t* prev=NULL;
+    while(strcmp(entry->key,key)){
+        prev=entry;
+        entry=entry->next;
+        if(entry==NULL){return NULL;}
+    }
+    if(prev){
+        prev->next=entry->next;
+        kheap_free(entry);
+        kheap_free(entry->key);
+    }else if(entry->next){
+        memcpy(entry,entry->next,sizeof(hashmap_entry_t));
+        kheap_free(entry->next);
+    }
+    hashmap->items--;
 }

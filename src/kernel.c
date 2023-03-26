@@ -23,6 +23,7 @@ static void done(void) {
 
 void kernel_thread(){
   printf("%sHello world from kernel thread!%s\n",cRED,cNONE);
+  //printf("%s >  ",get_current_thread()->process->cwd->name);
   done();
 }
 
