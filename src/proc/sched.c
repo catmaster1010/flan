@@ -99,34 +99,37 @@ static bool work_steal()
     uint64_t most_work = 0;
     cpu_local_t *most_work_cpu;
 
-    for (uint64_t i = 0; i < cpus.items; i++)
-    {
+    for (uint64_t i = 0; i < cpus.items; i++){
         cpu_local_t *cpu = vector_get(&cpus, i);
         uint64_t work = cpu->queue->items;
-        if (work > most_work)
-        {
-            most_work = work;
-            most_work_cpu = cpu;
+        if (work<=1){continue;}
+
+        for (uint64_t k;k<work; k++) {
+            thread_t* thread = vector_get(cpu,k);
+            if (thread->blocked) {continue;} 
+            vector_remove(cpu,k);
+            vector_push(this_cpu()->queue,thread);
+            return 1;
         }
     }
-    if (most_work <= 1)
-    {
-        return 0;
-    }
-    thread_t *last_job = vector_get(most_work_cpu->queue, most_work_cpu->last_run_queue_index);
-    vector_remove(most_work_cpu->queue, most_work_cpu->last_run_queue_index);
-    vector_push(this_cpu()->queue, last_job);
-    return 1;
+    return 0;
 }
 
-static thread_t *get_next_thread()
+static thread_t *get_next_thread(uint64_t index)
 {
     uint64_t last_queue_index = this_cpu()->last_run_queue_index;
-    if (this_cpu()->queue->items == last_queue_index + 1)
-    {
-        return vector_get(this_cpu()->queue, 0);
+    //printf("indexes: %d %d\n",index,last_queue_index);
+    thread_t* thread;
+    if (this_cpu()->queue->items == index + 1){
+        thread= vector_get(this_cpu()->queue, 0);
     }
-    return vector_get(this_cpu()->queue, last_queue_index + 1);
+    else {
+    thread= vector_get(this_cpu()->queue, index + 1);
+    }
+    if (thread->blocked) {
+        thread=get_next_thread(index+1);
+    }
+    return thread;
 }
 
 static void sched_vector(uint8_t vector, interrupt_frame_t *state)
@@ -151,7 +154,7 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
         current_thread->state = state;
     }
     current_thread->running=0;
-    thread_t* next_thread = get_next_thread();
+    thread_t* next_thread = get_next_thread(this_cpu()->last_run_queue_index);
     this_cpu()->last_run_queue_index = vector_get_index(this_cpu()->queue, next_thread);
     lapic_eoi();
     lapic_timer_oneshot(TIME_QUANTUM, 33);

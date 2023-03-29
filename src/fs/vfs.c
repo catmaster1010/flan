@@ -41,6 +41,3 @@ void vfs_init(){
     root=vfs_create_node(NULL,NULL,"/",true);
 }
 
-bool vfs_mount(vfs_node_t* where, vfs_fs_t* fs,char*  dev){
-
-}

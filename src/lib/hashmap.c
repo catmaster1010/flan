@@ -35,7 +35,6 @@ bool hashmap_create(hashmap_t* hashmap, uint64_t entry_count){
 }
 
 bool hashmap_set(hashmap_t* hashmap, char* key, void* val){
-
     hashmap_entry_t* entry=hashmap_entry_get(hashmap,key);
     if (entry){
         entry->val=val;
@@ -78,3 +77,4 @@ bool hashmap_remove(hashmap_t* hashmap, char* key){
     }
     hashmap->items--;
 }
+

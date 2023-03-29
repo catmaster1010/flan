@@ -19,4 +19,5 @@ bool hashmap_create(hashmap_t* hashmap, uint64_t item_count);
 bool hashmap_set(hashmap_t* hashmap, char* key, void* val);
 void* hashmap_get(hashmap_t* hashmap, char* key);
 bool hashmap_remove(hashmap_t* hashmap,char* key);
+bool hashmap_delete(hashmap_t* hashmap);
 #endif

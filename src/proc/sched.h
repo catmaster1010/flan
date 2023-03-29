@@ -24,6 +24,7 @@ typedef struct {
     interrupt_frame_t* state;
     uint8_t timeslice;
     bool enqueued;
+    bool blocked;
 } thread_t;
 
 thread_t* get_current_thread();

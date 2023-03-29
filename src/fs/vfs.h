@@ -26,6 +26,6 @@ typedef struct vfs_node{
 
 vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name,bool dir);
 void vfs_init();
-bool vfs_mount(vfs_node_t* where, vfs_fs_t* fs,char*  dev);
+bool vfs_mount(vfs_node_t* where, vfs_fs_t* fs,char* name,char*  dev);
 extern vfs_node_t* root;
 #endif
