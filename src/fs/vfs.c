@@ -4,6 +4,7 @@
 #include "lib/vector.h"
 #include "lib/stddef.h"
 #include "lib/lock.h"
+#include "lib/str.h"
 
 spinlock_t vfs_lock=LOCK_INIT;
 vfs_node_t* root;
@@ -16,6 +17,9 @@ static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
     else{
         parent_node=parent;
     }
+    uint64_t path_length=strlen(path);
+
+
 }
 
 vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name,bool dir){

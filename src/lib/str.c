@@ -56,3 +56,33 @@ bool strcmp(char* str1,char*  str2){
     }
     return 1;
 }
+
+char* strchr(char* str, char c){
+    while (*str!=c) {
+        if (!*str++) {
+            return NULL;
+        }
+    }
+    return str;
+}
+
+char *strtok(const char *str, char *delim){
+    static char* s = NULL;
+    char* token;
+    if (str!=NULL) {    
+        s=str;
+    }
+    if (s==NULL) {
+        return NULL;
+    }
+    token=s;
+    while (*s!='\0') {
+        if (strchr(delim,*s)!=NULL) {
+            *s++ = '\0';
+            return token;
+        }
+        s++;
+    }
+    s=NULL; 
+    return token;
+}
