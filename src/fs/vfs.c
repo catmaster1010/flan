@@ -8,18 +8,25 @@
 
 spinlock_t vfs_lock=LOCK_INIT;
 vfs_node_t* root;
+hashmap_t mountpoints;
 
 static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
-    vfs_node_t* parent_node;
+    vfs_node_t* current_node;
     if(!parent){
-        parent_node = root;
+        current_node = root;
     }
     else{
-        parent_node=parent;
+        current_node=parent;
     }
-    uint64_t path_length=strlen(path);
-
-
+    char* segment = strtok(strdup(path),"/");
+    while(segment!=NULL){
+        current_node=hashmap_get(current_node->children,segment);
+        if(current_node==NULL){
+            return NULL;
+        }
+        char* segment = strtok(NULL,"/");
+    }
+    return current_node;
 }
 
 vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name,bool dir){
@@ -41,7 +48,12 @@ vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name,bo
     return node;
 }
 
+bool vfs_mount(vfs_node_t* where, const char* fs_name, char* name, char*  dev){
+    vfs_node_t* mountpoint=hashmap_get(&mountpoints,fs_name);
+}
+
 void vfs_init(){
     root=vfs_create_node(NULL,NULL,"/",true);
+    hashmap_create(&mountpoints,64);
 }
 

@@ -1,6 +1,7 @@
 #include "lib/str.h"
 #include "lib/stddef.h"
 #include "lib/assert.h"
+#include "memory/kheap.h"
 
 int strlen(char* f){
   int ct = 0;
@@ -85,4 +86,25 @@ char *strtok(const char *str, char *delim){
     }
     s=NULL; 
     return token;
+}
+
+char *basename(char *s)
+{
+	uint64_t i;
+    // This empty string behavior is specified by POSIX.
+	if (!s || !*s) return ".";
+	i = strlen(s)-1;
+	for (; i&&s[i]=='/'; i--) {
+        s[i] = 0;
+    }
+	for (; i&&s[i-1]!='/'; i--);
+	return s+i;
+}
+
+char* strdup( const char *str){
+	uint64_t l = strlen(str);
+	char *d = kheap_malloc(l+1);
+	if (!d) return NULL;
+    memcpy(d, str, l+1);
+	return d;
 }
