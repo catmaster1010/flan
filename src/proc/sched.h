@@ -29,6 +29,8 @@ typedef struct {
 
 thread_t* get_current_thread();
 thread_t* sched_thread();
+bool dequeue_thread(thread_t* thread);
+void dequeue_and_die();
 process_t* sched_process(pagemap_t* pagemap);
 __attribute__((__noreturn__)) void sched_await();
 __attribute__((__noreturn__)) void sched_init(void* start);

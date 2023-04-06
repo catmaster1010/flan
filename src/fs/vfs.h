@@ -8,11 +8,11 @@ struct vfs_node;
 
 typedef struct vfs_fs{
     const char* name; //the name of the filesystem type, such as “ext2”, “iso9660”, “msdos” and so on
+    int (*mount)(struct vfs_node* mountpoint, struct vfs_node* dev);
     int (*open)(struct vfs_node* file, char* name);
     int (*close) (struct vfs_node* file);
     int (*read) (struct vfs_node* file, void* buff, uint64_t count);
     int (*write) (struct vfs_node* file, void* buff, uint64_t count);
-    int (*mount) 
 }vfs_fs_t;
 
 typedef struct vfs_node{
@@ -23,11 +23,12 @@ typedef struct vfs_node{
     int pid;
     uint64_t seek;
     uint64_t file_size;
-    struct vfs_node* mount;
+    struct vfs_node* mountpoint;
 }vfs_node_t;
 
 vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name,bool dir);
 void vfs_init();
-bool vfs_mount(vfs_node_t* where, const  char* fs_name, char* name,char*  dev);
+void add_filesystem(vfs_fs_t* fs, const char* fs_name);
+bool vfs_mount(vfs_node_t* parent, char*  dev, char* ref, const char* fs_name);
 extern vfs_node_t* root;
 #endif

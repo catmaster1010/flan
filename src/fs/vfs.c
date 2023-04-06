@@ -5,10 +5,11 @@
 #include "lib/stddef.h"
 #include "lib/lock.h"
 #include "lib/str.h"
+#include "lib/lock.h"
 
 spinlock_t vfs_lock=LOCK_INIT;
 vfs_node_t* root;
-hashmap_t mountpoints;
+hashmap_t filesystems;
 
 static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
     vfs_node_t* current_node;
@@ -29,7 +30,7 @@ static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
     return current_node;
 }
 
-vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name,bool dir){
+vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name, bool dir){
     vfs_node_t* node=kheap_calloc(sizeof(vfs_node_t));
     node->name=kheap_malloc(strlen(name)+1);
     memcpy(node->name,name,strlen(name)+1);
@@ -48,12 +49,24 @@ vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name,bo
     return node;
 }
 
-bool vfs_mount(vfs_node_t* where, const char* fs_name, char* name, char*  dev){
-    vfs_node_t* mountpoint=hashmap_get(&mountpoints,fs_name);
+bool vfs_mount(vfs_node_t* parent, char*  dev, char* ref, const char* fs_name){
+    spinlock_acquire(&vfs_lock);
+    vfs_fs_t* fs = hashmap_get(&filesystems,fs_name);
+    vfs_node_t* node = path_to_node(parent,ref);
+    vfs_node_t* dev = path_to_node(parent,dev);
+    vfs_node_t* mount_node = fs->mount(node,dev);
+    node->mountpoint=mount_node;
+    spinlock_release(&vfs_lock);
+}
+
+void add_filesystem(vfs_fs_t* fs, const char* fs_name){
+    spinlock_acquire(&vfs_lock);
+    hashmap_set(&filesystems,fs_name,fs);
+    spinlock_release(&vfs_lock);
 }
 
 void vfs_init(){
     root=vfs_create_node(NULL,NULL,"/",true);
-    hashmap_create(&mountpoints,64);
+    hashmap_create(&filesystems,64);
 }
 

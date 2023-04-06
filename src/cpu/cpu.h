@@ -54,6 +54,7 @@ typedef struct interrupt_frame interrupt_frame_t;
 
 typedef struct {
     int cpu_number;
+    int lapic_id;
     bool bsp;
     bool active;
     int last_run_queue_index;

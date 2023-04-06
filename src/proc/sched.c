@@ -89,7 +89,7 @@ thread_t* sched_kernel_thread(void *start, void *args)
     state->rdi = args;
     thread->process = kernel_process;
     thread->timeslice = TIME_QUANTUM;
-    thread->running = 0;
+    thread->running = false;
     sched_enqueue_thread(thread);
     return thread;
 }
@@ -118,7 +118,6 @@ static bool work_steal()
 static thread_t *get_next_thread(uint64_t index)
 {
     uint64_t last_queue_index = this_cpu()->last_run_queue_index;
-    //printf("indexes: %d %d\n",index,last_queue_index);
     thread_t* thread;
     if (this_cpu()->queue->items == index + 1){
         thread= vector_get(this_cpu()->queue, 0);
@@ -159,6 +158,38 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
     lapic_eoi();
     lapic_timer_oneshot(TIME_QUANTUM, 33);
     switch_to_thread(next_thread);
+}
+
+bool dequeue_thread(thread_t* thread){
+    if (!thread->enqueued) return true;
+    vector_t* queue=this_cpu()->queue;
+    vector_remove(queue,vector_get_index(queue,thread));
+    thread->enqueued=false;
+    thread->running=false;
+    if (!thread==get_current_thread()) return true;
+
+    if (this_cpu()->last_run_queue_index==0){
+        this_cpu()->last_run_queue_index=this_cpu()->queue->items;
+    }
+    else {
+       this_cpu()->last_run_queue_index--; 
+    }  
+
+    return true;
+}
+
+void dequeue_and_die(){
+    asm volatile ("cli");
+    lapic_stop();
+    thread_t* current_thread = get_current_thread();
+    dequeue_thread(current_thread);
+    kheap_free(current_thread);
+    lapic_ipi(this_cpu()->cpu_number,33); 
+    asm volatile ("sti");
+    for (;;) {
+        asm volatile("hlt");
+    }
+    __builtin_unreachable();
 }
 
 __attribute__((__noreturn__)) void sched_await()

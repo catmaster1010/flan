@@ -28,7 +28,7 @@ void kernel_thread(){
 }
 
 void _start(void) {
-  printf("%sHello world! %s \n", cRED, cNONE);
+  printf("%sHello world! %s\n", cRED, cNONE);
   fb_info();
   gdt_init();
   idt_init();
