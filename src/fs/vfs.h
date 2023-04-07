@@ -7,7 +7,7 @@
 struct vfs_node;
 
 typedef struct vfs_fs{
-    const char* name; //the name of the filesystem type, such as “ext2”, “iso9660”, “msdos” and so on
+    //const char* name; //the name of the filesystem type, such as “ext2”, “iso9660”, “msdos” and so on
     int (*mount)(struct vfs_node* mountpoint, struct vfs_node* dev);
     int (*open)(struct vfs_node* file, char* name);
     int (*close) (struct vfs_node* file);

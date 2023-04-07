@@ -70,5 +70,6 @@ void vfs_init(){
     root=vfs_create_node(NULL,NULL,"/",true);
     hashmap_create(&filesystems,64);
     hashmap_set(&filesystems,"tmpfs",tmpfs_funcs());
+    hashmap_set(&filesystems,"ext2fs",ext2fs_funcs());
 }
 

@@ -22,7 +22,8 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 - [x] Configure the PIT
 - [x] Calibrate the APIC timer
 - [x] Implment scheduler 
-- [x] implement VFS
+- [x] Implement VFS
+- [ ] EXT2
 ---
 # Dependencies
 - `x86_64-elf-gcc` (or you can use your host system's toolchain if compatible) 
