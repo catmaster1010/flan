@@ -12,6 +12,11 @@ spinlock_t vfs_lock=LOCK_INIT;
 vfs_node_t* root;
 hashmap_t filesystems;
 
+static vfs_node_t* reduce_node(vfs_node_t* node){
+    //TODO: symlinks
+    return node;
+}
+
 static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
     vfs_node_t* current_node;
     if(!parent){
@@ -20,9 +25,10 @@ static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
     else{
         current_node=parent;
     }
+
     char* segment = strtok(strdup(path),"/");
     while(segment!=NULL){
-        current_node=hashmap_get(current_node->children,segment);
+        current_node=reduce_node(hashmap_get(current_node->children,segment));
         if(current_node==NULL){
             return NULL;
         }
@@ -31,7 +37,7 @@ static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
     return current_node;
 }
 
-vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name, bool dir){
+vfs_node_t* vfs_create_node(vfs_node_t* parent, const char* name, vfs_fs_t* fs, bool dir){
     vfs_node_t* node=kheap_calloc(sizeof(vfs_node_t));
     node->name=kheap_malloc(strlen(name)+1);
     memcpy(node->name,name,strlen(name)+1);
@@ -53,11 +59,13 @@ vfs_node_t* vfs_create_node(vfs_node_t* parent,vfs_fs_t* fs, const char* name, b
 bool vfs_mount(vfs_node_t* parent, char* source, char* target, const char* fs_name){
     spinlock_acquire(&vfs_lock);
     vfs_fs_t* fs = hashmap_get(&filesystems,fs_name);
-    vfs_node_t* node = path_to_node(parent,target);
+    vfs_node_t* target_node = path_to_node(parent,target);
     vfs_node_t* dev = path_to_node(parent,source);
-    vfs_node_t* mount_node = fs->mount(node,dev);
-    node->mountpoint=mount_node;
+    vfs_node_t* mount_node=vfs_create_node(target_node,fs,dev->name,true);
+    //vfs_node_t* mount_node = fs->mount(node,dev);
+    target_node->mountpoint=mount_node;
     spinlock_release(&vfs_lock);
+    return true;
 }
 
 void add_filesystem(vfs_fs_t* fs, const char* fs_name){
@@ -67,7 +75,7 @@ void add_filesystem(vfs_fs_t* fs, const char* fs_name){
 }
 
 void vfs_init(){
-    root=vfs_create_node(NULL,NULL,"/",true);
+    root=vfs_create_node(NULL,"/", NULL, true);
     hashmap_create(&filesystems,64);
     hashmap_set(&filesystems,"tmpfs",tmpfs_funcs());
     hashmap_set(&filesystems,"ext2fs",ext2fs_funcs());

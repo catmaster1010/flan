@@ -13,6 +13,7 @@
 #include "dev/pit.h"
 #include "proc/sched.h"
 #include "fs/vfs.h"
+#include "fs/initramfs.h"
 
 static void done(void) {
   printf("\nNothing to be done now...");
@@ -24,6 +25,7 @@ static void done(void) {
 void kernel_thread(){
   printf("%sHello world from kernel thread!%s\n",cRED,cNONE);
   //printf("%s >  ",get_current_thread()->process->cwd->name);
+  initramfs_init();
   done();
 }
 

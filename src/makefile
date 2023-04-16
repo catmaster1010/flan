@@ -78,7 +78,7 @@ $(KERNEL): $(OBJ)
 -include $(HEADER_DEPS)
 
 %.o: %.c limine.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.asm
 	nasm $(NASMFLAGS) $< -o $@

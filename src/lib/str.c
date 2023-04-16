@@ -101,7 +101,7 @@ char *basename(char *s)
 	return s+i;
 }
 
-char* strdup( const char *str){
+char* strdup(const char *str){
 	uint64_t l = strlen(str);
 	char *d = kheap_malloc(l+1);
 	if (!d) return NULL;
