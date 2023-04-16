@@ -2,3 +2,4 @@
 *.elf
 .git
 limine
+initramfs.tar
