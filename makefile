@@ -10,7 +10,7 @@ kernel:
 	make -C src
 
 initramfs:
-	tar -cf initramfs.tar usr
+	cd usr;tar -cf initramfs.tar *
 
 barebones.iso: limine kernel initramfs
 	rm -rf iso_root

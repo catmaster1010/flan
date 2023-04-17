@@ -68,6 +68,8 @@ bool vfs_mount(vfs_node_t* parent, char* source, char* target, const char* fs_na
     return true;
 }
 
+vfs_node_t* vfs_create(vfs_node_t* parent, const char* name,int mode){}
+
 void add_filesystem(vfs_fs_t* fs, const char* fs_name){
     spinlock_acquire(&vfs_lock);
     hashmap_set(&filesystems,fs_name,fs);
