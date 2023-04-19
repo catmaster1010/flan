@@ -2,11 +2,7 @@
 #include "memory/kheap.h"
 #include "lib/str.h"
 
-static vfs_fs_t tmpfs;
-
 static int tmpfs_create(const char* path, int mode){
-    vfs_node_t* parent;
-    vfs_node_t* node = vfs_create_node(parent, basename(path),&tmpfs,true);
     
 }
 
@@ -26,7 +22,11 @@ static int tmpfs_write (struct vfs_node* file, void* buff, uint64_t count){
 
 }
 
-static vfs_fs_t tmpfs={.create=tmpfs_create,.open=tmpfs_open,.close=tmpfs_close,.read=tmpfs_read,.write=tmpfs_write};
+static int tmpfs_mount (vfs_node_t* node, vfs_node_t* dev){
+
+}
+
+static vfs_fs_t tmpfs={.mount=tmpfs_mount,.create=tmpfs_create,.open=tmpfs_open,.close=tmpfs_close,.read=tmpfs_read,.write=tmpfs_write};
 
 vfs_fs_t* tmpfs_funcs(){
     return &tmpfs;

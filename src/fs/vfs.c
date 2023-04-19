@@ -13,11 +13,16 @@ vfs_node_t* root;
 hashmap_t filesystems;
 
 static vfs_node_t* reduce_node(vfs_node_t* node){
-    //TODO: symlinks
+    if(node->link){
+
+        return node->link;
+    }
     return node;
 }
 
 static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
+    if (path == NULL || strlen(path) == 0) return NULL;
+
     vfs_node_t* current_node;
     if(!parent){
         current_node = root;
@@ -26,13 +31,21 @@ static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
         current_node=parent;
     }
 
+    uint64_t path_len=strlen(path);
+    uint64_t index=0;
+    while (path[index] == '/') {
+        if (index == path_len - 1) {
+               return root;
+        }
+        index++;
+    }
     char* segment = strtok(strdup(path),"/");
     while(segment!=NULL){
-        current_node=reduce_node(hashmap_get(current_node->children,segment));
+        current_node=hashmap_get(current_node->children,segment);
         if(current_node==NULL){
             return NULL;
         }
-        char* segment = strtok(NULL,"/");
+        segment = strtok(NULL,"/");
     }
     return current_node;
 }
@@ -61,8 +74,8 @@ bool vfs_mount(vfs_node_t* parent, char* source, char* target, const char* fs_na
     vfs_fs_t* fs = hashmap_get(&filesystems,fs_name);
     vfs_node_t* target_node = path_to_node(parent,target);
     vfs_node_t* dev = path_to_node(parent,source);
-    vfs_node_t* mount_node=vfs_create_node(target_node,fs,dev->name,true);
-    //vfs_node_t* mount_node = fs->mount(node,dev);
+    //vfs_node_t* mount_node=vfs_create_node(target_node,dev,fs,true);
+    vfs_node_t* mount_node = fs->mount(target_node,dev);
     target_node->mountpoint=mount_node;
     spinlock_release(&vfs_lock);
     return true;
@@ -81,5 +94,6 @@ void vfs_init(){
     hashmap_create(&filesystems,64);
     hashmap_set(&filesystems,"tmpfs",tmpfs_funcs());
     hashmap_set(&filesystems,"ext2fs",ext2fs_funcs());
+    vfs_mount(root,NULL,"/","tmpfs");
 }
 

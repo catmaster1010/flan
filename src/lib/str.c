@@ -59,6 +59,7 @@ bool strcmp(char* str1,char*  str2){
 }
 
 char* strchr(char* str, char c){
+
     while (*str!=c) {
         if (!*str++) {
             return NULL;
@@ -79,7 +80,9 @@ char *strtok(const char *str, char *delim){
     token=s;
     while (*s!='\0') {
         if (strchr(delim,*s)!=NULL) {
-            *s++ = '\0';
+            *s= '\0';
+            s++;
+            printf("%d %s\n",token=='\0',token);
             return token;
         }
         s++;
