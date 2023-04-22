@@ -6,13 +6,10 @@
 #include "lib/stat.h"
 
 struct vfs_node;
-
 typedef struct vfs_fs{
     //const char* name; //the name of the filesystem type, such as “ext2”, “iso9660”, “msdos” and so on
     struct vfs_node* (*mount)(struct vfs_node* mountpoint, struct vfs_node* dev);
     struct vfs_node* (*create)(struct vfs_node* parent, const char* name, int mode);
-    int (*open)(struct vfs_node* file, char* name);
-    int (*close) (struct vfs_node* file);
     int (*read) (struct vfs_node* file, void* buff, uint64_t count);
     int (*write) (struct vfs_node* file, void* buff, uint64_t count);
     uint64_t inode_number;

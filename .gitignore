@@ -1,5 +1,7 @@
 *.iso
 *.elf
+*.o
+*.d
 .git
 limine
 initramfs.tar

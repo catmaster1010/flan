@@ -61,9 +61,8 @@ override NASMFLAGS += \
 
 override CFILES := $(shell find . -type f -name '*.c')
 override NASMFILES := $(shell find . -type f -name '*.asm')
-override ASFILES := $(shell find . -type f -name '*.S')
-override OBJ := $(CFILES:.c=.o) $(ASFILES:.S=.o) $(NASMFILES:.asm=.o)
-override HEADER_DEPS := $(CFILES:.c=.d) $(ASFILES:.S=.d)
+override OBJ := $(CFILES:.c=.o) $(NASMFILES:.asm=.o)
+override HEADER_DEPS := $(CFILES:.c=.d) $(NASMFILES:.asm=.d)
 
 .PHONY: all
 all: $(KERNEL)
