@@ -1,5 +1,4 @@
 #include "lib/stdio.h"
-#include  "memory/pmm.h"
 #include <stddef.h>
 #include  "memory/kheap.h"
 #include "lib/str.h"
@@ -37,7 +36,7 @@ void coalesce_dll(){
 	}
 }
 
-void* kheap_malloc(uint64_t size){
+void* kheap_alloc(uint64_t size){
 	spinlock_acquire(&kheap_lock);
 	uint64_t* ptr=NULL;
 	alloc_node_t* block;
@@ -58,7 +57,7 @@ void* kheap_malloc(uint64_t size){
 		add_block(new,FRAME_SIZE);
 		coalesce_dll();
 		spinlock_release(&kheap_lock);
-		return kheap_malloc(size);
+		return kheap_alloc(size);
 	}
 
 	//Can block be split
@@ -79,7 +78,7 @@ void* kheap_malloc(uint64_t size){
 }
 
 void* kheap_calloc(uint64_t size){
-	uint64_t* ptr = kheap_malloc(size);
+	uint64_t* ptr = kheap_alloc(size);
 	if (ptr!=NULL)
 	{
 		memset(ptr,0,size);
@@ -108,7 +107,7 @@ void kheap_free(uint64_t ptr){
 	spinlock_release(&kheap_lock);
 	return;
 }
-void* kheap_realloc(void *ptr, uint64_t new_size, uint64_t old_size){
+void* kheap_realloc(void *ptr, uint64_t new_size){
 	if (!ptr && !new_size) {
 		return NULL;
 	}
@@ -117,9 +116,11 @@ void* kheap_realloc(void *ptr, uint64_t new_size, uint64_t old_size){
 		return NULL;
 	}
 	if (!ptr) {
-		return kheap_malloc(new_size);
+		return kheap_alloc(new_size);
 	}
-	void *ret = kheap_malloc(new_size);
+    alloc_node_t* node=container_of(ptr,alloc_node_t,cBlock);
+    uint64_t old_size=node->size;
+	void *ret = kheap_alloc(new_size);
 	if (!ret) {
 		return NULL;
 	}

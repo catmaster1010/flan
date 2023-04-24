@@ -52,11 +52,11 @@ static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
 
 vfs_node_t* vfs_create_node(vfs_node_t* parent, const char* name, vfs_fs_t* fs, bool dir){
     vfs_node_t* node=kheap_calloc(sizeof(vfs_node_t));
-    node->name=kheap_malloc(strlen(name)+1);
+    node->name=kheap_alloc(strlen(name)+1);
     memcpy(node->name,name,strlen(name)+1);
     node->fs=fs;
     if(dir){
-        node->children = kheap_malloc(sizeof(hashmap_t));
+        node->children = kheap_alloc(sizeof(hashmap_t));
         hashmap_create(node->children,256);
     }
     if(!parent){

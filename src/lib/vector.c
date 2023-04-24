@@ -31,7 +31,7 @@ void* vector_get(vector_t* vector, uint64_t index) {
 void vector_push(vector_t* vector, void* data) {
     spinlock_acquire(&vector->lock);
     uint64_t vector_size = vector->items * vector->item_size;
-    void* ptr = kheap_realloc(vector->data, vector_size + vector->item_size, vector_size);
+    void* ptr = kheap_realloc(vector->data, vector_size + vector->item_size);
     assert(ptr);
     memcpy(ptr + vector_size, data, vector->item_size);
     vector->data = ptr;
@@ -71,7 +71,7 @@ void vector_insert(vector_t* vector, void* data, uint64_t index)
 { 
     spinlock_acquire(&vector->lock);
     uint64_t vector_size=vector->items * vector->item_size;
-    void* ptr = kheap_realloc(vector->data,vector_size+vector->item_size,vector_size);
+    void* ptr = kheap_realloc(vector->data,vector_size+vector->item_size);
     assert(ptr);
     vector->data=ptr;
     vector->items+=1;
@@ -86,8 +86,7 @@ void vector_resize(vector_t* vector, uint64_t items){
     if (vector->items<items)
     {
         uint64_t new_vector_size = items * vector->item_size;
-        uint64_t vector_size = vector->items * vector->item_size;
-        void* ptr=kheap_realloc(vector->data,new_vector_size,vector_size);
+        void* ptr=kheap_realloc(vector->data,new_vector_size);
         assert(ptr);
         vector->data = ptr;
     }

@@ -10,8 +10,6 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 - [x] MM stuffs
 	- [X] `GDT`
 	- [x] `PMM`
-		- [X] `malloc()`
-		- [x] `free()`
 	- [x] `VMM`
 	- [x] `KHEAP`
 - [x] IDT

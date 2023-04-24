@@ -49,14 +49,14 @@ static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
 
 process_t *sched_process(pagemap_t *pagemap)
 {
-    process_t *proc = kheap_malloc(sizeof(process_t));
+    process_t *proc = kheap_alloc(sizeof(process_t));
     assert(proc);
     vector_push(&processes_vector, proc);
-    vector_t *threads = kheap_malloc(sizeof(vector_t));
+    vector_t *threads = kheap_alloc(sizeof(vector_t));
     vector_create(threads, sizeof(thread_t));
     proc->threads = threads;
     proc->pagemap = pagemap;
-    proc->fildes = kheap_malloc(sizeof(vector_t));
+    proc->fildes = kheap_alloc(sizeof(vector_t));
     vector_create(proc->fildes,sizeof(vfs_node_t));
     proc->cwd=root;
     return proc;

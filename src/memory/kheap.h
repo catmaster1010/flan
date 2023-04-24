@@ -1,6 +1,8 @@
 #ifndef kheap_h
 #define kheap_h
 #include <stdint.h>
+#include "memory/pmm.h"
+
 struct dll {
      struct dll *next;
      struct dll *prev;
@@ -20,9 +22,9 @@ void coalesce_dll();
 
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next);
 
-void* kheap_malloc(uint64_t size);
+void* kheap_alloc(uint64_t size);
 void* kheap_calloc(uint64_t size);
-void* kheap_realloc(void *ptr, uint64_t new_size, uint64_t old_size);
+void* kheap_realloc(void *ptr, uint64_t new_size);
 void kheap_free(uint64_t ptr);
 void kheap_init();
 #endif

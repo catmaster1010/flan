@@ -106,16 +106,16 @@ static int ext2fs_create(const char* path, int mode){
 
 }
 
-static int ext2fs_read (struct vfs_node* file, void* buff, uint64_t count){
+static int ext2fs_read (struct vfs_node* node, void* buff, uint64_t count){
 
 }
 
-static int ext2fs_write (struct vfs_node* file, void* buff, uint64_t count){
+static int ext2fs_write (struct vfs_node* node, void* buff, uint64_t count){
 
 }
 
 
-static int ext2fs_mount (struct vfs_node* file, void* buff, uint64_t count){
+static vfs_node_t* ext2fs_mount (vfs_node_t* node, vfs_node_t* dev){
 
 }
 
