@@ -10,7 +10,7 @@ kernel:
 	make -C src
 
 initramfs:
-	cd usr;tar -cf initramfs.tar *
+	cd usr;rm initramfs.tar;tar -cf initramfs.tar *
 
 
 barebones.iso: limine kernel initramfs
@@ -25,6 +25,7 @@ barebones.iso: limine kernel initramfs
 		iso_root -o barebones.iso
 	limine/limine-deploy barebones.iso
 	rm -rf iso_root
+
 	$(MAKE) -C src clean
 
 .PHONY: clean

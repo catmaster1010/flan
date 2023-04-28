@@ -3,9 +3,9 @@
 #include "lib/str.h"
 #include "lib/assert.h"
 
-static int tmpfs_create(vfs_node_t* parent, const char* name, int mode){
+static vfs_node_t* tmpfs_create(vfs_node_t* parent, const char* name, int mode){\
     vfs_fs_t* fs=tmpfs_funcs();
-    vfs_node_t* node = vfs_create_node(parent,fs,name,mode);
+    vfs_node_t* node = vfs_create_node(parent,name,fs,mode);
     void* new_data = kheap_alloc(FRAME_SIZE);
     assert(new_data);
     node->data=new_data;
@@ -15,7 +15,7 @@ static int tmpfs_create(vfs_node_t* parent, const char* name, int mode){
 	st->st_mode = mode;
 	st->st_nlink = 1;
 	st->st_ino = node->fs->inode_number++;
-	
+    return node;
 }
 
 static int tmpfs_read(struct vfs_node* node, void* buff, uint64_t count, uint64_t offset){
@@ -44,7 +44,8 @@ static int tmpfs_write(struct vfs_node* node, void* buff, uint64_t count, uint64
 static vfs_node_t* tmpfs_mount(vfs_node_t* node, vfs_node_t* dev){
     (void)dev;
     vfs_fs_t* fs=tmpfs_funcs();
-    vfs_node_t* ret = vfs_create_node(node, fs, node->name, true);
+    vfs_node_t* ret = vfs_create_node(node, node->name, fs, true);
+    node->fs=fs;
     return ret;
 
 }

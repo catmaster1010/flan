@@ -20,34 +20,60 @@ static vfs_node_t* reduce_node(vfs_node_t* node){
     return node;
 }
 
-static vfs_node_t* path_to_node(vfs_node_t* parent, const char* path){
-    if (path == NULL || strlen(path) == 0) return NULL;
+typedef struct {
+    vfs_node_t* parent;
+    vfs_node_t* result;
+}path_to_node_t;
+
+static path_to_node_t path_to_node(vfs_node_t* parent, const char* path){
+    if (path == NULL || strlen(path) == 0) return (path_to_node_t){NULL,NULL};
 
     vfs_node_t* current_node;
+    vfs_node_t* parent_node;
     if(!parent){
-        current_node = root;
+        parent_node = root;
     }
     else{
-        current_node=parent;
+        parent_node=parent;
     }
 
-    uint64_t path_len=strlen(path);
+    current_node = parent_node;
+
+    uint64_t path_len=strlen(path)-1;
     uint64_t index=0;
     while (path[index] == '/') {
-        if (index == path_len - 1) {
-               return root;
+        if (index == path_len) {
+               return (path_to_node_t){root,root};
         }
         index++;
     }
-    char* segment = strtok(strdup(path),"/");
+
+    bool dir=path[path_len]=='/';
+    char* new_path;
+    if (dir) {
+	    new_path = kheap_alloc(path_len+1);
+        memcpy(new_path,path,path_len);
+        new_path[path_len]='\0';
+    } else {
+        new_path = strdup(path);
+    }
+    char* segment = strtok(new_path,"/");
+
     while(segment!=NULL){
         current_node=hashmap_get(current_node->children,segment);
-        if(current_node==NULL){
-            return NULL;
-        }
+
         segment = strtok(NULL,"/");
+
+        if(current_node) {
+            parent_node=current_node;
+            continue;
+        }
+
+        if (segment!=NULL) return (path_to_node_t){NULL,NULL};
+        return (path_to_node_t){parent_node,NULL};
     }
-    return current_node;
+
+    return (path_to_node_t){parent_node,current_node};
 }
 
 vfs_node_t* vfs_create_node(vfs_node_t* parent, const char* name, vfs_fs_t* fs, bool dir){
@@ -72,16 +98,28 @@ vfs_node_t* vfs_create_node(vfs_node_t* parent, const char* name, vfs_fs_t* fs, 
 bool vfs_mount(vfs_node_t* parent, char* source, char* target, const char* fs_name){
     spinlock_acquire(&vfs_lock);
     vfs_fs_t* fs = hashmap_get(&filesystems,fs_name);
-    vfs_node_t* target_node = path_to_node(parent,target);
-    vfs_node_t* dev = path_to_node(parent,source);
-    //vfs_node_t* mount_node=vfs_create_node(target_node,dev,fs,true);
+    path_to_node_t p2n_result = path_to_node(parent,target); 
+    vfs_node_t* target_node = p2n_result.result;
+
+    p2n_result = path_to_node(parent,source); 
+    vfs_node_t* dev = p2n_result.result;
+    
     vfs_node_t* mount_node = fs->mount(target_node,dev);
     target_node->mountpoint=mount_node;
     spinlock_release(&vfs_lock);
     return true;
 }
 
-vfs_node_t* vfs_create(vfs_node_t* parent, const char* name,int mode){}
+vfs_node_t* vfs_create(vfs_node_t* parent, const char* path,int mode){
+    path_to_node_t p2n_result=path_to_node(parent,path);
+    if (!p2n_result.parent) return NULL;
+    if (p2n_result.result) return NULL;
+    
+    vfs_fs_t* target_fs = p2n_result.parent->fs;
+    
+    vfs_node_t* node = target_fs->create(p2n_result.parent,basename(path),mode);
+    return node;
+}
 
 void add_filesystem(vfs_fs_t* fs, const char* fs_name){
     spinlock_acquire(&vfs_lock);

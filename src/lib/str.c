@@ -5,7 +5,7 @@
 
 int strlen(char* f){
   int ct = 0;
-  for(*f |= '\0'; *f++;) ct++;
+  for(*f != '\0'; *f++;) ct++;
   return ct;
 }
 
@@ -82,7 +82,6 @@ char *strtok(const char *str, char *delim){
         if (strchr(delim,*s)!=NULL) {
             *s= '\0';
             s++;
-            printf("%d %s\n",token=='\0',token);
             return token;
         }
         s++;

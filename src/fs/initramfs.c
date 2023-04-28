@@ -4,6 +4,8 @@
 #include "lib/str.h"
 #include "lib/stddef.h"
 #include "fs/vfs.h"
+#include "memory/pmm.h"
+#include "memory/vmm.h"
 
 #define TAR_FILE_TYPE_NORMAL '0'
 #define TAR_FILE_TYPE_HARD_LINK '1'
@@ -61,15 +63,27 @@ void initramfs_init(){
     while(memcmp(current_file->magic ,"ustar" ,5)==0){
         uint64_t size=oct2int(current_file->size,sizeof(current_file->size));
         uint64_t mode=oct2int(current_file->mode,sizeof(current_file->mode));
+        char* name = current_file->filename;
+
         switch (current_file->typeflag) {
             case TAR_FILE_TYPE_NORMAL: {
-
+                vfs_node_t* node = vfs_create(root,name,false);
+                assert(node);
+                printf("New file: %s Size: %d\n",name,size);
+                assert(node->fs->write(node,(void*)current_file+512,size,0)==size);
+                //printf("data: %s",(void*)current_file+512);
+                break;
             }
-            case TAR_FILE_TYPE_DIRECTORY:{
-
+            case TAR_FILE_TYPE_DIRECTORY : {
+                vfs_node_t* node = vfs_create(root,name,true);
+                assert(node);
+                printf("New dir: %s\n",name);
+                //printf("data: %s\n",(void*)current_file+512);
+                break;
             }
         }
-        current_file=(void*)current_file+512+ALIGN_UP(size,512);
+        pmm_free((void*) current_file - HHDM_OFFSET, (512+ALIGN_UP(size,512))/FRAME_SIZE);
+        current_file= (void*) current_file + 512 + ALIGN_UP(size,512);
     }
 
 }

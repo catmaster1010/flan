@@ -4,7 +4,7 @@
 #define cRED    "\033[1;31m"
 #define assert(check) ({ \
     if(!(check)) { \
-        printf("%sPANIC in %s() (%s:%d) triggered by core #%d\n", cRED,__func__, __FILE__, __LINE__,vector_get_index(&cpus,this_cpu())); \
+        printf("\n%sassert() failed in %s() (%s:%d)\n", cRED,__func__, __FILE__, __LINE__); \
         for(;;) asm("hlt"); \
     } \
 })
