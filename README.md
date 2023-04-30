@@ -24,7 +24,7 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 - [ ] EXT2
 ---
 # Dependencies
-- `x86_64-elf-gcc` (or you can use your host system's toolchain if compatible) 
+- `x86_64-elf-gcc` 
 - `nasm`
 - `git`
 - `xorriso`
