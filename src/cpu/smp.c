@@ -52,7 +52,7 @@ void core_init(struct limine_smp_info *info) {
     if (!local->bsp){
         sched_await();      
         for(;;){
-        asm volatile("cli;hlt;");
+        asm volatile("sti;hlt;");
         __builtin_unreachable(); }
     }
 

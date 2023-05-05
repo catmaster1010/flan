@@ -1,8 +1,7 @@
-#ifndef stdio.h
-#define stdio.h
+#ifndef stdio_h
+#define stdio_h
 
 #include <limine.h>
-
 
 #define cRED    "\033[1;31m"
 #define cBLUE   "\033[1;34m"

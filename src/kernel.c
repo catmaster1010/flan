@@ -14,9 +14,12 @@
 #include "proc/sched.h"
 #include "fs/vfs.h"
 #include "fs/initramfs.h"
+#include "dev/ps2.h"
 
 static void done(void) {
-  printf("\nNothing to be done now...");
+  printf("\nNothing to be done now...\n");
+ 
+  printf("%s >  ",get_current_thread()->process->cwd->name);
   for (;;) {
     asm("hlt");
   }
@@ -40,6 +43,7 @@ void _start(void) {
   acpi_init();
   smp_init();
   pit_init();
+  ps2_init();
   vfs_init();
   sched_init(kernel_thread);
 }

@@ -43,7 +43,7 @@ static inline uint8_t inb(uint16_t port) {
 static inline uint16_t inw(uint16_t port) {
     uint16_t data;
     asm volatile (
-        "inw %1, %0\n"
+        "inw %0, %1\n"
         : "=a" (data)
         : "Nd" (port)
         : "memory"
@@ -54,7 +54,7 @@ static inline uint16_t inw(uint16_t port) {
 static inline uint32_t ind(uint16_t port) {
     uint32_t data;
     asm volatile (
-        "ind %1, %0\n"
+        "ind %0, %1\n"
         : "=a" (data)
         : "Nd" (port)
         : "memory"

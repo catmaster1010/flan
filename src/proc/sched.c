@@ -8,6 +8,8 @@
 #include "cpu/cpu.h"
 #include "cpu/smp.h"
 
+#define SCHED_VECTOR 34
+
 process_t *kernel_process;
 vector_t processes_vector;
 
@@ -141,7 +143,7 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
         if (!work_steal())
         {
             lapic_eoi();
-            lapic_timer_oneshot(1000, 33);
+            lapic_timer_oneshot(1000, SCHED_VECTOR);
             for (;;)
             {
                 asm("hlt");
@@ -156,7 +158,7 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
     thread_t* next_thread = get_next_thread(this_cpu()->last_run_queue_index);
     this_cpu()->last_run_queue_index = vector_get_index(this_cpu()->queue, next_thread);
     lapic_eoi();
-    lapic_timer_oneshot(TIME_QUANTUM, 33);
+    lapic_timer_oneshot(TIME_QUANTUM, SCHED_VECTOR);
     switch_to_thread(next_thread);
 }
 
@@ -184,7 +186,7 @@ void dequeue_and_die(){
     thread_t* current_thread = get_current_thread();
     dequeue_thread(current_thread);
     kheap_free(current_thread);
-    lapic_ipi(this_cpu()->cpu_number,33); 
+    lapic_ipi(this_cpu()->cpu_number,SCHED_VECTOR); 
     asm volatile ("sti");
     for (;;) {
         asm volatile("hlt");
@@ -194,7 +196,7 @@ void dequeue_and_die(){
 
 __attribute__((__noreturn__)) void sched_await()
 {
-    lapic_timer_oneshot(1000, 33);
+    lapic_timer_oneshot(1000, SCHED_VECTOR);
     for (;;)
     {
         asm volatile("hlt;");
@@ -205,7 +207,7 @@ __attribute__((__noreturn__)) void sched_await()
 __attribute__((__noreturn__)) void sched_init(void *start)
 {
     asm("cli");
-    isr[33] = sched_vector;
+    isr[SCHED_VECTOR] = sched_vector;
     // idt_set_ist(33, 1);
     vector_create(&processes_vector, sizeof(process_t));
     kernel_process = sched_process(kernel_pagemap);
