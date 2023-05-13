@@ -42,8 +42,7 @@ struct interrupt_frame {
     uint64_t rcx;
     uint64_t rbx;
     uint64_t rax;
-   // uint64_t intno;
-    //uint64_t err;
+    uint64_t err;
     uint64_t rip;
     uint64_t cs;
     uint64_t rflags;
@@ -60,6 +59,7 @@ typedef struct {
     int last_run_queue_index;
     uint32_t lapic_freq;
     vector_t* queue;
+    tss_t tss;
 } cpu_local_t;
 
 

@@ -11,9 +11,10 @@
 #include "lib/lock.h"
 #include "dev/apic/lapic.h"
 #include "proc/sched.h"
+#include "lib/assert.h"
 
 spinlock_t smp_lock=LOCK_INIT;
-static int  cpus_running;
+static int cpus_running;
 vector_t cpus;
 
 static volatile struct limine_smp_request smp_request = {
@@ -28,10 +29,22 @@ void core_init(struct limine_smp_info *info) {
     vector_create(queue,sizeof(thread_t));
     local->queue=queue;
     vector_replace(&cpus,local,cpu_number);
-    gdt_load();
-    
+
+    gdt_load(); 
     idt_load();
+
+    void* int_stack = kheap_calloc(STACK_SIZE);
+    assert(int_stack);
+    local->tss.rsp0 = int_stack + HHDM_OFFSET + STACK_SIZE;
+
+    void* sched_stack = kheap_calloc(STACK_SIZE);
+    assert(sched_stack);
+    local->tss.ist1 = sched_stack + HHDM_OFFSET + STACK_SIZE;
+    
+    gdt_load_tss(&local->tss);
+
     vmm_switch_pagemap(kernel_pagemap);
+
     set_gs_base((uint64_t)info);
     set_kgs_base((uint64_t)info);
  
@@ -49,12 +62,7 @@ void core_init(struct limine_smp_info *info) {
     printf("Processor #%d is running. \n",cpu_number);
     
     cpus_running++;  
-    if (!local->bsp){
-        sched_await();      
-        for(;;){
-        asm volatile("sti;hlt;");
-        __builtin_unreachable(); }
-    }
+    if (!local->bsp) sched_await();      
 
 }
 

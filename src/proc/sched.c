@@ -23,7 +23,7 @@ thread_t* get_current_thread(){
 static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
 {
     thread->running=1;
-    interrupt_frame_t* state=thread->state;
+    interrupt_frame_t* state = thread->state;
     
     asm volatile(
         "mov rsp, %0\n"
@@ -42,6 +42,7 @@ static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
         "pop rcx\n"
         "pop rbx\n"
         "pop rax\n"
+        "add rsp, 8\n"
         "iretq\n"
         :
         : "rm"(state)
@@ -208,7 +209,7 @@ __attribute__((__noreturn__)) void sched_init(void *start)
 {
     asm("cli");
     isr[SCHED_VECTOR] = sched_vector;
-    // idt_set_ist(33, 1);
+    idt_set_ist(SCHED_VECTOR, 1);
     vector_create(&processes_vector, sizeof(process_t));
     kernel_process = sched_process(kernel_pagemap);
     sched_kernel_thread(start, NULL);

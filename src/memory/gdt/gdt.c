@@ -3,10 +3,8 @@
 #include <stdint.h>
 #include "lib/lock.h"
 
-gdt_entry_t gdt[11];
+gdt_entry_t gdt[13];
 gdt_register_t gdtr;
-
-static spinlock_t gdt_lock=LOCK_INIT;
 
 void gdt_load(){
     gdtr.limit = (sizeof(gdt) - 1);
@@ -83,8 +81,12 @@ void gdt_init() {
         .granularity = 0,
         .basehigh8 = 0
     };
+    
+    //sysenter related dummy entries. 
+    gdt[7] = (gdt_entry_t) {0};
+    gdt[8] = (gdt_entry_t) {0};
 
-    gdt[7] = (gdt_entry_t) { // user 64 data
+    gdt[9] = (gdt_entry_t) { // user 64 data
         .limit = 0,
         .baselow16 = 0,
         .basemid8 = 0,
@@ -93,7 +95,7 @@ void gdt_init() {
         .basehigh8 = 0
     };
 
-    gdt[8] = (gdt_entry_t) { // user 64 code
+    gdt[10] = (gdt_entry_t) { // user 64 code
         .limit = 0,
         .baselow16 = 0,
         .basemid8 = 0,
@@ -101,7 +103,8 @@ void gdt_init() {
         .granularity = 0x20,
         .basehigh8 = 0
     };
-    gdt[9] = (gdt_entry_t) {
+
+    gdt[11] = (gdt_entry_t) {
       .limit = 104,
       .baselow16 = 0,
       .basemid8 = 0,
@@ -109,7 +112,7 @@ void gdt_init() {
       .access = 0x89,
       .granularity = 0x00
     };
-    gdt[10] = (gdt_entry_t) {
+    gdt[12] = (gdt_entry_t) {
       .limit = 0,
       .baselow16 = 0,
     };
@@ -119,8 +122,9 @@ void gdt_init() {
 }
 
 void gdt_load_tss(tss_t* tss){
+  static spinlock_t gdt_lock=LOCK_INIT;
   spinlock_acquire(&gdt_lock);
-  gdt[9] = (gdt_entry_t) {
+  gdt[11] = (gdt_entry_t) {
     .limit = 104,
     .baselow16 = (uint16_t)((uint64_t)tss),
     .basemid8 = (uint8_t)((uint64_t)tss >> 16),
@@ -128,10 +132,10 @@ void gdt_load_tss(tss_t* tss){
     .access = 0x89,
     .granularity = 0x00
   };
-  gdt[10] = (gdt_entry_t) {
+  gdt[12] = (gdt_entry_t) {
       .limit = (uint16_t)((uint64_t)tss >> 32),
       .baselow16 = (uint16_t)((uint64_t)tss >> 48)
   };
-  asm volatile ("ltr %0" : : "rm" ((uint16_t)0x48) : "memory");
+  asm volatile ("ltr %0" : : "rm" ((uint16_t)0x58) : "memory");
   spinlock_release(&gdt_lock);
 }

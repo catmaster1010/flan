@@ -68,6 +68,27 @@ static void encode_idt_entry(uint8_t vector, void* handler, uint8_t flags) {
 static void exception_handler(uint8_t vector,interrupt_frame_t* state) {
     printf("%s\nEXCEPTION RECIVED: %s on core #%d%s\n",
     cRED,exception_names[vector],this_cpu()->cpu_number,cNONE);
+    
+    printf( "  RAX=%x  RBX=%x\n"
+            "  RCX=%x  RDX=%x\n"
+            "  RSI=%x  RDI=%x\n"
+            "  RBP=%x  RSP=%x\n"
+            "  R08=%x  R09=%x\n"
+            "  R10=%x  R11=%x\n"
+            "  R12=%x  R13=%x\n"
+            "  R14=%x  R15=%x\n"
+            "  RIP=%x  RFLAGS=%x\n"
+            "  CS=%x SS=%x\n"
+            "  ERR=%x",
+            state->rax, state->rbx, state->rcx, state->rdx,
+            state->rsi, state->rdi, state->rbp, state->rsp,
+            state->r8, state->r9, state->r10, state->r11,
+            state->r12, state->r13, state->r14, state->r15,
+            state->rip, state->rflags,
+            state->cs, state->ss,
+            state->err
+           );
+
     asm volatile ("cli; hlt"); 
 }
 

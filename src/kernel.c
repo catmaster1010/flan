@@ -45,5 +45,6 @@ void _start(void) {
   pit_init();
   ps2_init();
   vfs_init();
+
   sched_init(kernel_thread);
 }

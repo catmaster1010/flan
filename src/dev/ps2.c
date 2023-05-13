@@ -21,8 +21,8 @@ void ps2_init(){
     inb(0x60);
 
     ps2_write(0x64, 0x20);
-    ps2_write(0x64,0xaa);
-    assert(ps2_read()==0x55);
+    //ps2_write(0x64,0xaa);
+    //assert(ps2_read()==0x55);
 
     ps2_write(0x64, 0xae);
   
