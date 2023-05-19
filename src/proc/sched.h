@@ -18,6 +18,8 @@ typedef struct {
 } process_t;
 
 typedef struct {
+    uint64_t cr3;
+    cpu_local_t* cpu;
     bool running; 
     process_t* process;
     spinlock_t lock; 
@@ -27,6 +29,8 @@ typedef struct {
     bool blocked;
 } thread_t;
 
+extern process_t* kernel_process;
+
 thread_t* get_current_thread();
 thread_t* sched_thread();
 bool dequeue_thread(thread_t* thread);
@@ -35,5 +39,6 @@ process_t* sched_process(pagemap_t* pagemap);
 __attribute__((__noreturn__)) void sched_await();
 __attribute__((__noreturn__)) void sched_init(void* start);
 thread_t* sched_kernel_thread(void* start, void* args);
+thread_t* sched_user_thread(void *start, void *args, process_t* process);
 bool sched_enqueue_thread(thread_t* thread);
 #endif

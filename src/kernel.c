@@ -20,9 +20,7 @@ static void done(void) {
   printf("\nNothing to be done now...\n");
  
   printf("%s >  ",get_current_thread()->process->cwd->name);
-  for (;;) {
-    asm("hlt");
-  }
+  dequeue_and_die();
 }
 
 void kernel_thread(){

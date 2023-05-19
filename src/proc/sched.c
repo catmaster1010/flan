@@ -10,13 +10,11 @@
 
 #define SCHED_VECTOR 34
 
-process_t *kernel_process;
+process_t* kernel_process;
 vector_t processes_vector;
 
 thread_t* get_current_thread(){
-    vector_t *queue = this_cpu()->queue;
-    uint64_t last_queue_index = this_cpu()->last_run_queue_index;
-    thread_t* current_thread = vector_get(queue, last_queue_index);
+    thread_t* current_thread = read_gs_base();
     return current_thread;
 }
 
@@ -27,6 +25,10 @@ static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
     
     asm volatile(
         "mov rsp, %0\n"
+        "pop rax\n"
+        "mov es, eax\n"
+        "pop rax\n" 
+        "mov ds, eax\n"
         "pop r15\n"
         "pop r14\n"
         "pop r13\n"
@@ -79,6 +81,26 @@ bool sched_enqueue_thread(thread_t *thread)
     vector_insert(this_cpu()->queue, thread, this_cpu()->last_run_queue_index);
 }
 
+thread_t* sched_user_thread(void *start, void *args, process_t* process){
+
+    thread_t* thread = kheap_calloc(sizeof(thread_t));
+    thread->lock = LOCK_INIT;
+    thread->state = kheap_calloc(sizeof(interrupt_frame_t));
+    interrupt_frame_t* state = thread->state;
+    state->rsp = kheap_calloc(STACK_SIZE) + HHDM_OFFSET + STACK_SIZE;
+    state->cs = 0x38 | 3;
+    state->ds = state->es = state->ss = 0x40 | 3;
+    state->rflags = 0x202;
+    state->rip = start;
+    state->rdi = args;
+    thread->process = kernel_process;
+    thread->timeslice = TIME_QUANTUM;
+    thread->running = false;
+    thread->cr3 = process->pagemap->top;
+    sched_enqueue_thread(thread);
+    return thread;
+}
+
 thread_t* sched_kernel_thread(void *start, void *args)
 {
     thread_t* thread = kheap_calloc(sizeof(thread_t));
@@ -87,12 +109,14 @@ thread_t* sched_kernel_thread(void *start, void *args)
     interrupt_frame_t* state = thread->state;
     state->rsp = kheap_calloc(STACK_SIZE) + HHDM_OFFSET + STACK_SIZE;
     state->cs = 0x28;
+    state->ds = state->es = state->ss = 0x30;
     state->rflags = 0x202;
     state->rip = start;
     state->rdi = args;
     thread->process = kernel_process;
     thread->timeslice = TIME_QUANTUM;
     thread->running = false;
+    thread->cr3 = kernel_process->pagemap->top;
     sched_enqueue_thread(thread);
     return thread;
 }
@@ -158,8 +182,17 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
     current_thread->running=0;
     thread_t* next_thread = get_next_thread(this_cpu()->last_run_queue_index);
     this_cpu()->last_run_queue_index = vector_get_index(this_cpu()->queue, next_thread);
+    next_thread->cpu= this_cpu();
+
+    if (read_cr3() != next_thread->cr3) {
+        write_cr3(next_thread->cr3);
+    }
+
+    set_gs_base(next_thread);
+
     lapic_eoi();
     lapic_timer_oneshot(TIME_QUANTUM, SCHED_VECTOR);
+
     switch_to_thread(next_thread);
 }
 

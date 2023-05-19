@@ -7,6 +7,15 @@
 
 #define STACK_SIZE 0x10000
 
+#define MSR_EFER 0xC0000080
+#define MSR_STAR 0xC0000081
+#define MSR_LSTAR 0xC0000082
+#define MSR_CSTAR 0xC0000083
+#define MSR_FMASK 0xC0000084
+#define MSR_FSBASE 0xC0000100
+#define MSR_GSBASE 0xC0000101
+#define MSR_KGSBASE 0xC0000102
+
 #define cpuid(in,a,b,c,d) asm volatile ("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(in)); 
 
 typedef struct __attribute__((packed)) {
@@ -27,6 +36,8 @@ typedef struct __attribute__((packed)) {
 } tss_t;
 
 struct interrupt_frame {
+    uint64_t es; 
+    uint64_t ds;
     uint64_t r15;
     uint64_t r14;
     uint64_t r13;
@@ -85,19 +96,19 @@ static inline uint64_t rdmsr(uint32_t msr) {
 }
 
 static inline uint64_t read_gs_base() {
-    return rdmsr(0xc0000101);
+    return rdmsr(MSR_GSBASE);
 }
 
 static inline void set_gs_base(void *addr) {
-    wrmsr(0xc0000101, (uint64_t)addr);
+    wrmsr(MSR_GSBASE, (uint64_t)addr);
 }
 
 static inline void set_fs_base(void *addr) {
-    wrmsr(0xc0000100, (uint64_t)addr);
+    wrmsr(MSR_FSBASE, (uint64_t)addr);
 }
 
 static inline void set_kgs_base(void *addr) {
-    wrmsr(0xc0000102, (uint64_t)addr);
+    wrmsr(MSR_KGSBASE, (uint64_t)addr);
 }
 
 static inline uint64_t read_cr0(void) {
@@ -112,6 +123,23 @@ static inline uint64_t read_cr0(void) {
 static inline void write_cr0(uint64_t val) {
     asm volatile (
         "mov cr0, %0"
+        : : "r" (val)
+        : "memory"
+    );
+}
+
+static inline uint64_t read_cr3(void) {
+    uint64_t ret = 0;
+    asm volatile (
+        "mov %0, cr3"
+        : "=r" (ret)
+        : : "memory"
+    );
+    return ret;
+}
+static inline void write_cr3(uint64_t val) {
+    asm volatile (
+        "mov cr3, %0"
         : : "r" (val)
         : "memory"
     );

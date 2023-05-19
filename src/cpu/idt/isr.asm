@@ -45,7 +45,11 @@ isr_stub_%1:
 	%endif
     
     pushaq
-    
+    mov eax, ds
+    push rax
+    mov eax, es
+    push rax
+
     cld
     mov rdi, %1
     mov rax, (%1 * 8)
@@ -54,6 +58,11 @@ isr_stub_%1:
     mov rsi, rsp
     xor rbp, rbp
     call [rbx] 
+
+    pop rax
+    mov es, eax
+    pop rax 
+    mov ds, eax
 
     popaq
     add rsp, 8 

@@ -22,7 +22,34 @@ static volatile struct limine_smp_request smp_request = {
     .revision = 0
 };
 
+extern void syscall_entry_asm();
+
 void core_init(struct limine_smp_info *info) {
+
+    uint32_t eax, ebx, ecx, edx;
+
+    cpuid(0x80000001, eax, ebx, ecx, edx);
+
+    if (edx && (uint32_t) 1 << 11) {
+
+        uint64_t efer = rdmsr(MSR_EFER);
+		efer |= 1; 
+		wrmsr(MSR_EFER, efer);
+		
+		uint64_t star = 0;
+		star |= (uint64_t)(0x38 | 3 )<< 48;
+		star |= (uint64_t)(0x28) << 32;
+		
+		wrmsr(MSR_STAR, star);
+		wrmsr(MSR_LSTAR, syscall_entry_asm);
+		wrmsr(MSR_CSTAR, 0); 
+		wrmsr(MSR_FMASK, 0x200); 
+    }
+    else {
+        printf("Syscall is not supported.");
+        assert(0);
+    }
+
     cpu_local_t* local= (void *)info->extra_argument;
     int cpu_number = local->cpu_number;
     vector_t* queue = kheap_calloc(sizeof(vector_t));
@@ -45,8 +72,12 @@ void core_init(struct limine_smp_info *info) {
 
     vmm_switch_pagemap(kernel_pagemap);
 
-    set_gs_base((uint64_t)info);
-    set_kgs_base((uint64_t)info);
+    thread_t* thread = kheap_calloc(sizeof(thread_t));
+    thread->running = false;
+    thread->cpu = local;
+    thread->process = kernel_process;
+
+    set_gs_base(thread);
  
     // enable SSE and SSE2 for SIMD
     uint64_t cr0 = read_cr0();
@@ -67,6 +98,7 @@ void core_init(struct limine_smp_info *info) {
 }
 
 void smp_init(void) {
+
     struct limine_smp_response *smp_response = smp_request.response;
     vector_create(&cpus,sizeof(cpu_local_t));
     vector_resize(&cpus,smp_response->cpu_count);
@@ -90,7 +122,7 @@ void smp_init(void) {
     }
 }
 cpu_local_t* this_cpu(){
-    struct limine_smp_info* info = read_gs_base();
-    cpu_local_t* this_cpu= (void *)info->extra_argument;
+    thread_t* thread = read_gs_base();
+    cpu_local_t* this_cpu= thread->cpu;
     return this_cpu;
 }

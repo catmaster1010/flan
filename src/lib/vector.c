@@ -22,7 +22,7 @@ uint64_t vector_get_items(vector_t* vector) {
 
 void* vector_get(vector_t* vector, uint64_t index) {
     spinlock_acquire(&vector->lock);
-    if (index > vector->items) {return 0;};
+    if (index > vector->items) return 0;
     uint64_t data = vector->data + (index * vector->item_size);
     spinlock_release(&vector->lock);
     return data;

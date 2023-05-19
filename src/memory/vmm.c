@@ -91,6 +91,22 @@ void vmm_switch_pagemap(pagemap_t* pagemap)
     spinlock_release(&vmm_lock);
 }
 
+pagemap_t* vmm_new_pagemap(){
+    pagemap_t* pagemap = pmm_alloc(sizeof(kernel_pagemap));
+    
+    assert(pagemap);
+    pagemap->top = pmm_calloc(1);
+
+    assert(kernel_pagemap->top);
+
+    pagemap->top = (void *)pagemap->top + HHDM_OFFSET;
+    for (uint64_t i = 256; i < 512; i++) {
+        pagemap->top[i] = kernel_pagemap->top[i];
+    }
+
+    return pagemap;
+}
+
 void vmm_init(){
    /* printf("Our kernel's physical base: %x\n",kernel_address_request.response->physical_base);
     printf("Our kernel's virtual base: %x\n",KERNEL_OFFSET);

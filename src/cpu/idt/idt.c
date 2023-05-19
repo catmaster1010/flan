@@ -78,14 +78,14 @@ static void exception_handler(uint8_t vector,interrupt_frame_t* state) {
             "  R12=%x  R13=%x\n"
             "  R14=%x  R15=%x\n"
             "  RIP=%x  RFLAGS=%x\n"
-            "  CS=%x SS=%x\n"
+            "  CS=%x SS=%x ES=%x DS=%x\n"
             "  ERR=%x",
             state->rax, state->rbx, state->rcx, state->rdx,
             state->rsi, state->rdi, state->rbp, state->rsp,
             state->r8, state->r9, state->r10, state->r11,
             state->r12, state->r13, state->r14, state->r15,
             state->rip, state->rflags,
-            state->cs, state->ss,
+            state->cs, state->ss, state->es, state->ds,
             state->err
            );
 
@@ -106,7 +106,6 @@ void idt_init(){
         encode_idt_entry(i, isr_stubs[i], 0x8e);
         isr[i] = exception_handler;
     }
-
     for(uint64_t i = 32; i < 256; i++) { 
         encode_idt_entry(i, isr_stubs[i], 0x8e);
         isr[i] = isr_generic;
