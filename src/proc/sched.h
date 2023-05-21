@@ -6,8 +6,7 @@
 #include "lib/lock.h"
 #include "fs/vfs.h"
 
-#define TIME_QUANTUM 20
-#define MAX_THREADS 40
+#define TIME_QUANTUM 3
 
 typedef struct {
     uint64_t pid;
