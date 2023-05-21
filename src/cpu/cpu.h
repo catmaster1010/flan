@@ -63,13 +63,11 @@ struct interrupt_frame {
 typedef struct interrupt_frame interrupt_frame_t;
 
 typedef struct {
-    int cpu_number;
-    int lapic_id;
+    uint64_t cpu_number;
+    uint64_t lapic_id;
     bool bsp;
     bool active;
-    int last_run_queue_index;
     uint32_t lapic_freq;
-    vector_t* queue;
     tss_t tss;
 } cpu_local_t;
 

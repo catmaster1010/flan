@@ -6,6 +6,7 @@
 typedef struct {
     uint64_t items;
     uint64_t item_size;
+    uint64_t capacity;
     spinlock_t lock;
     void* data;
 
@@ -23,4 +24,5 @@ void vector_pop(vector_t* vector);
 void vector_replace(vector_t* vector, void* data, uint64_t index);
 uint64_t vector_get_index(vector_t* vector, void* data);
 void vector_insert(vector_t* vector, void* data, uint64_t index);
+void vector_reserve(vector_t* vector, uint64_t new_cap);
 #endif

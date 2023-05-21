@@ -9,9 +9,12 @@
 #include "cpu/smp.h"
 
 #define SCHED_VECTOR 34
-
+#define MAX_THREADS 65536 
+thread_t idle_thread= {.running=false,.enqueued=true,.blocked=true,.next=&idle_thread,.prev=&idle_thread};
+sched_queue_t queue = {.lock=LOCK_INIT,.start=&idle_thread,.end=&idle_thread};
 process_t* kernel_process;
 vector_t processes_vector;
+
 
 thread_t* get_current_thread(){
     thread_t* current_thread = read_gs_base();
@@ -69,16 +72,19 @@ process_t *sched_process(pagemap_t *pagemap)
 
 bool sched_enqueue_thread(thread_t *thread)
 {
-    if (thread->enqueued == true)
-    {
-        return true;
-    }
-    if (this_cpu()->last_run_queue_index == 0)
-    {
-        vector_push(this_cpu()->queue, thread);
-        return true;
-    }
-    vector_insert(this_cpu()->queue, thread, this_cpu()->last_run_queue_index);
+    if (thread->enqueued == true) return true;
+    
+    spinlock_acquire(&queue.lock);
+
+    thread->prev=queue.end;
+    queue.end->next=thread;
+    queue.end=thread;
+    thread->next=queue.start;
+    queue.start->prev=thread;
+
+    spinlock_release(&queue.lock);
+    thread->enqueued = true;
+    return true;
 }
 
 thread_t* sched_user_thread(void *start, void *args, process_t* process){
@@ -95,7 +101,6 @@ thread_t* sched_user_thread(void *start, void *args, process_t* process){
     state->rdi = args;
     thread->process = kernel_process;
     thread->timeslice = TIME_QUANTUM;
-    thread->running = false;
     thread->cr3 = process->pagemap->top;
     sched_enqueue_thread(thread);
     return thread;
@@ -115,73 +120,39 @@ thread_t* sched_kernel_thread(void *start, void *args)
     state->rdi = args;
     thread->process = kernel_process;
     thread->timeslice = TIME_QUANTUM;
-    thread->running = false;
     thread->cr3 = kernel_process->pagemap->top;
     sched_enqueue_thread(thread);
     return thread;
 }
 
-static bool work_steal()
-{
-    uint64_t most_work = 0;
-    cpu_local_t *most_work_cpu;
+static thread_t* get_next_thread(){
+    thread_t* current_thread = get_current_thread();
 
-    for (uint64_t i = 0; i < cpus.items; i++){
-        cpu_local_t *cpu = vector_get(&cpus, i);
-        uint64_t work = cpu->queue->items;
-        if (work<=1){continue;}
-
-        for (uint64_t k;k<work; k++) {
-            thread_t* thread = vector_get(cpu,k);
-            if (thread->blocked) {continue;} 
-            vector_remove(cpu,k);
-            vector_push(this_cpu()->queue,thread);
-            return 1;
-        }
+    for (thread_t* next_thread = current_thread->next; next_thread != current_thread; next_thread=next_thread->next) {
+        if (next_thread->blocked || next_thread->running) continue;
+        if (spinlock_test_and_acq(&next_thread->lock) == true) return next_thread;
     }
-    return 0;
-}
-
-static thread_t *get_next_thread(uint64_t index)
-{
-    uint64_t last_queue_index = this_cpu()->last_run_queue_index;
-    thread_t* thread;
-    if (this_cpu()->queue->items == index + 1){
-        thread= vector_get(this_cpu()->queue, 0);
-    }
-    else {
-    thread= vector_get(this_cpu()->queue, index + 1);
-    }
-    if (thread->blocked) {
-        thread=get_next_thread(index+1);
-    }
-    return thread;
+    return NULL;
 }
 
 static void sched_vector(uint8_t vector, interrupt_frame_t *state)
 {
     lapic_stop();
 
-    vector_t *queue = this_cpu()->queue;
-    if (queue->items == 0)
-    {
-        if (!work_steal())
-        {
-            lapic_eoi();
-            lapic_timer_oneshot(1000, SCHED_VECTOR);
-            for (;;)
-            {
-                asm("hlt");
-            }
-        }
-    }
     thread_t* current_thread = get_current_thread();
     if (current_thread->running){
         current_thread->state = state;
     }
+
+    thread_t* next_thread = get_next_thread();
+    if (next_thread == NULL) {
+        lapic_eoi();
+        lapic_timer_oneshot(TIME_QUANTUM, SCHED_VECTOR);
+        return;
+    }
     current_thread->running=0;
-    thread_t* next_thread = get_next_thread(this_cpu()->last_run_queue_index);
-    this_cpu()->last_run_queue_index = vector_get_index(this_cpu()->queue, next_thread);
+    spinlock_release(&current_thread->lock);
+
     next_thread->cpu= this_cpu();
 
     if (read_cr3() != next_thread->cr3) {
@@ -198,19 +169,13 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
 
 bool dequeue_thread(thread_t* thread){
     if (!thread->enqueued) return true;
-    vector_t* queue=this_cpu()->queue;
-    vector_remove(queue,vector_get_index(queue,thread));
+    //remove thread frome queue
+	thread->next->prev =thread->prev;
+	thread->prev->next=thread->next;
+    
+    spinlock_release(&thread->lock);
     thread->enqueued=false;
     thread->running=false;
-    if (!thread==get_current_thread()) return true;
-
-    if (this_cpu()->last_run_queue_index==0){
-        this_cpu()->last_run_queue_index=this_cpu()->queue->items;
-    }
-    else {
-       this_cpu()->last_run_queue_index--; 
-    }  
-
     return true;
 }
 
@@ -220,10 +185,12 @@ void dequeue_and_die(){
     thread_t* current_thread = get_current_thread();
     dequeue_thread(current_thread);
     kheap_free(current_thread);
-    lapic_ipi(this_cpu()->cpu_number,SCHED_VECTOR); 
+
     asm volatile ("sti");
+    lapic_ipi(this_cpu()->lapic_id,SCHED_VECTOR); 
+   // asm volatile ("int 34"); 
     for (;;) {
-        asm volatile("hlt");
+        asm volatile ("hlt");
     }
     __builtin_unreachable();
 }
@@ -244,8 +211,9 @@ __attribute__((__noreturn__)) void sched_init(void *start)
     isr[SCHED_VECTOR] = sched_vector;
     idt_set_ist(SCHED_VECTOR, 1);
     vector_create(&processes_vector, sizeof(process_t));
+
     kernel_process = sched_process(kernel_pagemap);
-    sched_kernel_thread(start, NULL);
+    thread_t* kernel_thread = sched_kernel_thread(start, NULL);
     asm("sti");
     sched_await();
 }

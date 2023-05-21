@@ -6,7 +6,7 @@
 #include "lib/lock.h"
 #include "fs/vfs.h"
 
-#define TIME_QUANTUM 3
+#define TIME_QUANTUM 20
 #define MAX_THREADS 40
 
 typedef struct {
@@ -17,7 +17,9 @@ typedef struct {
     vector_t* fildes;
 } process_t;
 
-typedef struct {
+struct thread {
+    struct thread* prev;
+    struct thread* next;
     uint64_t cr3;
     cpu_local_t* cpu;
     bool running; 
@@ -27,10 +29,17 @@ typedef struct {
     uint8_t timeslice;
     bool enqueued;
     bool blocked;
-} thread_t;
+};
+typedef struct thread thread_t;
 
+typedef struct{
+	thread_t* start;
+	thread_t* end;
+	spinlock_t lock;
+} sched_queue_t;
+
+extern thread_t idle_thread;
 extern process_t* kernel_process;
-
 thread_t* get_current_thread();
 thread_t* sched_thread();
 bool dequeue_thread(thread_t* thread);

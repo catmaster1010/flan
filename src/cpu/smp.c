@@ -52,9 +52,6 @@ void core_init(struct limine_smp_info *info) {
 
     cpu_local_t* local= (void *)info->extra_argument;
     int cpu_number = local->cpu_number;
-    vector_t* queue = kheap_calloc(sizeof(vector_t));
-    vector_create(queue,sizeof(thread_t));
-    local->queue=queue;
     vector_replace(&cpus,local,cpu_number);
 
     gdt_load(); 
@@ -71,13 +68,8 @@ void core_init(struct limine_smp_info *info) {
     gdt_load_tss(&local->tss);
 
     vmm_switch_pagemap(kernel_pagemap);
-
-    thread_t* thread = kheap_calloc(sizeof(thread_t));
-    thread->running = false;
-    thread->cpu = local;
-    thread->process = kernel_process;
-
-    set_gs_base(thread);
+    idle_thread.cpu=local;
+    set_gs_base(&idle_thread);
  
     // enable SSE and SSE2 for SIMD
     uint64_t cr0 = read_cr0();
@@ -93,7 +85,8 @@ void core_init(struct limine_smp_info *info) {
     printf("Processor #%d is running. \n",cpu_number);
     
     cpus_running++;  
-    if (!local->bsp) sched_await();      
+    if (!local->bsp) for(;;);
+    //sched_await();      
 
 }
 
@@ -108,7 +101,7 @@ void smp_init(void) {
         cpu_local_t* local = kheap_calloc(sizeof(cpu_local_t));
         cpu->extra_argument = (uint64_t)local;
         local->cpu_number = i;
-        cpu->goto_address=core_init;
+        local->lapic_id = cpu->lapic_id;
         if (cpu->lapic_id != smp_response->bsp_lapic_id) {
             smp_response->cpus[i]->goto_address = core_init;
         } 
