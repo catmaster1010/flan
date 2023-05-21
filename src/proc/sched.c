@@ -187,7 +187,6 @@ void dequeue_and_die(){
 
     asm volatile ("sti");
     lapic_ipi(this_cpu()->lapic_id,SCHED_VECTOR); 
-   // asm volatile ("int 34"); 
     for (;;) {
         asm volatile ("hlt");
     }
