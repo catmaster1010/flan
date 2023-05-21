@@ -9,7 +9,6 @@
 #include "cpu/smp.h"
 
 #define SCHED_VECTOR 34
-#define MAX_THREADS 65536 
 thread_t idle_thread= {.running=false,.enqueued=true,.blocked=true,.next=&idle_thread,.prev=&idle_thread};
 sched_queue_t queue = {.lock=LOCK_INIT,.start=&idle_thread,.end=&idle_thread};
 process_t* kernel_process;
