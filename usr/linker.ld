@@ -1,5 +1,4 @@
 OUTPUT_FORMAT(elf64-x86-64)
-OUTPUT_ARCH(x86-64)
 
 ENTRY(_start)
 

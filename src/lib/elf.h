@@ -4,8 +4,20 @@
 #include "memory/vmm.h"
 #include "fs/vfs.h"
 
-#define 	ELFMAG   "\177ELF"
+#define ELFCLASS64 2
+#define ARCH_ELF_ISA 0x3E
+#define ARCH_ELF_ENDIANNESS 1
 
+#define	EI_CLASS	4	/* Class of machine. */
+#define	EI_DATA		5	/* Data format. */
+#define	EI_VERSION	6	/* ELF format version. */
+#define	EI_OSABI	7	/* Operating system / ABI identification */
+#define	EI_ABIVERSION	8	/* ABI version */
+#define	OLD_EI_BRAND	8	/* Start of architecture identification. */
+#define	EI_PAD		9	/* Start of padding (per SVR4 ABI). */
+#define	EI_NIDENT	16	/* Size of e_ident array. */
+
+#define	ELFMAG		"\177ELF"
 #define	EI_NIDENT	16
 // ELF definitions common to all 64-bit architectures.
 typedef uint64_t	Elf64_Addr;

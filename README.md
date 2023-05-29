@@ -7,11 +7,10 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 
 ---
 # **TODO**
-- [x] MM stuffs
-	- [X] `GDT`
-	- [x] `PMM`
-	- [x] `VMM`
-	- [x] `KHEAP`
+- [X] GDT
+- [x] PMM
+- [x] VMM
+- [x] KHEAP
 - [x] IDT
 - [x] Parse ACPI tables 
 	-  [x] MADT
@@ -21,6 +20,7 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 - [x] Calibrate the APIC timer
 - [x] Implment scheduler 
 - [x] Implement VFS
+- [ ] Elf loader
 - [ ] EXT2
 ---
 # Dependencies
