@@ -69,6 +69,8 @@ void core_init(struct limine_smp_info *info) {
 
     vmm_switch_pagemap(kernel_pagemap);
     idle_thread.cpu=local;
+    idle_thread.process=kernel_process;
+
     set_gs_base(&idle_thread);
  
     // enable SSE and SSE2 for SIMD
@@ -85,8 +87,7 @@ void core_init(struct limine_smp_info *info) {
     printf("Processor #%d is running. \n",cpu_number);
     
     cpus_running++;  
-    if (!local->bsp) for(;;);
-    //sched_await();      
+    if (!local->bsp) sched_await();      
 
 }
 

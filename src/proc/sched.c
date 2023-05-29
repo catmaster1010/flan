@@ -9,11 +9,11 @@
 #include "cpu/smp.h"
 
 #define SCHED_VECTOR 34
-thread_t idle_thread= {.running=false,.enqueued=true,.blocked=true,.next=&idle_thread,.prev=&idle_thread};
-sched_queue_t queue = {.lock=LOCK_INIT,.start=&idle_thread,.end=&idle_thread};
 process_t* kernel_process;
 vector_t processes_vector;
 
+thread_t idle_thread= {.running=false,.enqueued=true,.blocked=true,.next=&idle_thread,.prev=&idle_thread};
+sched_queue_t queue = {.lock=LOCK_INIT,.start=&idle_thread,.end=&idle_thread};
 
 thread_t* get_current_thread(){
     thread_t* current_thread = read_gs_base();
@@ -98,7 +98,7 @@ thread_t* sched_user_thread(void *start, void *args, process_t* process){
     state->rflags = 0x202;
     state->rip = start;
     state->rdi = args;
-    thread->process = kernel_process;
+    thread->process = process;
     thread->timeslice = TIME_QUANTUM;
     thread->cr3 = process->pagemap->top;
     sched_enqueue_thread(thread);
@@ -211,6 +211,7 @@ __attribute__((__noreturn__)) void sched_init(void *start)
     vector_create(&processes_vector, sizeof(process_t));
 
     kernel_process = sched_process(kernel_pagemap);
+    idle_thread.process=kernel_process;
     thread_t* kernel_thread = sched_kernel_thread(start, NULL);
     asm("sti");
     sched_await();

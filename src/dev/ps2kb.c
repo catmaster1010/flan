@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include "dev/ps2.h"
 
+static char keybuffer[256];
+
 static const char keymap[] = {
     '\0', '\e', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t',
     'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', '\0', 'a', 's',
@@ -19,6 +21,9 @@ void ps2kb_handler(){
     bool release = scancode & 0x80;
     if (scancode < 0x57) {
         char c = keymap[scancode];
+        char str[2] = {c,'\0'};
+        printf("%s",str);
+        if (c=='\n') printf("%s >  ",get_current_thread()->process->cwd->name);
     }
     lapic_eoi();
 }

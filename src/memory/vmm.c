@@ -33,7 +33,7 @@ static uint64_t *get_next_level(uint64_t *current_level, uint64_t index){
     }
     uint64_t next = pmm_calloc(1);
     assert(next);
-    current_level[index] = next|0b11; 
+    current_level[index] = next|0b111; 
     return (uint64_t *) (next + HHDM_OFFSET);
 }
 
@@ -121,12 +121,12 @@ void vmm_init(){
     uint64_t length = ALIGN_UP((uintptr_t)kernel_end_addr, FRAME_SIZE) - virtual;
 
     for(uint64_t i = 0; i < length; i += FRAME_SIZE) {
-        vmm_map_page(kernel_pagemap,  physical + i,virtual + i, 0b11);
+        vmm_map_page(kernel_pagemap,  physical + i,virtual + i, 0b111);
     }
 
     //4gb
     for ( uintptr_t i = 0; i < 0x100000000; i += FRAME_SIZE) {
-        vmm_map_page(kernel_pagemap, i, i, 0b11);
+        vmm_map_page(kernel_pagemap, i, i, 0b111);
         vmm_map_page(kernel_pagemap, i, i + HHDM_OFFSET, 0b111);
     }
     /*
