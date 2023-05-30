@@ -25,7 +25,7 @@ static int tmpfs_read(vfs_node_t* node, void* buff, uint64_t count, uint64_t off
     }
 
     spinlock_acquire(&node->lock);
-    memcpy(buff,node->data,count);
+    memcpy(buff,node->data+offset,count);
     spinlock_release(&node->lock);
 
     return count;

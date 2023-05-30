@@ -4,6 +4,11 @@
 #include "memory/vmm.h"
 #include "fs/vfs.h"
 
+#define ELFDATA2LSB 1
+#define ELFDATA2LSB 1
+#define ELFOSABI_SYSV 0
+#define EM_X86_64 62
+
 #define ELFCLASS64 2
 #define ARCH_ELF_ISA 0x3E
 #define ARCH_ELF_ENDIANNESS 1
@@ -16,7 +21,6 @@
 #define	OLD_EI_BRAND	8	/* Start of architecture identification. */
 #define	EI_PAD		9	/* Start of padding (per SVR4 ABI). */
 #define	EI_NIDENT	16	/* Size of e_ident array. */
-
 #define	ELFMAG		"\177ELF"
 #define	EI_NIDENT	16
 // ELF definitions common to all 64-bit architectures.
@@ -34,6 +38,8 @@ typedef Elf64_Word	Elf64_Hashelt;
 typedef Elf64_Xword	Elf64_Size;
 typedef Elf64_Sxword	Elf64_Ssize;
 
+#define ET_EXEC     2
+#define EM_AMD64    62
 // ELF header.
 typedef struct {
   unsigned char	e_ident[EI_NIDENT]; /* File identification. */
