@@ -52,9 +52,9 @@ void* kheap_alloc(uint64_t size){
 	}
 	if (!ptr)
 	{
-		uint64_t* new =pmm_malloc(1);
-		//printf("Expanding kheap.\n");
-		add_block(new,FRAME_SIZE);
+        uint64_t frames = (size/FRAME_SIZE) + (size % FRAME_SIZE);
+		uint64_t* new =pmm_malloc(frames);
+		add_block(new,frames * FRAME_SIZE);
 		coalesce_dll();
 		spinlock_release(&kheap_lock);
 		return kheap_alloc(size);
@@ -90,6 +90,12 @@ void* kheap_calloc(uint64_t size){
 void kheap_free(uint64_t ptr){
 	alloc_node_t *block, *free_block;
 	block = container_of(ptr, alloc_node_t,cBlock);
+
+    if ((block->size+sizeof(alloc_node_t)) >= FRAME_SIZE && ((uint64_t) container_of(block, alloc_node_t, cBlock) % FRAME_SIZE) == 0) {
+        pmm_free(container_of(block, alloc_node_t, cBlock), (block->size+sizeof(alloc_node_t)) / FRAME_SIZE);                
+	    return;
+    }
+
 	spinlock_acquire(&kheap_lock);
 	for (free_block = container_of(free_list.next,alloc_node_t,node); &free_block->node!= &free_list; free_block=container_of(free_block->node.next,alloc_node_t,node))
 	{

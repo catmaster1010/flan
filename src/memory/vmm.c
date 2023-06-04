@@ -74,9 +74,16 @@ void vmm_map_page(pagemap_t* pagemap, uint64_t physical_address, uint64_t virtua
     uint64_t* pml2 = get_next_level(pml3, pml3_index);
     uint64_t* pml1 = get_next_level(pml2, pml2_index);
 
-    pml1[pml1_index] = physical_address|flags;
+    pml1[pml1_index] = physical_address | flags;
    
     spinlock_release(&vmm_lock);
+}
+
+void vmm_map_pages(pagemap_t* pagemap, uint64_t physical_address, uint64_t virtual_address, uint64_t flags, uint64_t pages){
+    for (uint64_t i = 0; i < pages; i++) {
+        vmm_map_page(pagemap, physical_address + (i*FRAME_SIZE), virtual_address + (i*FRAME_SIZE), flags);
+    }
+
 }
 
 void vmm_switch_pagemap(pagemap_t* pagemap)
@@ -121,13 +128,13 @@ void vmm_init(){
     uint64_t length = ALIGN_UP((uintptr_t)kernel_end_addr, FRAME_SIZE) - virtual;
 
     for(uint64_t i = 0; i < length; i += FRAME_SIZE) {
-        vmm_map_page(kernel_pagemap,  physical + i,virtual + i, 0b111);
+        vmm_map_page(kernel_pagemap,  physical + i,virtual + i, PTE_PRESENT | PTE_WRITABLE);
     }
 
     //4gb
     for ( uintptr_t i = 0; i < 0x100000000; i += FRAME_SIZE) {
-        vmm_map_page(kernel_pagemap, i, i, 0b111);
-        vmm_map_page(kernel_pagemap, i, i + HHDM_OFFSET, 0b111);
+        vmm_map_page(kernel_pagemap, i, i, PTE_PRESENT | PTE_WRITABLE);
+        vmm_map_page(kernel_pagemap, i, i + HHDM_OFFSET, PTE_PRESENT | PTE_WRITABLE);
     }
     /*
     struct  limine_memmap_entry **mmaps = memmap_request.response->entries;

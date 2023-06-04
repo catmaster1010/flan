@@ -2,7 +2,7 @@
 #include "lib/assert.h"
 #include "lib/str.h"
 
-static bool check_headers(Elf64_Ehdr* header){
+static inline bool check_headers(Elf64_Ehdr* header){
     if (memcmp(header->e_ident, ELFMAG, 4)) return false;
     if(header->e_ident[EI_CLASS]!=ELFCLASS64) return false;
     if(header->e_ident[EI_DATA]!=ELFDATA2LSB) return false;
@@ -20,5 +20,13 @@ bool elf_load(pagemap_t* pagemap, vfs_node_t* node){
     for (uint64_t i = 0; i < elf_header.e_phnum; i++) {
         Elf64_Phdr program_header;
         if (vfs_read(node, &program_header, sizeof(Elf64_Phdr), elf_header.e_phoff + i * elf_header.e_phentsize) <= 0) return false;
+        if (program_header.p_type == PT_LOAD) {
+            
+            uint64_t prot = PTE_PRESENT;
+            if (program_header.p_flags & PF_W) prot |= PTE_WRITABLE;
+            if (program_header.p_flags & PF_X) prot |= PTE_USER;
+
+        }
+
     }
 }

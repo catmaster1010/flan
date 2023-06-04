@@ -136,8 +136,6 @@ static thread_t* get_next_thread(){
 
 static void sched_vector(uint8_t vector, interrupt_frame_t *state)
 {
-    lapic_stop();
-
     thread_t* current_thread = get_current_thread();
     if (current_thread->running){
         current_thread->state = state;
@@ -146,7 +144,7 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
     thread_t* next_thread = get_next_thread();
     if (next_thread == NULL) {
         lapic_eoi();
-        lapic_timer_oneshot(TIME_QUANTUM, SCHED_VECTOR);
+        lapic_timer_oneshot(current_thread->timeslice, SCHED_VECTOR);
         return;
     }
     current_thread->running=0;
@@ -161,7 +159,7 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
     set_gs_base(next_thread);
 
     lapic_eoi();
-    lapic_timer_oneshot(TIME_QUANTUM, SCHED_VECTOR);
+    lapic_timer_oneshot(current_thread->timeslice, SCHED_VECTOR);
 
     switch_to_thread(next_thread);
 }
@@ -187,9 +185,6 @@ void dequeue_and_die(){
 
     asm volatile ("sti");
     lapic_ipi(this_cpu()->lapic_id,SCHED_VECTOR); 
-    for (;;) {
-        asm volatile ("hlt");
-    }
     __builtin_unreachable();
 }
 
