@@ -99,6 +99,7 @@ thread_t* sched_user_thread(void *start, void *args, process_t* process){
     state->rip = start;
     state->rdi = args;
     thread->process = process;
+    vector_push(process->threads, thread);
     thread->timeslice = TIME_QUANTUM;
     thread->cr3 = process->pagemap->top;
     sched_enqueue_thread(thread);
@@ -118,6 +119,7 @@ thread_t* sched_kernel_thread(void *start, void *args)
     state->rip = start;
     state->rdi = args;
     thread->process = kernel_process;
+    vector_push(kernel_process->threads, thread);
     thread->timeslice = TIME_QUANTUM;
     thread->cr3 = kernel_process->pagemap->top;
     sched_enqueue_thread(thread);

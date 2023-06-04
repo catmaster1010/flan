@@ -19,7 +19,7 @@ static vfs_node_t* tmpfs_create(vfs_node_t* parent, const char* name, int mode){
 }
 
 static int tmpfs_read(vfs_node_t* node, void* buff, uint64_t count, uint64_t offset){
-    uint64_t max = node->st.st_blksize-offset;
+    uint64_t max = node->st.st_size-offset;
     if (count>max) {
         count=max;
     }
