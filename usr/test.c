@@ -1,4 +1,4 @@
 void _start(){
-    asm volatile ("mov rax, 69");
-    asm volatile ("syscall");
+    asm volatile ("mov rax, 0xC0FFEBABE");
+    for(;;);
 }

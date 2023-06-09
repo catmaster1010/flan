@@ -20,7 +20,8 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 - [x] Calibrate the APIC timer
 - [x] Implment scheduler 
 - [x] Implement VFS
-- [ ] Elf loader
+- [x] Elf loader
+- [ ] Syscalls
 - [ ] EXT2
 ---
 # Dependencies

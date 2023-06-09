@@ -91,5 +91,11 @@ typedef struct {
   Elf64_Xword	p_align;	/* Alignment in memory and file. */
 } Elf64_Phdr;
 
-bool elf_load(pagemap_t* pagemap, vfs_node_t* node);
+struct auxval {
+    uint64_t at_entry;
+    uint64_t at_phdr;
+    uint64_t at_phent;
+    uint64_t at_phnum;
+};
+bool elf_load(pagemap_t* pagemap, vfs_node_t* node, struct auxval* aux);
 #endif

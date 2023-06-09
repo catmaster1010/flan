@@ -57,11 +57,11 @@ void core_init(struct limine_smp_info *info) {
     gdt_load(); 
     idt_load();
 
-    void* int_stack = kheap_calloc(STACK_SIZE);
+    void* int_stack = pmm_alloc(STACK_SIZE);
     assert(int_stack);
     local->tss.rsp0 = int_stack + HHDM_OFFSET + STACK_SIZE;
 
-    void* sched_stack = kheap_calloc(STACK_SIZE);
+    void* sched_stack = pmm_alloc(STACK_SIZE);
     assert(sched_stack);
     local->tss.ist1 = sched_stack + HHDM_OFFSET + STACK_SIZE;
     

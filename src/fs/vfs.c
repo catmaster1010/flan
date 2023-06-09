@@ -113,10 +113,12 @@ bool vfs_mount(vfs_node_t* parent, char* source, char* target, const char* fs_na
     vfs_fs_t* fs = hashmap_get(&filesystems,fs_name);
     path_to_node_t p2n_result = path_to_node(parent,target); 
     vfs_node_t* target_node = p2n_result.result;
+    vfs_node_t* dev;
+    if (source != NULL) {
+        p2n_result = path_to_node(parent,source); 
+        dev = p2n_result.result;
+    }
 
-    p2n_result = path_to_node(parent,source); 
-    vfs_node_t* dev = p2n_result.result;
-    
     vfs_node_t* mount_node = fs->mount(target_node,dev,basename(target));
     target_node->mountpoint=mount_node;
     spinlock_release(&vfs_lock);

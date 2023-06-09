@@ -84,15 +84,15 @@ void* pmm_malloc(uint64_t wanted_frames){
     spinlock_acquire(&pmm_lock);
     uint64_t* ptr;
     
-    uint64_t available_frames;
+    uint64_t available_frames=0;
     for (uint64_t frame = 1; frame < limit; frame++)
     {
         if (!BIT_TEST(frame)) {
             available_frames++;
-        } else if (available_frames != wanted_frames)
-            {available_frames = 0;
+        } else if (available_frames != wanted_frames){
+            available_frames = 0;
             continue;
-            }
+        }
         if (available_frames == wanted_frames) {
             uint64_t i;
             for  (i = 0; i < wanted_frames; i++)
@@ -108,10 +108,10 @@ void* pmm_malloc(uint64_t wanted_frames){
         }
         spinlock_release(&pmm_lock);
         return NULL;
-    }
+}
+
 void* pmm_calloc(uint64_t frames){
-    void* ptr;
-    ptr  = pmm_malloc(1);
+    void* ptr  = pmm_malloc(frames);
     memset(ptr+HHDM_OFFSET,0,frames*FRAME_SIZE);
     return ptr;
 }
@@ -119,6 +119,7 @@ void* pmm_calloc(uint64_t frames){
 void *pmm_alloc(uint64_t size)
 {
     uint64_t frames = (size + (FRAME_SIZE - 1)) / FRAME_SIZE;
-    void*  ptr = pmm_calloc(frames+1);
+    void*  ptr = pmm_calloc(frames);
+    assert(ptr);
     return ptr;
 }

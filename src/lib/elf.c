@@ -13,7 +13,7 @@ static inline bool check_headers(Elf64_Ehdr* header){
     return true;
 }
 
-bool elf_load(pagemap_t* pagemap, vfs_node_t* node){
+bool elf_load(pagemap_t* pagemap, vfs_node_t* node,struct auxval* aux){
     Elf64_Ehdr elf_header;   
     if(vfs_read(node, &elf_header, sizeof(Elf64_Ehdr), 0)<= 0) return false;
     
@@ -28,16 +28,18 @@ bool elf_load(pagemap_t* pagemap, vfs_node_t* node){
             if (program_header.p_flags & PF_W) prot |= PTE_WRITABLE;
             if (program_header.p_flags & PF_X) prot |= PTE_USER;
             
-            uint64_t unaligned = program_header.p_vaddr & (~FRAME_SIZE);
+            uint64_t unaligned = program_header.p_vaddr & (FRAME_SIZE-1);
             uint64_t pages = ALIGN_UP(program_header.p_memsz + unaligned,FRAME_SIZE) / FRAME_SIZE;
-            uint64_t phys = pmm_alloc(pages);
+            void* phys = pmm_calloc(pages);
             assert(phys);
 
-            vmm_map_pages(pagemap, phys, program_header.p_vaddr, prot, pages);
+            vmm_map_pages(pagemap, phys, program_header.p_vaddr, 0b111, pages);
             
             assert(vfs_read(node, phys + unaligned + HHDM_OFFSET, program_header.p_filesz, program_header.p_offset));
-
+            
         }
 
     }
+    aux->at_entry = elf_header.e_entry;
+    
 }

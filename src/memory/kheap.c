@@ -3,6 +3,7 @@
 #include  "memory/kheap.h"
 #include "lib/str.h"
 #include  "lib/lock.h"
+#include "memory/vmm.h"
 
 #define HEADER_SIZE 24
 static dll_t free_list={.next=&free_list,.prev=&free_list};
@@ -38,7 +39,7 @@ void coalesce_dll(){
 
 void* kheap_alloc(uint64_t size){
 	spinlock_acquire(&kheap_lock);
-	uint64_t* ptr=NULL;
+	void* ptr=NULL;
 	alloc_node_t* block;
 	// Try to find a big enough block to alloc (First fit)
 	for (block = container_of(free_list.next,alloc_node_t,node); &block->node != &free_list; block=container_of(block->node.next,alloc_node_t,node))
@@ -74,11 +75,11 @@ void* kheap_alloc(uint64_t size){
 	block->node.prev->next=block->node.next;
 	spinlock_release(&kheap_lock);
 	//Finally, return pointer to newly allocated adress
-	return ptr;  
+	return ptr+HHDM_OFFSET;  
 }
 
 void* kheap_calloc(uint64_t size){
-	uint64_t* ptr = kheap_alloc(size);
+	void* ptr = kheap_alloc(size);
 	if (ptr!=NULL)
 	{
 		memset(ptr,0,size);
@@ -89,8 +90,7 @@ void* kheap_calloc(uint64_t size){
 
 void kheap_free(uint64_t ptr){
 	alloc_node_t *block, *free_block;
-	block = container_of(ptr, alloc_node_t,cBlock);
-
+	block = (void*) container_of(ptr, alloc_node_t,cBlock) - HHDM_OFFSET;
     if ((block->size+sizeof(alloc_node_t)) >= FRAME_SIZE && ((uint64_t) container_of(block, alloc_node_t, cBlock) % FRAME_SIZE) == 0) {
         pmm_free(container_of(block, alloc_node_t, cBlock), (block->size+sizeof(alloc_node_t)) / FRAME_SIZE);                
 	    return;

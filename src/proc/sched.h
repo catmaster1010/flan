@@ -14,6 +14,7 @@ typedef struct {
     vector_t* threads;
     vfs_node_t* cwd;
     vector_t* fildes;
+    uint64_t thread_stack_top;
 } process_t;
 
 struct thread {
@@ -49,4 +50,6 @@ __attribute__((__noreturn__)) void sched_init(void* start);
 thread_t* sched_kernel_thread(void* start, void* args);
 thread_t* sched_user_thread(void *start, void *args, process_t* process);
 bool sched_enqueue_thread(thread_t* thread);
+
+
 #endif

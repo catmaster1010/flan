@@ -18,9 +18,12 @@ static inline uint64_t hash(char* key, uint64_t size){
 static inline hashmap_entry_t* hashmap_entry_get(hashmap_t* hashmap, char* key){
     uint64_t index = INDEX(key,hashmap->entry_count); 
     hashmap_entry_t* entry = &hashmap->entries[index];
-    while(strcmp(entry->key,key)){
+    uint64_t key_length = strlen(key);
+    while(entry){
+        if (key_length == entry->key_length){
+            if (!memcmp(entry->key,key,key_length)) break;
+        }
         entry=entry->next;
-        if(entry==NULL){break;}
     }
     return entry; 
 }
@@ -44,6 +47,7 @@ bool hashmap_set(hashmap_t* hashmap, char* key, void* val){
     hashmap_entry_t* new_entry=kheap_calloc(sizeof(hashmap_entry_t));
     assert(new_entry);
     new_entry->key=key;
+    new_entry->key_length = strlen(key);
     new_entry->val=val;
     uint64_t index = INDEX(key,hashmap->entry_count);  
     new_entry->next=&hashmap->entries[index];
@@ -62,11 +66,15 @@ bool hashmap_remove(hashmap_t* hashmap, char* key){
     uint64_t index = INDEX(key,hashmap->entry_count); 
     hashmap_entry_t* entry = &hashmap->entries[index];
     hashmap_entry_t* prev=NULL;
-    while(strcmp(entry->key,key)){
+    uint64_t key_length = strlen(key);
+    while(entry){
+        if (key_length == entry->key_length){
+            if (memcmp(entry->key,key,key_length)) break;
+        }
         prev=entry;
         entry=entry->next;
-        if(entry==NULL){return NULL;}
     }
+
     if(prev){
         prev->next=entry->next;
         kheap_free(entry);

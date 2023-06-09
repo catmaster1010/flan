@@ -11,8 +11,6 @@ void* pmm_malloc(uint64_t frames);
 void* pmm_calloc(uint64_t frames);
 void* pmm_alloc(uint64_t size);
 
-void test_pmm();
-
 #define FRAME_SIZE 0x1000 // 4096 bytes pages, 4kb 
 
 extern  volatile struct limine_memmap_request memmap_request;

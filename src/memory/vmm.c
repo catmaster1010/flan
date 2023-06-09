@@ -27,9 +27,9 @@ int five_level_enabled = NULL;
 
 #define KERNEL_OFFSET  kernel_address_request.response->virtual_base
 
-static uint64_t *get_next_level(uint64_t *current_level, uint64_t index){
-    if(current_level[index]&1){
-        return (current_level[index] & ~0xfff)+ HHDM_OFFSET;
+static uint64_t* get_next_level(uint64_t *current_level, uint64_t index){
+    if(current_level[index]&1 != 0 ){
+        return (current_level[index] & PTE_ADDR_MASK)+ HHDM_OFFSET;
     }
     uint64_t next = pmm_calloc(1);
     assert(next);
@@ -48,8 +48,11 @@ void vmm_unmap_page(pagemap_t* pagemap, uint64_t virtual_address){
     uint64_t pml1_index = (virtual_address & ((uint64_t) 0x1ff << 12)) >> 12;
 
     uint64_t* pml3 = get_next_level(pagemap->top, pml4_index);
+    assert(pml3);
     uint64_t* pml2 = get_next_level(pml3, pml3_index);
+    assert(pml2);
     uint64_t* pml1 = get_next_level(pml2, pml2_index);
+    assert(pml1);
 
     pml1[pml1_index] = 0;
 
@@ -69,10 +72,12 @@ void vmm_map_page(pagemap_t* pagemap, uint64_t physical_address, uint64_t virtua
     uint64_t pml3_index = (virtual_address & ((uint64_t) 0x1ff << 30)) >> 30;
     uint64_t pml2_index = (virtual_address & ((uint64_t) 0x1ff << 21)) >> 21;
     uint64_t pml1_index = (virtual_address & ((uint64_t) 0x1ff << 12)) >> 12;
-
     uint64_t* pml3 = get_next_level(pagemap->top, pml4_index);
+    assert(pml3);
     uint64_t* pml2 = get_next_level(pml3, pml3_index);
+    assert(pml2);
     uint64_t* pml1 = get_next_level(pml2, pml2_index);
+    assert(pml1);
 
     pml1[pml1_index] = physical_address | flags;
    
@@ -88,23 +93,21 @@ void vmm_map_pages(pagemap_t* pagemap, uint64_t physical_address, uint64_t virtu
 
 void vmm_switch_pagemap(pagemap_t* pagemap)
 {   
-    spinlock_acquire(&vmm_lock);
-    uint64_t *top = pagemap->top;
+    uint64_t *top = (void*) pagemap->top - HHDM_OFFSET;
     asm volatile (
         "mov cr3, %0\n"
         : : "r" (top)
         : "memory"
     );
-    spinlock_release(&vmm_lock);
 }
 
 pagemap_t* vmm_new_pagemap(){
-    pagemap_t* pagemap = pmm_alloc(sizeof(kernel_pagemap));
+    pagemap_t* pagemap = pmm_alloc(sizeof(pagemap_t));
     
     assert(pagemap);
     pagemap->top = pmm_calloc(1);
 
-    assert(kernel_pagemap->top);
+    assert(pagemap->top);
 
     pagemap->top = (void *)pagemap->top + HHDM_OFFSET;
     for (uint64_t i = 256; i < 512; i++) {
@@ -115,27 +118,30 @@ pagemap_t* vmm_new_pagemap(){
 }
 
 void vmm_init(){
-   /* printf("Our kernel's physical base: %x\n",kernel_address_request.response->physical_base);
+    printf("Our kernel's physical base: %x\n",kernel_address_request.response->physical_base);
     printf("Our kernel's virtual base: %x\n",KERNEL_OFFSET);
-    printf("Our HHDM is %x\n",HHDM_OFFSET);*/
+    printf("Our HHDM offset is %x\n",HHDM_OFFSET);
     
     kernel_pagemap=pmm_alloc(sizeof(kernel_pagemap));
     kernel_pagemap->top=pmm_calloc(1);
     assert(kernel_pagemap->top);
+
+    kernel_pagemap->top = (void*) kernel_pagemap->top + HHDM_OFFSET;
 
     uintptr_t virtual = kernel_address_request.response->virtual_base;
     uintptr_t physical = kernel_address_request.response->physical_base;
     uint64_t length = ALIGN_UP((uintptr_t)kernel_end_addr, FRAME_SIZE) - virtual;
 
     for(uint64_t i = 0; i < length; i += FRAME_SIZE) {
-        vmm_map_page(kernel_pagemap,  physical + i,virtual + i, PTE_PRESENT | PTE_WRITABLE);
+        vmm_map_page(kernel_pagemap,  physical + i,virtual + i, PTE_PRESENT | PTE_WRITABLE );
     }
 
     //4gb
-    for ( uintptr_t i = 0; i < 0x100000000; i += FRAME_SIZE) {
-        vmm_map_page(kernel_pagemap, i, i, PTE_PRESENT | PTE_WRITABLE);
-        vmm_map_page(kernel_pagemap, i, i + HHDM_OFFSET, PTE_PRESENT | PTE_WRITABLE);
+    for ( uintptr_t i = 0x1000; i < 0x100000000; i += FRAME_SIZE) {
+        vmm_map_page(kernel_pagemap, i, i, PTE_PRESENT | PTE_WRITABLE );
+        vmm_map_page(kernel_pagemap, i, i + HHDM_OFFSET, PTE_PRESENT | PTE_WRITABLE );
     }
+
     /*
     struct  limine_memmap_entry **mmaps = memmap_request.response->entries;
     uint64_t mmmap_count = memmap_request.response->entry_count;
@@ -155,4 +161,25 @@ void vmm_init(){
     */
     vmm_switch_pagemap(kernel_pagemap);
     printf("VMM intilasized.\n");
+}
+
+uint64_t* virt_to_pte(pagemap_t* pagemap, uint64_t virtual_address){
+    uint64_t pml4_index = (virtual_address & ((uint64_t) 0x1ff << 39)) >> 39;
+    uint64_t pml3_index = (virtual_address & ((uint64_t) 0x1ff << 30)) >> 30;
+    uint64_t pml2_index = (virtual_address & ((uint64_t) 0x1ff << 21)) >> 21;
+    uint64_t pml1_index = (virtual_address & ((uint64_t) 0x1ff << 12)) >> 12;
+
+    uint64_t* pml3 = get_next_level(pagemap->top, pml4_index);
+    assert(pml3);
+    uint64_t* pml2 = get_next_level(pml3, pml3_index);
+    assert(pml2);
+    uint64_t* pml1 = get_next_level(pml2, pml2_index);
+    assert(pml1);
+
+    return &pml1[pml1_index];
+}
+
+uint64_t virt_to_phys(pagemap_t* pagemap, uint64_t virtual_address){
+    uint64_t* pte = virt_to_pte(pagemap, virtual_address);
+    return *pte & PTE_ADDR_MASK;
 }

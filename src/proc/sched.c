@@ -24,9 +24,9 @@ static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
 {
     thread->running=1;
     interrupt_frame_t* state = thread->state;
-    
+
     asm volatile(
-        "mov rsp, %0\n"
+    "mov rsp, %0\n"
         "pop rax\n"
         "mov es, eax\n"
         "pop rax\n" 
@@ -49,8 +49,8 @@ static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
         "add rsp, 8\n"
         "iretq\n"
         :
-        : "rm"(state)
-        : "memory");
+               : "rm"(state)
+                      : "memory");
     __builtin_unreachable();
 }
 
@@ -66,13 +66,14 @@ process_t *sched_process(pagemap_t *pagemap)
     proc->fildes = kheap_alloc(sizeof(vector_t));
     vector_create(proc->fildes,sizeof(vfs_node_t));
     proc->cwd=root;
+    proc->thread_stack_top = 0x70000000000;
     return proc;
 }
 
 bool sched_enqueue_thread(thread_t *thread)
 {
     if (thread->enqueued == true) return true;
-    
+
     spinlock_acquire(&queue.lock);
 
     thread->prev=queue.end;
@@ -87,21 +88,23 @@ bool sched_enqueue_thread(thread_t *thread)
 }
 
 thread_t* sched_user_thread(void *start, void *args, process_t* process){
-
     thread_t* thread = kheap_calloc(sizeof(thread_t));
     thread->lock = LOCK_INIT;
     thread->state = kheap_calloc(sizeof(interrupt_frame_t));
     interrupt_frame_t* state = thread->state;
-    state->rsp = kheap_calloc(STACK_SIZE) + HHDM_OFFSET + STACK_SIZE;
+    void* stack_phys = pmm_alloc(STACK_SIZE);
+    assert(stack_phys);
+    vmm_map_pages(process->pagemap, stack_phys, process->thread_stack_top - STACK_SIZE, PTE_PRESENT | PTE_WRITABLE | PTE_USER, STACK_SIZE / FRAME_SIZE);
+    state->rsp = (uint64_t) process->thread_stack_top;+ STACK_SIZE;
     state->cs = 0x38 | 3;
     state->ds = state->es = state->ss = 0x40 | 3;
     state->rflags = 0x202;
-    state->rip = start;
-    state->rdi = args;
+    state->rip = (uint64_t)start;
+    state->rdi = (uint64_t)args;
     thread->process = process;
     vector_push(process->threads, thread);
     thread->timeslice = TIME_QUANTUM;
-    thread->cr3 = process->pagemap->top;
+    thread->cr3 = (void*) process->pagemap->top - HHDM_OFFSET;
     sched_enqueue_thread(thread);
     return thread;
 }
@@ -112,16 +115,18 @@ thread_t* sched_kernel_thread(void *start, void *args)
     thread->lock = LOCK_INIT;
     thread->state = kheap_calloc(sizeof(interrupt_frame_t));
     interrupt_frame_t* state = thread->state;
-    state->rsp = kheap_calloc(STACK_SIZE) + HHDM_OFFSET + STACK_SIZE;
+    void* stack = pmm_alloc(STACK_SIZE);
+    assert(stack);
+    state->rsp = stack + STACK_SIZE + HHDM_OFFSET;
     state->cs = 0x28;
     state->ds = state->es = state->ss = 0x30;
     state->rflags = 0x202;
-    state->rip = start;
-    state->rdi = args;
+    state->rip = (uint64_t)start;
+    state->rdi = (uint64_t)args;
     thread->process = kernel_process;
     vector_push(kernel_process->threads, thread);
     thread->timeslice = TIME_QUANTUM;
-    thread->cr3 = kernel_process->pagemap->top;
+    thread->cr3 = (void*) kernel_process->pagemap->top -HHDM_OFFSET;
     sched_enqueue_thread(thread);
     return thread;
 }
@@ -154,11 +159,10 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
 
     next_thread->cpu= this_cpu();
 
+    set_gs_base(next_thread);
     if (read_cr3() != next_thread->cr3) {
         write_cr3(next_thread->cr3);
     }
-
-    set_gs_base(next_thread);
 
     lapic_eoi();
     lapic_timer_oneshot(current_thread->timeslice, SCHED_VECTOR);
@@ -171,7 +175,6 @@ bool dequeue_thread(thread_t* thread){
     //remove thread frome queue
 	thread->next->prev =thread->prev;
 	thread->prev->next=thread->next;
-    
     spinlock_release(&thread->lock);
     thread->enqueued=false;
     thread->running=false;
@@ -184,7 +187,7 @@ void dequeue_and_die(){
     thread_t* current_thread = get_current_thread();
     dequeue_thread(current_thread);
     kheap_free(current_thread);
-
+    set_gs_base(&idle_thread);
     asm volatile ("sti");
     lapic_ipi(this_cpu()->lapic_id,SCHED_VECTOR); 
     __builtin_unreachable();

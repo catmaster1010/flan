@@ -3,11 +3,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct hashmap_item{
+typedef struct hashmap_item {
     struct hashmap_item* next;
+    uint64_t key_length;
     char* key;
     void* val;
-}hashmap_entry_t;
+} hashmap_entry_t;
 
 typedef struct{
     struct hashmap_item* entries;

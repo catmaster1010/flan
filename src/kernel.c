@@ -15,6 +15,8 @@
 #include "fs/vfs.h"
 #include "fs/initramfs.h"
 #include "dev/ps2.h"
+#include "lib/elf.h"
+
 void kernel_thread();
 void user_thread();
 
@@ -43,15 +45,15 @@ void kernel_thread(){
   printf("\nNothing to be done now...\n");
  
   printf("%s >  ",get_current_thread()->process->cwd->name);
-  pagemap_t* user_pagemap = vmm_new_pagemap();
-  vfs_node_t* init_node = vfs_open(root,"/build/init");
-  elf_load(user_pagemap, init_node);
-  //sched_user_thread(user_thread, NULL, kernel_process);
-  dequeue_and_die();
-}
 
-void user_thread(){
-    asm ("mov rax, 69\n");
-    asm ("syscall\n");
+  vfs_node_t* init_node = vfs_open(root,"/build/init");
+
+  pagemap_t* user_pagemap = vmm_new_pagemap();
+  struct auxval aux;
+  elf_load(user_pagemap, init_node, &aux);
+  process_t* user_proc = sched_process(user_pagemap);
+  thread_t* user_thread = sched_user_thread(aux.at_entry, NULL, user_proc);
+
+  dequeue_and_die();
 }
 
