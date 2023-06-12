@@ -2,18 +2,15 @@
 #include "lib/str.h"
 #include <stdarg.h>
 #include "lib/lock.h"
+#include "flanterm/backends/fb.h"
+#include "dev/serial.h"
+#include "dev/console.h"
 
 spinlock_t print_lock=LOCK_INIT;
 
- volatile struct limine_terminal_request terminal_request = {
-    .id = LIMINE_TERMINAL_REQUEST,
-    .revision = 0
-};
-
-
 void out(char* str){
-  struct limine_terminal *terminal = terminal_request.response->terminals[0];
-  terminal_request.response->write(terminal, str, strlen(str));
+  console_write(str);
+  serial_out(str);
 }
 
 void printf(char* fmt, ... ){

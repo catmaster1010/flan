@@ -1,4 +1,3 @@
-
 extern syscall_handler
 global syscall_entry_asm
 syscall_entry_asm:

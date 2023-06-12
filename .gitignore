@@ -4,5 +4,6 @@
 *.d
 .git
 limine
+src/flanterm
 initramfs.tar
 usr/build

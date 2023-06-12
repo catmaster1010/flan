@@ -67,6 +67,8 @@ override HEADER_DEPS := $(CFILES:.c=.d) $(NASMFILES:.asm=.d)
 .PHONY: all
 all: $(KERNEL)
 
+flanterm:
+
 limine.h:
 	curl https://raw.githubusercontent.com/limine-bootloader/limine/trunk/limine.h -o $@
 
@@ -76,7 +78,10 @@ $(KERNEL): $(OBJ)
 
 -include $(HEADER_DEPS)
 
-%.o: %.c limine.h
+flanterm:
+	git clone https://github.com/mintsuki/flanterm.git --depth=1
+
+%.o: %.c limine.h flanterm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.asm

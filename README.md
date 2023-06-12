@@ -1,9 +1,9 @@
 # **flan-os**
 This is a hobby os in development. 
 
-This supports the limine boot protocall and uses limine v4.2
+This supports the limine boot protocal and uses limine v4.2
 
-This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of your choice should work. 
+This can be compiled using a cross compiler x86_64-elf-gcc and nasm. Any VM of your choice should work. 
 
 ---
 # **TODO**
@@ -18,7 +18,7 @@ This can be compiled ussing a cross compiler x86_64-elf-gcc and nasm. Any VM of 
 - [x] Set up APIC
 - [x] Configure the PIT
 - [x] Calibrate the APIC timer
-- [x] Implment scheduler 
+- [x] Implement scheduler 
 - [x] Implement VFS
 - [x] Elf loader
 - [ ] Syscalls

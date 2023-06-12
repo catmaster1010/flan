@@ -17,7 +17,7 @@ barebones.iso: limine kernel initramfs
 	rm -rf iso_root
 	mkdir -p iso_root
 	cp src/kernel.elf \
-		boot/background.bmp boot/limine.cfg limine/limine.sys limine/limine-cd.bin limine/limine-cd-efi.bin usr/initramfs.tar iso_root/
+		boot/limine.cfg limine/limine.sys limine/limine-cd.bin limine/limine-cd-efi.bin usr/initramfs.tar iso_root/
 	xorriso -as mkisofs -b limine-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
 		--efi-boot limine-cd-efi.bin \

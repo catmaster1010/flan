@@ -2,18 +2,18 @@
 #include <limine.h>
 #include "lib/stdio.h"
 
-static volatile struct limine_framebuffer_request fb = {
+volatile struct limine_framebuffer_request fb = {
   .id = LIMINE_FRAMEBUFFER_REQUEST,
   .revision = 0
 };
 
-struct limine_framebuffer* fb_adress(){
+struct limine_framebuffer* fb_address(){
   return fb.response->framebuffers[0]->address;
  }
 
 void fb_info(x,y,colour){
-  struct limine_framebuffer* fb_adresss=fb_adress();
-  //printf("Our frame buffer is at virtual address: %x\n",fb_adresss);
+  struct limine_framebuffer* fb_addresss=fb_address();
+  printf("Our frame buffer is at virtual address: %x\n",fb_addresss);
   printf("Resolution: %dx%d\n",fb.response->framebuffers[0]->width,fb.response->framebuffers[0]->height);
   printf("Depth: %d\n",fb.response->framebuffers[0]->bpp);
   printf("\n");
@@ -30,7 +30,7 @@ void plot_pixel(uint8_t*screen, uint64_t x,uint64_t y, uint32_t colour) {
 
 
 void fb_colour_background(){
-  uint8_t* fb_place = fb_adress();
+  uint8_t* fb_place = fb_address();
   for (uint64_t x = 0; x < fb.response->framebuffers[0]->width; x++)
   {
     for (uint64_t y = 0; y < fb.response->framebuffers[0]->height; y++)
