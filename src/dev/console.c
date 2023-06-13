@@ -8,8 +8,9 @@ static struct flanterm_context *term_context = NULL;
 
 void console_init(){
     struct limine_framebuffer* framebuffer = fb.response->framebuffers[0];
-    term_context = flanterm_fb_init(
+    struct flanterm_context *term= flanterm_fb_init(
         kheap_alloc,
+        kheap_free,
         framebuffer->address, framebuffer->width, framebuffer->height, framebuffer->pitch,
         NULL,
         NULL, NULL,
