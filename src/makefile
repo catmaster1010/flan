@@ -1,18 +1,7 @@
 override KERNEL := kernel.elf
 
-define DEFAULT_VAR =
-    ifeq ($(origin $1),default)
-        override $(1) := $(2)
-    endif
-    ifeq ($(origin $1),undefined)
-        override $(1) := $(2)
-    endif
-endef
-
-#cc:=x86_64-elf-gcc
-
-#cc=x86_64-elf-ld
-
+cc:=x86_64-elf-gcc
+ld:=x86_64-elf-ld
 
 CFLAGS ?= -g -O2 -pipe -Wimplicit-function-declaration
 
@@ -67,21 +56,13 @@ override HEADER_DEPS := $(CFILES:.c=.d) $(NASMFILES:.asm=.d)
 .PHONY: all
 all: $(KERNEL)
 
-flanterm:
-
-limine.h:
-	curl https://raw.githubusercontent.com/limine-bootloader/limine/trunk/limine.h -o $@
-
 $(KERNEL): $(OBJ)
 	$(LD) $(OBJ) $(LDFLAGS) -o $@
 
 
 -include $(HEADER_DEPS)
 
-flanterm:
-	git clone https://github.com/mintsuki/flanterm.git --depth=1
-
-%.o: %.c limine.h flanterm
+%.o: %.c limine.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.asm

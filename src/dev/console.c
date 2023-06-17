@@ -4,7 +4,7 @@
 #include "lib/lock.h"
 
 spinlock_t console_lock = LOCK_INIT;
-static struct flanterm_context *term_context = NULL;
+static struct flanterm_context* term_context = NULL;
 
 void console_init(){
     struct limine_framebuffer* framebuffer = fb.response->framebuffers[0];
@@ -20,6 +20,7 @@ void console_init(){
         1, 1,
         0
     );
+    printf("%x",term_context);
 }
 
 void console_write(char* str){

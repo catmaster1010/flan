@@ -9,8 +9,8 @@
 spinlock_t print_lock=LOCK_INIT;
 
 void out(char* str){
-  console_write(str);
   serial_out(str);
+  console_write(str);
 }
 
 void printf(char* fmt, ... ){

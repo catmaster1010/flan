@@ -6,7 +6,8 @@ limine:
 	make -C limine
 
 .PHONY: kernel
-kernel:
+kernel: 
+	cd src && ./get-deps.sh
 	$(MAKE) -C src
 
 initramfs:
