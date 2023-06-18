@@ -60,29 +60,30 @@ void pmm_init()
     }
     for (uint64_t i = 0; i < mmmap_count; i++)
     {
-        if (!mmaps[i]->type == LIMINE_MEMMAP_USABLE) continue;
+        if (mmaps[i]->type != LIMINE_MEMMAP_USABLE) continue;
 
         for (uint64_t t = 0; t < mmaps[i]->length; t += FRAME_SIZE)
         {
-            pmm_free(mmaps[i]->base+t,1);
+            pmm_free((void*)mmaps[i]->base+t,1);
         }
     }
     printf("%dMiB/%dMiB of usable memmory\n",usable/1000 / 1000,available/1000 / 1000);
     printf("PMM initialized.\n"); 
 }
 
-void pmm_free(uint64_t ptr,uint64_t frames){
+void pmm_free(void* ptr, uint64_t frames){
     spinlock_acquire(&pmm_lock);
-    for (uint64_t i = 0; i < frames; i++,ptr+=FRAME_SIZE)
+    uint64_t frame = (uint64_t) ptr / FRAME_SIZE;
+    for (uint64_t i = frame; i < frames+frame; i++)
     {
-        BIT_CLEAR((uintptr_t) ptr / FRAME_SIZE);
+        BIT_CLEAR(i);
     }
     spinlock_release(&pmm_lock);
 }
 
 void* pmm_malloc(uint64_t wanted_frames){
     spinlock_acquire(&pmm_lock);
-    uint64_t* ptr;
+    void* ptr;
     
     uint64_t available_frames=0;
     for (uint64_t frame = 1; frame < limit; frame++)
@@ -102,7 +103,7 @@ void* pmm_malloc(uint64_t wanted_frames){
             frame -= i - 1;
             spinlock_release(&pmm_lock);
 
-            ptr=FRAME_SIZE * frame;
+            ptr = (void*) (FRAME_SIZE * frame);
             return ptr;
             }
         }

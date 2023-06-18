@@ -5,6 +5,7 @@
 #include "memory/vmm.h"
 #include <limine.h>
 #include "lib/assert.h"
+#include "lib/stdio.h"
 
 uint32_t ioapic_read(uint64_t ioapic_address, uint64_t reg){
     *((volatile uint32_t* ) (ioapic_address+HHDM_OFFSET)) = reg;

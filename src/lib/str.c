@@ -3,7 +3,7 @@
 #include "lib/assert.h"
 #include "memory/kheap.h"
 
-int strlen(char* f){
+int strlen(const char* f){
   int ct = 0;
   for(*f != '\0'; *f++;) ct++;
   return ct;
@@ -14,7 +14,7 @@ char* itoa(uint64_t num, int base){
 	static char buffer[50]; 
 	char *ptr; 
 
-	ptr = &buffer[50]; 
+	ptr = &buffer[49]; 
 	*ptr = '\0'; 
 
 	do {
@@ -25,7 +25,7 @@ char* itoa(uint64_t num, int base){
 	return(ptr); 
 }
 
-void memset(uint64_t*ptr,uint8_t n,uint64_t size){
+void memset(void* ptr,uint8_t n,uint64_t size){
     assert(ptr);
     for (uint64_t i = 0; i < size; i++)
     {
@@ -41,12 +41,12 @@ bool memcmp(void *str1, void *str2, uint64_t size) {
     return 0; // equal
 }
 
-void memcpy(uint8_t* dest, uint8_t* src, uint64_t n) {
+void memcpy(void* dest, const void* src, uint64_t n) {
     assert(src);
     assert(dest);
     for (uint64_t i = 0; i < n; i++)
     {
-        ((uint8_t*)dest)[i]=(uint8_t)src[i];			
+        ((uint8_t*)dest)[i]=((const uint8_t*)src)[i];			
     }
     
 }
@@ -58,17 +58,17 @@ bool strcmp(char* str1,char*  str2){
     return 1;
 }
 
-char* strchr(char* str, char c){
+char* strchr(const char* str, char c){
 
     while (*str!=c) {
         if (!*str++) {
             return NULL;
         }
     }
-    return str;
+    return (char*) str;
 }
 
-char *strtok(const char *str, char *delim){
+char *strtok(char *str, const char *delim){
     static char* s = NULL;
     char* token;
     if (str!=NULL) {    

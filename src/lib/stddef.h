@@ -1,7 +1,7 @@
 #ifndef stddef_h
 #define stddef_h
 
-#define offset_of(TYPE, MEMBER) ((uint64_t) &((TYPE *)0)->MEMBER)
+#define OFFSET_OF(TYPE, MEMBER) ((uint64_t) &((TYPE *)0)->MEMBER)
 
 #define MAX(A, B) ({ \
     __auto_type a = A; \
@@ -10,11 +10,11 @@
 })
 #define NULL 0
 
-#define ALIGN_UP(num,align) (((num) + align - 1) & ~(align - 1)) 
-#define ALIGN_DOWN(num,align) ((num) & ~(align - 1))
-#define container_of(ptr, type, member) ((type* )( (char* )ptr - offset_of(type,member) ))
+#define ALIGN_UP(NUM,ALIGN) (((NUM) + ALIGN - 1) & ~(ALIGN - 1)) 
+#define ALIGN_DOWN(NUM,ALIGN) ((NUM) & ~(ALIGN - 1))
+#define CONTAINER_OF(PTR, TYPE, MEMBER) ((TYPE* )((void*) PTR - OFFSET_OF(TYPE,MEMBER)))
 
-#define BIT_SET(bit) (bitmap[(bit) / 8] |= (1<< ((bit) % 8))) //sets bit to  one
-#define BIT_CLEAR(bit) (bitmap[(bit) / 8] &= ~(1 << ((bit) % 8))) //sets bit to  zero 
-#define BIT_TEST(bit) ((bitmap[(bit) / 8] >> ((bit) % 8)) & 1) // returns the bit
+#define BIT_SET(BIT) (bitmap[(BIT) / 8] |= (1<< ((BIT) % 8))) //sets BIT to  one
+#define BIT_CLEAR(BIT) (bitmap[(BIT) / 8] &= ~(1 << ((BIT) % 8))) //sets BIT to  zero 
+#define BIT_TEST(BIT) ((bitmap[(BIT) / 8] >> ((BIT) % 8)) & 1) // returns the BIT
 #endif

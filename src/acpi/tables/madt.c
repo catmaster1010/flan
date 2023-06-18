@@ -18,7 +18,7 @@ void madt_init(){
     vector_create(&madt_ioapics,sizeof(madt_ioapic_t));
     vector_create(&madt_isos, sizeof(madt_iso_t));
 
-    uint64_t offset;
+    uint64_t offset = 0;
 
     while(1){
          if(madt->header.length - sizeof(madt_t) - offset < 2) break;

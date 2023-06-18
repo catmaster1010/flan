@@ -62,7 +62,7 @@ $(KERNEL): $(OBJ)
 
 -include $(HEADER_DEPS)
 
-%.o: %.c limine.h
+%.o: %.c 
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.asm

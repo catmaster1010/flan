@@ -3,11 +3,10 @@
 #include <limine.h>
 #include "memory/vmm.h"
 #include "lib/stddef.h"
-#include"memory/pmm.h"
-#include  "lib/assert.h"
-#include <stddef.h>
-#include"lib/assert.h"
-#include"lib/lock.h"
+#include "memory/pmm.h"
+#include "lib/assert.h"
+#include "lib/assert.h"
+#include "lib/lock.h"
 
 spinlock_t vmm_lock;
 extern char kernel_end_addr[];
@@ -16,6 +15,7 @@ volatile struct limine_hhdm_request hhdm_request = {
     .id = LIMINE_HHDM_REQUEST,
     .revision = 0
 };
+
 volatile struct limine_kernel_address_request kernel_address_request = {
     .id = LIMINE_KERNEL_ADDRESS_REQUEST,
     .revision = 0
@@ -23,22 +23,20 @@ volatile struct limine_kernel_address_request kernel_address_request = {
 
 pagemap_t* kernel_pagemap;
 
-int five_level_enabled = NULL;
-
 #define KERNEL_OFFSET  kernel_address_request.response->virtual_base
 
-static uint64_t* get_next_level(uint64_t *current_level, uint64_t index){
+static uint64_t* get_next_level(uint64_t* current_level, uint64_t index){
     if(current_level[index]&1 != 0 ){
-        return (current_level[index] & PTE_ADDR_MASK)+ HHDM_OFFSET;
+        return  (uint64_t*) ((current_level[index] & PTE_ADDR_MASK) + HHDM_OFFSET);
     }
-    uint64_t next = pmm_calloc(1);
+    void* next = pmm_calloc(1);
     assert(next);
-    current_level[index] = next|0b111; 
+    current_level[index] = (uint64_t) next | PTE_PRESENT | PTE_WRITABLE | PTE_USER; 
     return (uint64_t *) (next + HHDM_OFFSET);
 }
 
 
-void vmm_unmap_page(pagemap_t* pagemap, uint64_t virtual_address){
+void vmm_unmap_page(pagemap_t* pagemap, uintptr_t virtual_address){
 
     spinlock_acquire(&vmm_lock);
     
@@ -65,7 +63,7 @@ void vmm_unmap_page(pagemap_t* pagemap, uint64_t virtual_address){
 
     spinlock_release(&vmm_lock);
 }
-void vmm_map_page(pagemap_t* pagemap, uint64_t physical_address, uint64_t virtual_address, uint64_t flags){
+void vmm_map_page(pagemap_t* pagemap, uintptr_t physical_address, uintptr_t virtual_address, uint64_t flags){
 
     spinlock_acquire(&vmm_lock);
     uint64_t pml4_index = (virtual_address & ((uint64_t) 0x1ff << 39)) >> 39;
@@ -84,9 +82,9 @@ void vmm_map_page(pagemap_t* pagemap, uint64_t physical_address, uint64_t virtua
     spinlock_release(&vmm_lock);
 }
 
-void vmm_map_pages(pagemap_t* pagemap, uint64_t physical_address, uint64_t virtual_address, uint64_t flags, uint64_t pages){
+void vmm_map_pages(pagemap_t* pagemap, uintptr_t physical_address, uintptr_t virtual_address, uint64_t flags, uint64_t pages){
     for (uint64_t i = 0; i < pages; i++) {
-        vmm_map_page(pagemap, physical_address + (i*FRAME_SIZE), virtual_address + (i*FRAME_SIZE), flags);
+        vmm_map_page(pagemap, physical_address + (i * FRAME_SIZE), virtual_address + (i*FRAME_SIZE), flags);
     }
 
 }

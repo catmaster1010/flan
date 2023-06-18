@@ -1,3 +1,4 @@
+#include <limine.h>
 #include "acpi/acpi.h"
 #include "cpu/cpu.h"
 #include "cpu/idt/idt.h"
@@ -7,9 +8,8 @@
 #include "memory/gdt/gdt.h"
 #include "memory/pmm.h"
 #include "memory/vmm.h"
-#include <limine.h>
+#include "memory/kheap.h"
 #include "dev/console.h"
-#include <stddef.h>
 #include <stdint.h>
 #include "dev/pit.h"
 #include "proc/sched.h"
@@ -17,6 +17,8 @@
 #include "fs/initramfs.h"
 #include "dev/ps2/ps2.h"
 #include "lib/elf.h"
+#include "dev/serial.h"
+#include "dev/console.h"
 
 void kernel_thread();
 
@@ -53,7 +55,7 @@ void kernel_thread(){
     struct auxval aux;
     elf_load(user_pagemap, init_node, &aux);
     process_t* user_proc = sched_process(user_pagemap);
-    thread_t* user_thread = sched_user_thread(aux.at_entry, NULL, user_proc);
+    thread_t* user_thread = sched_user_thread((void*)aux.at_entry, NULL, user_proc);
 
     dequeue_and_die();
 }

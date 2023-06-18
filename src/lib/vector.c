@@ -1,6 +1,7 @@
 #include "memory/kheap.h"
 #include "lib/vector.h"
 #include "lib/assert.h"
+#include "lib/str.h"
 
 void vector_create(vector_t* vector, uint64_t item_size){
     vector->items = 0;
@@ -24,7 +25,7 @@ uint64_t vector_get_items(vector_t* vector) {
 void* vector_get(vector_t* vector, uint64_t index) {
     spinlock_acquire(&vector->lock);
     if (index >= vector->items) return 0;
-    uint64_t data = vector->data + (index * vector->item_size);
+    void* data = vector->data + (index * vector->item_size);
     spinlock_release(&vector->lock);
     return data;
 }
@@ -43,7 +44,6 @@ void vector_push(vector_t* vector, void* data) {
     memcpy(ptr + vector_size, data, vector->item_size);
     vector->items++;
     spinlock_release(&vector->lock);
-    return 1;
 }
 
 void vector_remove(vector_t* vector, uint64_t index) {

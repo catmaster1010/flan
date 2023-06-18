@@ -1,3 +1,5 @@
+QEMUFLAGS ?= -no-reboot -no-shutdown -m 4G -smp cores=4 -serial stdio 
+
 .PHONY: all
 all: barebones.iso
 
@@ -37,15 +39,14 @@ clean:
 
 .PHONY: run
 run: barebones.iso
-	qemu-system-x86_64 barebones.iso
+	qemu-system-x86_64 $(QEMUFLAGS) barebones.iso
 
-.PHONY: debug
-debug: barebones.iso
-	qemu-system-x86_64 -no-reboot -no-shutdown -monitor stdio -m 4G -smp cores=4 -cpu host --enable-kvm barebones.iso	
+.PHONY: kvm
+kvm: barebones.iso
+	qemu-system-x86_64 $(QEMUFLAGS) -cpu host --enable-kvm barebones.iso	
 
 .PHONY: gdb
 gdb: barebones.iso
-	mv src/kernel.elf ./
-	qemu-system-x86_64 -s -S -no-reboot -no-shutdown -monitor stdio -m 4G -smp cores=4 barebones.iso	
+	qemu-system-x86_64 $(QEMUFLAGS) -s -S barebones.iso	
 
 

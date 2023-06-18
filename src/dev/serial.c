@@ -2,7 +2,6 @@
 #include "lib/io.h"
 #include "lib/lock.h"
 
-spinlock_t serial_lock = LOCK_INIT;
 
 void serial_init(){
     outb(PORT + 1, 0x00);    
@@ -15,7 +14,6 @@ void serial_init(){
     
     outb(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
     outb(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
-    serial_out("hi");
 }
 
 static inline bool is_transmitter_empty() {
@@ -27,6 +25,7 @@ static inline void transmit_data(uint8_t value) {
 }
 
 void serial_out(char* str){
+    static spinlock_t serial_lock = LOCK_INIT;
     spinlock_acquire(&serial_lock);
     while (*str) {
         if (*str == '\n') transmit_data('\r');

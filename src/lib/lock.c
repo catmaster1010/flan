@@ -3,7 +3,7 @@
 #include "lib/assert.h"
 
 int spinlock_test_and_acq(spinlock_t*  lock){
-        return CAS(lock, 0, 1);
+        return CAS(&lock->lock, 0, 1);
 }
 
 void spinlock_acquire(spinlock_t* lock){
@@ -16,7 +16,8 @@ void spinlock_acquire(spinlock_t* lock){
         spinlock_count++;
         if (spinlock_count>10000000)
         {
-             assert(0);
+            printf("%s deadlock",lock->file);
+            assert(0);
         }
         
         asm volatile ("pause");
@@ -24,5 +25,5 @@ void spinlock_acquire(spinlock_t* lock){
 }
 
 void spinlock_release(spinlock_t* lock){
-   CAS(lock, 1, 0);
+   CAS(&lock->lock, 1, 0);
 }

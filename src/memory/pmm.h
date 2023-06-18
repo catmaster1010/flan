@@ -5,7 +5,7 @@
 #include "lib/stddef.h"
 void pmm_init();
 
-void pmm_free(uint64_t ptr,uint64_t frames);
+void pmm_free(void* ptr,uint64_t frames);
 
 void* pmm_malloc(uint64_t frames);
 void* pmm_calloc(uint64_t frames);

@@ -1,6 +1,6 @@
 #include "fs/ext2fs.h"
 
-typedef struct ext2fs_superblock{
+struct ext2fs_superblock{
     uint32_t inode_num;
     uint32_t block_num;
     uint32_t rsvd_num;
@@ -102,20 +102,22 @@ typedef struct {
 
 } ext2fs_t;
 
-static int ext2fs_create(const char* path, int mode){
+
+
+
+
+static vfs_node_t* ext2fs_mount (vfs_node_t* mountpoint, vfs_node_t* dev, char* name){
 
 }
 
-static int ext2fs_read (struct vfs_node* node, void* buff, uint64_t count){
+static vfs_node_t* ext2fs_create(vfs_node_t* parent, char* name, int mode){
+
+}
+static int ext2fs_read (struct vfs_node* node, void* buff, uint64_t count, uint64_t offset){
 
 }
 
-static int ext2fs_write (struct vfs_node* node, void* buff, uint64_t count){
-
-}
-
-
-static vfs_node_t* ext2fs_mount (vfs_node_t* node, vfs_node_t* dev){
+static int ext2fs_write (struct vfs_node* node, void* buff, uint64_t count, uint64_t offset){
 
 }
 

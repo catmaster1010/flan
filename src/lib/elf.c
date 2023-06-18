@@ -33,7 +33,7 @@ bool elf_load(pagemap_t* pagemap, vfs_node_t* node,struct auxval* aux){
             void* phys = pmm_calloc(pages);
             assert(phys);
 
-            vmm_map_pages(pagemap, phys, program_header.p_vaddr, prot, pages);
+            vmm_map_pages(pagemap, (uintptr_t) phys, program_header.p_vaddr, prot, pages);
             
             assert(vfs_read(node, phys + unaligned + HHDM_OFFSET, program_header.p_filesz, program_header.p_offset));
             

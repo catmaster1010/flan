@@ -3,7 +3,7 @@
 #include "lib/str.h"
 #include "lib/assert.h"
 
-static vfs_node_t* tmpfs_create(vfs_node_t* parent, const char* name, int mode){
+static vfs_node_t* tmpfs_create(vfs_node_t* parent, char* name, int mode){
     vfs_fs_t* fs=tmpfs_funcs();
     vfs_node_t* node = vfs_create_node(parent,name,fs,mode);
     void* new_data = kheap_alloc(FRAME_SIZE);
@@ -49,7 +49,7 @@ static int tmpfs_write(vfs_node_t* node, void* buff, uint64_t count, uint64_t of
     return count;
 }
 
-static vfs_node_t* tmpfs_mount(vfs_node_t* node, vfs_node_t* dev, const char* name){
+static vfs_node_t* tmpfs_mount(vfs_node_t* node, vfs_node_t* dev, char* name){
     (void)dev;
     vfs_fs_t* fs=tmpfs_funcs();
     vfs_node_t* ret = vfs_create_node(node, name, fs, true);

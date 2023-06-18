@@ -25,12 +25,11 @@ static volatile struct limine_smp_request smp_request = {
 extern void syscall_entry_asm();
 
 void core_init(struct limine_smp_info *info) {
-
     uint32_t eax, ebx, ecx, edx;
 
     cpuid(0x80000001, eax, ebx, ecx, edx);
 
-    if (edx && (uint32_t) 1 << 11) {
+   if (edx && (uint32_t) 1 << 11) {
 
         uint64_t efer = rdmsr(MSR_EFER);
 		efer |= 1; 
@@ -41,7 +40,7 @@ void core_init(struct limine_smp_info *info) {
 		star |= (uint64_t)(0x28) << 32;
 		
 		wrmsr(MSR_STAR, star);
-		wrmsr(MSR_LSTAR, syscall_entry_asm);
+		wrmsr(MSR_LSTAR, (uint64_t) syscall_entry_asm);
 		wrmsr(MSR_CSTAR, 0); 
 		wrmsr(MSR_FMASK, 0x200); 
     }
@@ -59,11 +58,11 @@ void core_init(struct limine_smp_info *info) {
 
     void* int_stack = pmm_alloc(STACK_SIZE);
     assert(int_stack);
-    local->tss.rsp0 = int_stack + HHDM_OFFSET + STACK_SIZE;
+    local->tss.rsp0 = (uint64_t) (int_stack + HHDM_OFFSET + STACK_SIZE);
 
     void* sched_stack = pmm_alloc(STACK_SIZE);
     assert(sched_stack);
-    local->tss.ist1 = sched_stack + HHDM_OFFSET + STACK_SIZE;
+    local->tss.ist1 = (uint64_t) (sched_stack + HHDM_OFFSET + STACK_SIZE);
     
     gdt_load_tss(&local->tss);
 
@@ -87,7 +86,7 @@ void core_init(struct limine_smp_info *info) {
     printf("Processor #%d is running. \n",cpu_number);
     
     cpus_running++;  
-    if (!local->bsp) sched_await();      
+    if (!local->bsp) asm("hlt");      
 
 }
 
@@ -105,6 +104,7 @@ void smp_init(void) {
         local->lapic_id = cpu->lapic_id;
         if (cpu->lapic_id != smp_response->bsp_lapic_id) {
             smp_response->cpus[i]->goto_address = core_init;
+            //while(cpus_running != i + 1);
         } 
         else{
             local->bsp=1;
@@ -116,7 +116,7 @@ void smp_init(void) {
     }
 }
 cpu_local_t* this_cpu(){
-    thread_t* thread = read_gs_base();
+    thread_t* thread = (thread_t*) read_gs_base();
     cpu_local_t* this_cpu= thread->cpu;
     return this_cpu;
 }

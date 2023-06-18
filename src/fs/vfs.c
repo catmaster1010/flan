@@ -7,6 +7,7 @@
 #include "lib/str.h"
 #include "lib/lock.h"
 #include "fs/tmpfs.h"
+#include "fs/ext2fs.h"
 
 spinlock_t vfs_lock=LOCK_INIT;
 vfs_node_t* root;
@@ -27,7 +28,7 @@ typedef struct {
     vfs_node_t* result;
 }path_to_node_t;
 
-static path_to_node_t path_to_node(vfs_node_t* parent, const char* path){
+static path_to_node_t path_to_node(vfs_node_t* parent, char* path){
     uint64_t path_len=strlen(path);
     if (path == NULL || path_len == 0) return (path_to_node_t){NULL,NULL};
 
@@ -81,7 +82,7 @@ static path_to_node_t path_to_node(vfs_node_t* parent, const char* path){
     return (path_to_node_t){parent_node,current_node};
 }
 
-vfs_node_t* vfs_create_node(vfs_node_t* parent, const char* name, vfs_fs_t* fs, bool dir){
+vfs_node_t* vfs_create_node(vfs_node_t* parent, char* name, vfs_fs_t* fs, bool dir){
     vfs_node_t* node=kheap_calloc(sizeof(vfs_node_t));
     node->name=kheap_alloc(strlen(name)+1);
     memcpy(node->name,name,strlen(name)+1);
@@ -105,10 +106,9 @@ vfs_node_t* vfs_open(vfs_node_t* parent, char* path){
     path_to_node_t ret = path_to_node(parent, path);
     vfs_node_t* node = ret.result;
     spinlock_release(&vfs_lock);
-    if (node == NULL) return -1; 
     return node;
 }
-bool vfs_mount(vfs_node_t* parent, char* source, char* target, const char* fs_name){
+bool vfs_mount(vfs_node_t* parent, char* source, char* target, char* fs_name){
     spinlock_acquire(&vfs_lock);
     vfs_fs_t* fs = hashmap_get(&filesystems,fs_name);
     path_to_node_t p2n_result = path_to_node(parent,target); 
@@ -125,7 +125,7 @@ bool vfs_mount(vfs_node_t* parent, char* source, char* target, const char* fs_na
     return true;
 }
 
-vfs_node_t* vfs_create(vfs_node_t* parent, const char* path,int mode){
+vfs_node_t* vfs_create(vfs_node_t* parent, char* path,int mode){
     path_to_node_t p2n_result=path_to_node(parent,path);
     if (!p2n_result.parent) return NULL;
     if (p2n_result.result) return NULL;
@@ -144,7 +144,7 @@ int vfs_read(vfs_node_t* node, void* buff, uint64_t count, uint64_t offset){
     int read_count = node->fs->read(node, buff, count, offset);
 	return read_count;
 }
-void add_filesystem(vfs_fs_t* fs, const char* fs_name){
+void add_filesystem(vfs_fs_t* fs, char* fs_name){
     spinlock_acquire(&vfs_lock);
     hashmap_set(&filesystems,fs_name,fs);
     spinlock_release(&vfs_lock);

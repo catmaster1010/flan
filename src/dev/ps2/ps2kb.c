@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "dev/ps2/ps2.h"
+#include "dev/apic/lapic.h"
+#include "dev/pit.h"
+#include "dev/apic/ioapic.h"
 
 static char keybuffer[256];
 

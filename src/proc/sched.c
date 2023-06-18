@@ -7,6 +7,7 @@
 #include "memory/pmm.h"
 #include "cpu/cpu.h"
 #include "cpu/smp.h"
+#include "lib/lock.h"
 
 #define SCHED_VECTOR 34
 process_t* kernel_process;
@@ -16,7 +17,7 @@ thread_t idle_thread= {.running=false,.enqueued=true,.blocked=true,.next=&idle_t
 sched_queue_t queue = {.lock=LOCK_INIT,.start=&idle_thread,.end=&idle_thread};
 
 thread_t* get_current_thread(){
-    thread_t* current_thread = read_gs_base();
+    thread_t* current_thread =  (thread_t*) read_gs_base();
     return current_thread;
 }
 
@@ -94,7 +95,7 @@ thread_t* sched_user_thread(void *start, void *args, process_t* process){
     interrupt_frame_t* state = thread->state;
     void* stack_phys = pmm_alloc(STACK_SIZE);
     assert(stack_phys);
-    vmm_map_pages(process->pagemap, stack_phys, process->thread_stack_top - STACK_SIZE, PTE_PRESENT | PTE_WRITABLE | PTE_USER, STACK_SIZE / FRAME_SIZE);
+    vmm_map_pages(process->pagemap, (uintptr_t) stack_phys, process->thread_stack_top - STACK_SIZE, PTE_PRESENT | PTE_WRITABLE | PTE_USER, STACK_SIZE / FRAME_SIZE);
     state->rsp = (uint64_t) process->thread_stack_top;+ STACK_SIZE;
     state->cs = 0x38 | 3;
     state->ds = state->es = state->ss = 0x40 | 3;
@@ -104,7 +105,7 @@ thread_t* sched_user_thread(void *start, void *args, process_t* process){
     thread->process = process;
     vector_push(process->threads, thread);
     thread->timeslice = TIME_QUANTUM;
-    thread->cr3 = (void*) process->pagemap->top - HHDM_OFFSET;
+    thread->cr3 = (uint64_t) process->pagemap->top - HHDM_OFFSET;
     sched_enqueue_thread(thread);
     return thread;
 }
@@ -117,7 +118,7 @@ thread_t* sched_kernel_thread(void *start, void *args)
     interrupt_frame_t* state = thread->state;
     void* stack = pmm_alloc(STACK_SIZE);
     assert(stack);
-    state->rsp = stack + STACK_SIZE + HHDM_OFFSET;
+    state->rsp = (uint64_t) stack + STACK_SIZE + HHDM_OFFSET;
     state->cs = 0x28;
     state->ds = state->es = state->ss = 0x30;
     state->rflags = 0x202;
@@ -126,7 +127,7 @@ thread_t* sched_kernel_thread(void *start, void *args)
     thread->process = kernel_process;
     vector_push(kernel_process->threads, thread);
     thread->timeslice = TIME_QUANTUM;
-    thread->cr3 = (void*) kernel_process->pagemap->top -HHDM_OFFSET;
+    thread->cr3 = (uint64_t) kernel_process->pagemap->top -HHDM_OFFSET;
     sched_enqueue_thread(thread);
     return thread;
 }

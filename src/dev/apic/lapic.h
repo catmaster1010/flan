@@ -66,4 +66,5 @@ uint32_t lapic_id();
 uint64_t lapic_calibrate();
 void lapic_stop();
 void lapic_timer_oneshot(uint64_t ms,uint8_t vector);
+void lapic_eoi();
 #endif

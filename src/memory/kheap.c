@@ -1,9 +1,9 @@
 #include "lib/stdio.h"
-#include <stddef.h>
 #include  "memory/kheap.h"
 #include "lib/str.h"
 #include  "lib/lock.h"
 #include "memory/vmm.h"
+#include "lib/stddef.h"
 
 #define HEADER_SIZE 24
 static dll_t free_list={.next=&free_list,.prev=&free_list};
@@ -17,15 +17,15 @@ void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
 }
 
 void add_block(uint64_t *addr, uint64_t size){
-	alloc_node_t* block = addr;
+	alloc_node_t* block = (alloc_node_t*) addr;
 	block->size = size -  HEADER_SIZE;
-	dll_list_add(&block->node,free_list.prev,&free_list);
+	dll_list_add((dll_t*)&block->node, free_list.prev, &free_list);
 };
 
 void coalesce_dll(){
-	alloc_node_t *prevBlock;
-	for (alloc_node_t* block=container_of(free_list.next,alloc_node_t,node); &block->node!= &free_list; block=container_of(block->node.next,alloc_node_t,node)){
-		if ((uint64_t*)((char*)prevBlock+prevBlock->size+HEADER_SIZE)==block)
+	alloc_node_t* prevBlock = NULL;
+	for (alloc_node_t* block=CONTAINER_OF(free_list.next,alloc_node_t,node); &block->node!= &free_list; block=CONTAINER_OF(block->node.next,alloc_node_t,node)){
+		if (prevBlock != NULL && (alloc_node_t*)(prevBlock + prevBlock->size+HEADER_SIZE) == block)
 		{
 			prevBlock->size+=block->size+HEADER_SIZE;
 			//removes block
@@ -42,7 +42,7 @@ void* kheap_alloc(uint64_t size){
 	void* ptr=NULL;
 	alloc_node_t* block;
 	// Try to find a big enough block to alloc (First fit)
-	for (block = container_of(free_list.next,alloc_node_t,node); &block->node != &free_list; block=container_of(block->node.next,alloc_node_t,node))
+	for (block = CONTAINER_OF(free_list.next,alloc_node_t,node); &block->node != &free_list; block=CONTAINER_OF(block->node.next,alloc_node_t,node))
 	{      
 		if (block->size>=size)
 		{   
@@ -53,7 +53,7 @@ void* kheap_alloc(uint64_t size){
 	}
 	if (!ptr)
 	{
-        uint64_t frames = (size/FRAME_SIZE) + (size % FRAME_SIZE);
+        uint64_t frames = ALIGN_UP(size + HEADER_SIZE,FRAME_SIZE) / FRAME_SIZE;
 		uint64_t* new =pmm_malloc(frames);
 		add_block(new,frames * FRAME_SIZE);
 		coalesce_dll();
@@ -88,16 +88,16 @@ void* kheap_calloc(uint64_t size){
 	return NULL;
 }
 
-void kheap_free(uint64_t ptr){
+void kheap_free(void* ptr){
 	alloc_node_t *block, *free_block;
-	block = (void*) container_of(ptr, alloc_node_t,cBlock) - HHDM_OFFSET;
-    if ((block->size+sizeof(alloc_node_t)) >= FRAME_SIZE && ((uint64_t) container_of(block, alloc_node_t, cBlock) % FRAME_SIZE) == 0) {
-        pmm_free(container_of(block, alloc_node_t, cBlock), (block->size+sizeof(alloc_node_t)) / FRAME_SIZE);                
+	block = (void*) CONTAINER_OF(ptr, alloc_node_t,cBlock) - HHDM_OFFSET;
+    if ((block->size+sizeof(alloc_node_t)) >= FRAME_SIZE && ((uint64_t) CONTAINER_OF(block, alloc_node_t, cBlock) % FRAME_SIZE) == 0) {
+        pmm_free(CONTAINER_OF(block, alloc_node_t, cBlock), (block->size+sizeof(alloc_node_t)) / FRAME_SIZE);                
 	    return;
     }
 
 	spinlock_acquire(&kheap_lock);
-	for (free_block = container_of(free_list.next,alloc_node_t,node); &free_block->node!= &free_list; free_block=container_of(free_block->node.next,alloc_node_t,node))
+	for (free_block = CONTAINER_OF(free_list.next,alloc_node_t,node); &free_block->node!= &free_list; free_block=CONTAINER_OF(free_block->node.next,alloc_node_t,node))
 	{
 		if (free_block>block)
 		{
@@ -124,7 +124,7 @@ void* kheap_realloc(void *ptr, uint64_t new_size){
 	if (!ptr) {
 		return kheap_alloc(new_size);
 	}
-    alloc_node_t* node=container_of(ptr,alloc_node_t,cBlock);
+    alloc_node_t* node=CONTAINER_OF(ptr,alloc_node_t,cBlock);
     uint64_t old_size=node->size;
 	void *ret = kheap_alloc(new_size);
 	if (!ret) {
