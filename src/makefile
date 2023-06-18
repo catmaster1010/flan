@@ -1,7 +1,7 @@
 override KERNEL := kernel.elf
 
-cc:=x86_64-elf-gcc
-ld:=x86_64-elf-ld
+CC:=x86_64-elf-gcc
+LD:=x86_64-elf-ld
 
 CFLAGS ?= -g -O2 -pipe -Wimplicit-function-declaration
 
