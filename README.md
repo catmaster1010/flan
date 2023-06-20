@@ -1,7 +1,7 @@
 # **flan-os**
 This is a hobby os in development. 
 
-This supports the limine boot protocal and uses limine v4.2
+This supports the limine boot protocal and uses limine v5.x
 
 This can be compiled using a cross compiler x86_64-elf-gcc and nasm. Any VM of your choice should work. 
 
