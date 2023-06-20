@@ -71,6 +71,7 @@ void core_init(struct limine_smp_info *info) {
     idle_thread.process=kernel_process;
 
     set_gs_base(&idle_thread);
+    set_kgs_base(&idle_thread);
  
     // enable SSE and SSE2 for SIMD
     uint64_t cr0 = read_cr0();

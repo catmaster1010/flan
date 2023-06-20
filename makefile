@@ -4,7 +4,7 @@ QEMUFLAGS ?= -no-reboot -no-shutdown -m 4G -smp cores=4 -serial stdio
 all: barebones.iso
 
 limine:
-	git clone https://github.com/limine-bootloader/limine.git --branch=v4.x-branch-binary --depth=1
+	git clone https://github.com/limine-bootloader/limine.git --branch=v5.x-branch-binary --depth=1
 	make -C limine
 
 .PHONY: kernel
@@ -18,15 +18,15 @@ initramfs:
 
 barebones.iso: limine kernel initramfs
 	rm -rf iso_root
-	mkdir -p iso_root
+	mkdir -p iso_root/
 	cp src/kernel.elf \
-		boot/limine.cfg limine/limine.sys limine/limine-cd.bin limine/limine-cd-efi.bin usr/initramfs.tar iso_root/
-	xorriso -as mkisofs -b limine-cd.bin \
+		boot/limine.cfg limine/limine-bios.sys limine/limine-bios-cd.bin limine/limine-uefi-cd.bin usr/initramfs.tar iso_root/
+	xorriso -as mkisofs -b limine-bios-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
-		--efi-boot limine-cd-efi.bin \
+		--efi-boot limine-uefi-cd.bin \
 		-efi-boot-part --efi-boot-image --protective-msdos-label \
 		iso_root -o barebones.iso
-	limine/limine-deploy barebones.iso
+	limine/limine bios-install barebones.iso
 	rm -rf iso_root
 
 	$(MAKE) -C src clean

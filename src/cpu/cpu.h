@@ -69,6 +69,7 @@ typedef struct {
     bool active;
     uint32_t lapic_freq;
     tss_t tss;
+    uint64_t last_run_index;
 } cpu_local_t;
 
 

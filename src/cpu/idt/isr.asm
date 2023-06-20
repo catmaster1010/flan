@@ -1,6 +1,13 @@
 extern isr
 extern isr_generic
-%macro pushaq 0
+ 
+%macro stub 1
+isr_stub_%1:
+
+    %if %1 != 8 && %1 != 10 && %1 != 11 && %1 != 12 && %1 != 13 && %1 != 14 && %1 != 17 && %1 != 30
+	 push qword 0
+	%endif
+    
     push rax
     push rbx
     push rcx
@@ -16,35 +23,6 @@ extern isr_generic
     push r13
     push r14
     push r15
-%endmacro
-
-%macro popaq 0
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop r11
-    pop r10
-    pop r9
-    pop r8
-    pop rbp
-    pop rdi
-    pop rsi
-    pop rdx
-    pop rcx
-    pop rbx
-    pop rax
-%endmacro
-
- 
-%macro stub 1
-isr_stub_%1:
-
-    %if %1 != 8 && %1 != 10 && %1 != 11 && %1 != 12 && %1 != 13 && %1 != 14 && %1 != 17 && %1 != 30
-	 push qword 0
-	%endif
-    
-    pushaq
     mov eax, ds
     push rax
     mov eax, es
@@ -64,7 +42,21 @@ isr_stub_%1:
     pop rax 
     mov ds, eax
 
-    popaq
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rbp
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rbx
+    pop rax
     add rsp, 8 
     iretq
 %endmacro
