@@ -30,8 +30,8 @@ typedef struct {
 }path_to_node_t;
 
 static path_to_node_t path_to_node(vfs_node_t* parent, char* path){
+    if (path == NULL || strlen(path) == 0) return (path_to_node_t){NULL,NULL};
     uint64_t path_len=strlen(path);
-    if (path == NULL || path_len == 0) return (path_to_node_t){NULL,NULL};
 
     vfs_node_t* current_node;
     vfs_node_t* parent_node;
