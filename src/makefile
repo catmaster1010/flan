@@ -11,7 +11,7 @@ LDFLAGS ?=
 
 # Internal C flags that should not be changed by the user.
 override CFLAGS +=       \
-    -std=gnu11             \
+    -std=gnu11           \
     -ffreestanding       \
     -fno-stack-protector \
     -fno-stack-check     \

@@ -26,7 +26,6 @@ void ps2kb_handler(){
         char c = keymap[scancode];
         char str[2] = {c,'\0'};
         printf("%s",str);
-        if (c=='\n') printf("%s >  ",get_current_thread()->process->cwd->name);
     }
     lapic_eoi();
 }

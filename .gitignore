@@ -8,3 +8,4 @@ src/flanterm
 src/limine.h
 initramfs.tar
 usr/build
+iso_root

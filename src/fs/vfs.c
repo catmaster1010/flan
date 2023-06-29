@@ -8,6 +8,7 @@
 #include "lib/lock.h"
 #include "fs/tmpfs.h"
 #include "fs/ext2fs.h"
+#include "lib/assert.h"
 
 spinlock_t vfs_lock=LOCK_INIT;
 vfs_node_t* root;
@@ -84,7 +85,9 @@ static path_to_node_t path_to_node(vfs_node_t* parent, char* path){
 
 vfs_node_t* vfs_create_node(vfs_node_t* parent, char* name, vfs_fs_t* fs, bool dir){
     vfs_node_t* node=kheap_calloc(sizeof(vfs_node_t));
+    assert(node);
     node->name=kheap_alloc(strlen(name)+1);
+    assert(node->name);
     memcpy(node->name,name,strlen(name)+1);
     node->fs=fs;
     if(dir){

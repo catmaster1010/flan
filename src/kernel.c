@@ -47,8 +47,6 @@ void kernel_thread(){
 
     printf("\nNothing to be done now...\n");
  
-    printf("%s >  ",get_current_thread()->process->cwd->name);
-
     vfs_node_t* init_node = vfs_open(root,"/build/init");
 
     pagemap_t* user_pagemap = vmm_new_pagemap();

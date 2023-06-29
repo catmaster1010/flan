@@ -16,7 +16,7 @@ void dll_list_add(dll_t* n, dll_t* prev, dll_t* next){
 	prev->next = n;
 }
 
-void add_block(uint64_t *addr, uint64_t size){
+void add_block(void *addr, uint64_t size){
 	alloc_node_t* block = (alloc_node_t*) addr;
 	block->size = size -  HEADER_SIZE;
 	dll_list_add((dll_t*)&block->node, free_list.prev, &free_list);
@@ -54,7 +54,7 @@ void* kheap_alloc(uint64_t size){
 	if (!ptr)
 	{
         uint64_t frames = ALIGN_UP(size + HEADER_SIZE,FRAME_SIZE) / FRAME_SIZE;
-		uint64_t* new =pmm_malloc(frames);
+		void* new =pmm_malloc(frames) + HHDM_OFFSET;
 		add_block(new,frames * FRAME_SIZE);
 		coalesce_dll();
 		spinlock_release(&kheap_lock);
@@ -75,7 +75,7 @@ void* kheap_alloc(uint64_t size){
 	block->node.prev->next=block->node.next;
 	spinlock_release(&kheap_lock);
 	//Finally, return pointer to newly allocated adress
-	return ptr+HHDM_OFFSET;  
+	return ptr;  
 }
 
 void* kheap_calloc(uint64_t size){
@@ -90,13 +90,15 @@ void* kheap_calloc(uint64_t size){
 
 void kheap_free(void* ptr){
 	alloc_node_t *block, *free_block;
-	block = (void*) CONTAINER_OF(ptr, alloc_node_t,cBlock) - HHDM_OFFSET;
+
+	spinlock_acquire(&kheap_lock);
+
+	block = (void*) CONTAINER_OF(ptr, alloc_node_t,cBlock);
     if ((block->size+sizeof(alloc_node_t)) >= FRAME_SIZE && ((uint64_t) CONTAINER_OF(block, alloc_node_t, cBlock) % FRAME_SIZE) == 0) {
-        pmm_free(CONTAINER_OF(block, alloc_node_t, cBlock), (block->size+sizeof(alloc_node_t)) / FRAME_SIZE);                
+        pmm_free(CONTAINER_OF(block, alloc_node_t, cBlock) - HHDM_OFFSET, (block->size+sizeof(alloc_node_t)) / FRAME_SIZE);                
 	    return;
     }
 
-	spinlock_acquire(&kheap_lock);
 	for (free_block = CONTAINER_OF(free_list.next,alloc_node_t,node); &free_block->node!= &free_list; free_block=CONTAINER_OF(free_block->node.next,alloc_node_t,node))
 	{
 		if (free_block>block)
@@ -135,6 +137,6 @@ void* kheap_realloc(void *ptr, uint64_t new_size){
 }
 
 void kheap_init(){
-	add_block(pmm_malloc(1),FRAME_SIZE);
+	add_block(pmm_malloc(1) + HHDM_OFFSET,FRAME_SIZE);
     printf("Kernel heap initialized.\n");
 }

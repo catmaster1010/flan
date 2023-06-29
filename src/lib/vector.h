@@ -1,7 +1,7 @@
 #ifndef vector_h
 #define vector_h
 #include <stdint.h>
-#include  "lib/lock.h"
+#include "lib/lock.h"
 
 typedef struct {
     uint64_t items;

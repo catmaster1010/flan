@@ -1,8 +1,10 @@
 #include "proc/sched.h"
 #include "lib/stdio.h"
 #include "dev/fb.h"
+#include "cpu/cpu.h"
 
 void syscall_handler(){
-    //fb_colour_background();
+    printf("suscall");
+    dequeue_and_die();
     return;
 }

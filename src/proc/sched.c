@@ -16,8 +16,8 @@ vector_t processes_vector;
 thread_t idle_thread= {.running=false,.enqueued=true,.blocked=true,.next=&idle_thread,.prev=&idle_thread};
 sched_queue_t queue = {.lock=LOCK_INIT,.start=&idle_thread,.end=&idle_thread};
 
-thread_t* get_current_thread(){
-    thread_t* current_thread =  (thread_t*) read_gs_base();
+static inline thread_t* get_current_thread(){
+    thread_t* current_thread =  (thread_t*) read_fs_base();
     return current_thread;
 }
 
@@ -48,10 +48,11 @@ static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
         "pop rbx\n"
         "pop rax\n"
         "add rsp, 8\n"
+        "swapgs\n"
         "iretq\n"
         :
-               : "rm"(state)
-                      : "memory");
+        : "rm"(state)
+        : "memory");
     __builtin_unreachable();
 }
 
@@ -147,6 +148,7 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
     thread_t* current_thread = get_current_thread();
     if (current_thread->running){
         current_thread->state = state;
+        current_thread->gs_base = read_gs_base();
     }
 
     thread_t* next_thread = get_next_thread();
@@ -160,7 +162,11 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state)
 
     next_thread->cpu= this_cpu();
 
-    set_gs_base(next_thread);
+    set_fs_base(next_thread);
+    if (next_thread->state->cs == 0x3b) { // if user
+        set_kgs_base(next_thread->gs_base);
+    }
+
     if (read_cr3() != next_thread->cr3) {
         write_cr3(next_thread->cr3);
     }
@@ -188,7 +194,7 @@ void dequeue_and_die(){
     thread_t* current_thread = get_current_thread();
     dequeue_thread(current_thread);
     kheap_free(current_thread);
-    set_gs_base(&idle_thread);
+    set_fs_base(&idle_thread);
     asm volatile ("sti");
     lapic_ipi(this_cpu()->lapic_id,SCHED_VECTOR); 
     __builtin_unreachable();

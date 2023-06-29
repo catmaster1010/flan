@@ -36,8 +36,8 @@ void core_init(struct limine_smp_info *info) {
 		wrmsr(MSR_EFER, efer);
 		
 		uint64_t star = 0;
-		star |= (uint64_t)(0x38 | 3 )<< 48;
-		star |= (uint64_t)(0x28) << 32;
+		star |= (uint64_t)(0x38|3) << 48;
+		star |= (uint64_t)0x28 << 32;
 		
 		wrmsr(MSR_STAR, star);
 		wrmsr(MSR_LSTAR, (uint64_t) syscall_entry_asm);
@@ -58,7 +58,9 @@ void core_init(struct limine_smp_info *info) {
 
     void* int_stack = pmm_alloc(STACK_SIZE);
     assert(int_stack);
-    local->tss.rsp0 = (uint64_t) (int_stack + HHDM_OFFSET + STACK_SIZE);
+    void* stack = (int_stack + HHDM_OFFSET + STACK_SIZE);
+    local->tss.rsp0 = (uint64_t) stack;
+    local->kernel_stack=stack;
 
     void* sched_stack = pmm_alloc(STACK_SIZE);
     assert(sched_stack);
@@ -69,9 +71,10 @@ void core_init(struct limine_smp_info *info) {
     vmm_switch_pagemap(kernel_pagemap);
     idle_thread.cpu=local;
     idle_thread.process=kernel_process;
-
-    set_gs_base(&idle_thread);
-    set_kgs_base(&idle_thread);
+    set_fs_base(&idle_thread);
+    
+    set_gs_base(local);
+    set_kgs_base(local);
  
     // enable SSE and SSE2 for SIMD
     uint64_t cr0 = read_cr0();
@@ -87,7 +90,7 @@ void core_init(struct limine_smp_info *info) {
     printf("Processor #%d is running. \n",cpu_number);
     
     cpus_running++;  
-    if (!local->bsp) asm("hlt");      
+    if (!local->bsp) sched_await();      
 
 }
 
@@ -117,7 +120,7 @@ void smp_init(void) {
     }
 }
 cpu_local_t* this_cpu(){
-    thread_t* thread = (thread_t*) read_gs_base();
+    thread_t* thread = (thread_t*) read_fs_base();
     cpu_local_t* this_cpu= thread->cpu;
     return this_cpu;
 }

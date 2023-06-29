@@ -62,7 +62,8 @@ struct interrupt_frame {
 } __attribute__((__packed__));
 typedef struct interrupt_frame interrupt_frame_t;
 
-typedef struct {
+typedef struct cpu_local {
+    void* kernel_stack;
     uint64_t cpu_number;
     uint64_t lapic_id;
     bool bsp;
@@ -94,8 +95,16 @@ static inline uint64_t rdmsr(uint32_t msr) {
     return ((uint64_t)edx << 32) | eax;
 }
 
-static inline uint64_t read_gs_base() {
-    return rdmsr(MSR_GSBASE);
+static inline void* read_gs_base() {
+    return (void*) rdmsr(MSR_GSBASE);
+}
+
+static inline void* read_kgs_base() {
+    return (void*) rdmsr(MSR_KGSBASE);
+}
+
+static inline void* read_fs_base() {
+    return (void*) rdmsr(MSR_FSBASE);
 }
 
 static inline void set_gs_base(void *addr) {

@@ -27,7 +27,6 @@ barebones.iso: limine kernel initramfs
 		-efi-boot-part --efi-boot-image --protective-msdos-label \
 		iso_root -o barebones.iso
 	limine/limine bios-install barebones.iso
-	rm -rf iso_root
 
 	$(MAKE) -C src clean
 

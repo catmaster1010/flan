@@ -8,6 +8,11 @@ isr_stub_%1:
 	 push qword 0
 	%endif
     
+    cmp qword [rsp + 16], 0x3b
+    jne .swap
+    swapgs
+
+    .swap:
     push rax
     push rbx
     push rcx
@@ -23,12 +28,19 @@ isr_stub_%1:
     push r13
     push r14
     push r15
+
     mov eax, ds
     push rax
     mov eax, es
     push rax
 
     cld
+
+    mov rax, 0x30
+    mov ds, eax
+    mov es, eax
+    mov ss, eax
+    
     mov rdi, %1
     mov rax, (%1 * 8)
     lea rbx, qword [isr]
@@ -58,6 +70,12 @@ isr_stub_%1:
     pop rbx
     pop rax
     add rsp, 8 
+
+    cmp qword [rsp + 8], 0x3b
+    jne .swap1
+    swapgs
+
+    .swap1:
     iretq
 %endmacro
 

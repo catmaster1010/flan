@@ -18,6 +18,7 @@ typedef struct {
 } process_t;
 
 struct thread {
+    void* kernel_stack;
     struct thread* prev;
     struct thread* next;
     uint64_t cr3;
@@ -29,6 +30,7 @@ struct thread {
     uint8_t timeslice;
     bool enqueued;
     bool blocked;
+    void* gs_base;
 };
 typedef struct thread thread_t;
 
@@ -40,7 +42,6 @@ typedef struct{
 
 extern thread_t idle_thread;
 extern process_t* kernel_process;
-thread_t* get_current_thread();
 thread_t* sched_thread();
 bool dequeue_thread(thread_t* thread);
 void dequeue_and_die();

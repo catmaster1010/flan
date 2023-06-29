@@ -15,7 +15,7 @@ typedef struct alloc_node {
 } alloc_node_t;
 
 void dll_add( dll_t* n,  dll_t* head);
-void add_block(uint64_t *addr, uint64_t size);
+void add_block(void* addr, uint64_t size);
 void coalesce_dll();
 
 void dll_list_add(dll_t* n, dll_t* prev, dll_t* next);
