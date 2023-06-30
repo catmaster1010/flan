@@ -6,6 +6,8 @@
 #include "lib/lock.h"
 #include "fs/vfs.h"
 
+struct cpu_local;
+struct interrupt_frame;
 #define TIME_QUANTUM 3
 
 typedef struct {
@@ -22,11 +24,11 @@ struct thread {
     struct thread* prev;
     struct thread* next;
     uint64_t cr3;
-    cpu_local_t* cpu;
+    struct cpu_local* cpu;
     bool running; 
     process_t* process;
     spinlock_t lock; 
-    interrupt_frame_t* state;
+    struct interrupt_frame* state;
     uint8_t timeslice;
     bool enqueued;
     bool blocked;
@@ -40,7 +42,6 @@ typedef struct{
 	spinlock_t lock;
 } sched_queue_t;
 
-extern thread_t idle_thread;
 extern process_t* kernel_process;
 thread_t* sched_thread();
 bool dequeue_thread(thread_t* thread);

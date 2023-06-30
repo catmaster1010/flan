@@ -67,5 +67,6 @@ syscall_entry_asm:
     pop rax
     add rsp, 0x30 ; err, rip, cs, rflags, rsp, ss
     pop rsp ; get old stack back
+    cli
     swapgs
     o64 sysret

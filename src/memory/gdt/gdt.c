@@ -81,22 +81,23 @@ void gdt_init() {
         .granularity = 0,
         .basehigh8 = 0
     };
-    
-    gdt[7] = (gdt_entry_t) { // user 64 code
-        .limit = 0,
-        .baselow16 = 0,
-        .basemid8 = 0,
-        .access = 0xfa,
-        .granularity = 0x20,
-        .basehigh8 = 0
-    };
 
-    gdt[8] = (gdt_entry_t) { // user 64 data
+    gdt[7] = (gdt_entry_t) { // user 64 data
         .limit = 0,
         .baselow16 = 0,
         .basemid8 = 0,
         .access = 0xf2,
         .granularity = 0,
+        .basehigh8 = 0
+    };
+
+    
+    gdt[8] = (gdt_entry_t) { // user 64 code
+        .limit = 0,
+        .baselow16 = 0,
+        .basemid8 = 0,
+        .access = 0xfa,
+        .granularity = 0x20,
         .basehigh8 = 0
     };
 

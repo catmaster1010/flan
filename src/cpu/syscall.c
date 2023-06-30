@@ -5,6 +5,6 @@
 
 void syscall_handler(){
     printf("suscall");
-    dequeue_and_die();
+    //dequeue_and_die();
     return;
 }

@@ -13,8 +13,7 @@
 process_t* kernel_process;
 vector_t processes_vector;
 
-thread_t idle_thread= {.running=false,.enqueued=true,.blocked=true,.next=&idle_thread,.prev=&idle_thread};
-sched_queue_t queue = {.lock=LOCK_INIT,.start=&idle_thread,.end=&idle_thread};
+sched_queue_t queue = {.lock=LOCK_INIT,.start=NULL,.end=NULL};
 
 static inline thread_t* get_current_thread(){
     thread_t* current_thread =  (thread_t*) read_fs_base();
@@ -77,8 +76,13 @@ bool sched_enqueue_thread(thread_t *thread)
     if (thread->enqueued == true) return true;
 
     spinlock_acquire(&queue.lock);
-
+    if (queue.start == NULL || queue.end == NULL) {
+        queue.start = thread;
+        queue.end = thread;
+    }
     thread->prev=queue.end;
+    
+
     queue.end->next=thread;
     queue.end=thread;
     thread->next=queue.start;
@@ -97,9 +101,10 @@ thread_t* sched_user_thread(void *start, void *args, process_t* process){
     void* stack_phys = pmm_alloc(STACK_SIZE);
     assert(stack_phys);
     vmm_map_pages(process->pagemap, (uintptr_t) stack_phys, process->thread_stack_top - STACK_SIZE, PTE_PRESENT | PTE_WRITABLE | PTE_USER, STACK_SIZE / FRAME_SIZE);
-    state->rsp = (uint64_t) process->thread_stack_top;+ STACK_SIZE;
-    state->cs = 0x38 | 3;
-    state->ds = state->es = state->ss = 0x40 | 3;
+    state->rsp = (uint64_t) process->thread_stack_top;
+    process->thread_stack_top -= STACK_SIZE - FRAME_SIZE;
+    state->cs = 0x40 | 3;
+    state->ds = state->es = state->ss = 0x38 | 3;
     state->rflags = 0x202;
     state->rip = (uint64_t)start;
     state->rdi = (uint64_t)args;
@@ -135,8 +140,8 @@ thread_t* sched_kernel_thread(void *start, void *args)
 
 static thread_t* get_next_thread(){
     thread_t* current_thread = get_current_thread();
-
-    for (thread_t* next_thread = current_thread->next; next_thread != current_thread; next_thread=next_thread->next) {
+    thread_t* next_thread = current_thread->next;
+    for (thread_t* next_thread = current_thread->next; next_thread != current_thread && next_thread != NULL; next_thread=next_thread->next) {
         if (next_thread->blocked || next_thread->running) continue;
         if (spinlock_test_and_acq(&next_thread->lock) == true) return next_thread;
     }
@@ -194,7 +199,7 @@ void dequeue_and_die(){
     thread_t* current_thread = get_current_thread();
     dequeue_thread(current_thread);
     kheap_free(current_thread);
-    set_fs_base(&idle_thread);
+    set_fs_base(this_cpu()->idle_thread);
     asm volatile ("sti");
     lapic_ipi(this_cpu()->lapic_id,SCHED_VECTOR); 
     __builtin_unreachable();
@@ -218,7 +223,6 @@ __attribute__((__noreturn__)) void sched_init(void *start)
     vector_create(&processes_vector, sizeof(process_t));
 
     kernel_process = sched_process(kernel_pagemap);
-    idle_thread.process=kernel_process;
     thread_t* kernel_thread = sched_kernel_thread(start, NULL);
     asm("sti");
     sched_await();

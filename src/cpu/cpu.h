@@ -4,7 +4,9 @@
 #include  <stdbool.h>
 #include "lib/vector.h"
 #include "lib/lock.h"
+#include "proc/sched.h"
 
+struct thread;
 #define STACK_SIZE 0x10000
 
 #define MSR_EFER 0xC0000080
@@ -70,7 +72,7 @@ typedef struct cpu_local {
     bool active;
     uint32_t lapic_freq;
     tss_t tss;
-    uint64_t last_run_index;
+    struct thread* idle_thread;
 } cpu_local_t;
 
 
