@@ -5,16 +5,16 @@ syscall_entry_asm:
     swapgs
 
     xchg rsp, [gs:0]
-	push qword [gs:0] ; push old stack
-	mov [gs:0], rsp 
-	add qword [gs:0], 8 
-	
-	push qword 0x43 ; ss
-	push qword [rsp+8] ; rsp
-	push r11 ; rflags	
-	push qword 0x3b ; cs
-	push rcx ; rip
-	push qword 0 ; err
+    push qword [gs:0] ; push old stack
+    mov [gs:0], rsp 
+    add qword [gs:0], 8 
+    
+    push qword 0x43 ; ss
+    push qword [rsp+8] ; rsp
+    push r11 ; rflags	
+    push qword 0x3b ; cs
+    push rcx ; rip
+    push qword 0 ; err
     
     push rax
     push rbx
