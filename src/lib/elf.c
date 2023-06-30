@@ -31,7 +31,7 @@ bool elf_load(pagemap_t* pagemap, vfs_node_t* node,struct auxval* aux){
             uint64_t unaligned = program_header.p_vaddr & (FRAME_SIZE-1);
             uint64_t pages = ALIGN_UP(program_header.p_memsz + unaligned,FRAME_SIZE) / FRAME_SIZE;
             void* phys = pmm_calloc(pages);
-            assert(phys);
+            if (!phys) return false;
 
             vmm_map_pages(pagemap, (uintptr_t) phys, program_header.p_vaddr, prot, pages);
             
@@ -41,5 +41,5 @@ bool elf_load(pagemap_t* pagemap, vfs_node_t* node,struct auxval* aux){
 
     }
     aux->at_entry = elf_header.e_entry;
-    
+    return true;
 }

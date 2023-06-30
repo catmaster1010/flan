@@ -15,11 +15,6 @@ vector_t processes_vector;
 
 sched_queue_t queue = {.lock=LOCK_INIT,.start=NULL,.end=NULL};
 
-static inline thread_t* get_current_thread(){
-    thread_t* current_thread =  (thread_t*) read_fs_base();
-    return current_thread;
-}
-
 static __attribute__((__noreturn__)) void switch_to_thread(thread_t* thread)
 {
     thread->running=1;
@@ -95,6 +90,7 @@ bool sched_enqueue_thread(thread_t *thread)
 
 thread_t* sched_user_thread(void *start, void *args, process_t* process){
     thread_t* thread = kheap_calloc(sizeof(thread_t));
+    thread->self=thread;
     thread->lock = LOCK_INIT;
     thread->state = kheap_calloc(sizeof(interrupt_frame_t));
     interrupt_frame_t* state = thread->state;
@@ -119,6 +115,7 @@ thread_t* sched_user_thread(void *start, void *args, process_t* process){
 thread_t* sched_kernel_thread(void *start, void *args)
 {
     thread_t* thread = kheap_calloc(sizeof(thread_t));
+    thread->self=thread;
     thread->lock = LOCK_INIT;
     thread->state = kheap_calloc(sizeof(interrupt_frame_t));
     interrupt_frame_t* state = thread->state;
@@ -140,7 +137,6 @@ thread_t* sched_kernel_thread(void *start, void *args)
 
 static thread_t* get_next_thread(){
     thread_t* current_thread = get_current_thread();
-    thread_t* next_thread = current_thread->next;
     for (thread_t* next_thread = current_thread->next; next_thread != current_thread && next_thread != NULL; next_thread=next_thread->next) {
         if (next_thread->blocked || next_thread->running) continue;
         if (spinlock_test_and_acq(&next_thread->lock) == true) return next_thread;
@@ -149,7 +145,9 @@ static thread_t* get_next_thread(){
 }
 
 static void sched_vector(uint8_t vector, interrupt_frame_t *state)
-{
+{   
+    (void)vector;
+
     thread_t* current_thread = get_current_thread();
     if (current_thread->running){
         current_thread->state = state;
@@ -223,7 +221,7 @@ __attribute__((__noreturn__)) void sched_init(void *start)
     vector_create(&processes_vector, sizeof(process_t));
 
     kernel_process = sched_process(kernel_pagemap);
-    thread_t* kernel_thread = sched_kernel_thread(start, NULL);
+    sched_kernel_thread(start, NULL);
     asm("sti");
     sched_await();
 }

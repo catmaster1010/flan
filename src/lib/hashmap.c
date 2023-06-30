@@ -30,22 +30,23 @@ static inline hashmap_entry_t* hashmap_entry_get(hashmap_t* hashmap, char* key){
 
 bool hashmap_create(hashmap_t* hashmap, uint64_t entry_count){
     void* data=kheap_calloc(entry_count*sizeof(hashmap_entry_t));
-    if (!data){return 0;}
+    if (!data) return false;
     hashmap->entries=data;
     hashmap->entry_count=entry_count;
     hashmap->items=0;
-    return 1;
+    return true;
 }
 
 bool hashmap_set(hashmap_t* hashmap, char* key, void* val){
     hashmap_entry_t* entry=hashmap_entry_get(hashmap,key);
     if (entry){
         entry->val=val;
-        return 1;
+        return true;
     }
     //key is not in hashmap
     hashmap_entry_t* new_entry=kheap_calloc(sizeof(hashmap_entry_t));
-    assert(new_entry);
+    if (!new_entry) return false;
+
     new_entry->key=key;
     new_entry->key_length = strlen(key);
     new_entry->val=val;
@@ -53,7 +54,7 @@ bool hashmap_set(hashmap_t* hashmap, char* key, void* val){
     new_entry->next=&hashmap->entries[index];
     hashmap->entries[index]=*new_entry;
     hashmap->items++;
-    return 1;
+    return true;
 }
 
 void* hashmap_get(hashmap_t* hashmap, char* key){
@@ -84,5 +85,6 @@ bool hashmap_remove(hashmap_t* hashmap, char* key){
         kheap_free(entry->next);
     }
     hashmap->items--;
+    return true;
 }
 

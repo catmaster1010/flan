@@ -1,4 +1,5 @@
 #include "fs/ext2fs.h"
+#include "lib/stddef.h"
 
 struct ext2fs_superblock{
     uint32_t inode_num;
@@ -106,19 +107,19 @@ typedef struct {
 
 
 
-static vfs_node_t* ext2fs_mount (vfs_node_t* mountpoint, vfs_node_t* dev, char* name){
-
+static vfs_node_t* ext2fs_mount (vfs_node_t*, vfs_node_t*, char*){
+    return NULL;
 }
 
-static vfs_node_t* ext2fs_create(vfs_node_t* parent, char* name, int mode){
-
+static vfs_node_t* ext2fs_create(vfs_node_t*, char*, int){
+    return NULL;
 }
-static int ext2fs_read (struct vfs_node* node, void* buff, uint64_t count, uint64_t offset){
-
+static int ext2fs_read (struct vfs_node*, void*, uint64_t, uint64_t){
+    return NULL;
 }
 
-static int ext2fs_write (struct vfs_node* node, void* buff, uint64_t count, uint64_t offset){
-
+static int ext2fs_write (struct vfs_node*, void*, uint64_t, uint64_t){
+    return NULL;
 }
 
 static vfs_fs_t ext2fs_calls={.mount=ext2fs_mount,.create=ext2fs_create,.read=ext2fs_read,.write=ext2fs_write};

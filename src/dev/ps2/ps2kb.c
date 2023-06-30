@@ -10,8 +10,6 @@
 #include "dev/pit.h"
 #include "dev/apic/ioapic.h"
 
-static char keybuffer[256];
-
 static const char keymap[] = {
     '\0', '\e', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t',
     'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n', '\0', 'a', 's',
@@ -21,7 +19,6 @@ static const char keymap[] = {
 
 void ps2kb_handler(){
     uint8_t scancode=ps2_read();
-    bool release = scancode & 0x80;
     if (scancode < 0x57) {
         char c = keymap[scancode];
         char str[2] = {c,'\0'};

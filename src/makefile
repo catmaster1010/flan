@@ -29,7 +29,9 @@ override CFLAGS +=       \
     -mcmodel=kernel      \
     -MMD                 \
     -I.                  \
-    -masm=intel
+    -Wall		         \
+    -Wextra              \
+    -masm=intel			
 
 # Internal linker flags that should not be changed by the user.
 override LDFLAGS +=         \

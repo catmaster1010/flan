@@ -21,12 +21,12 @@ void pmm_init()
 {
     uint64_t usable=0;
     uint64_t available=0;
-    uint64_t  highest;
+    uint64_t  highest=0;
     struct  limine_memmap_entry **mmaps = memmap_request.response->entries;
     uint64_t mmmap_count = memmap_request.response->entry_count;
 
     printf("There are %d entries in the mmap.\n", memmap_request.response->entry_count);
-    for (int i = 0; i < mmmap_count; i++)
+    for (uint64_t i = 0; i < mmmap_count; i++)
     {
         available+=mmaps[i]->length;
 

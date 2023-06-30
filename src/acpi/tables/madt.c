@@ -28,7 +28,7 @@ void madt_init(){
         switch(header->id) {
             case 0:
                 madt_lapic_t* lapic=(madt_lapic_t*)header;
-                //printf("Found local LAPIC id: %d (%d)\n",lapic->apic_id,lapic->processor_id);
+                printf("Found local LAPIC id: %d (%d)\n",lapic->apic_id,lapic->processor_id);
                 vector_push(&madt_lapics, header);
                 break;
             case 1:

@@ -69,8 +69,8 @@ void initramfs_init(){
             case TAR_FILE_TYPE_NORMAL: {
                 vfs_node_t* node = vfs_create(root,name,false);
                 assert(node);
-                assert(node->fs->write(node,(void*)current_file+512,size,0)==size);
-                printf("New file: %s Size: %x\n",name,size);
+                assert(node->fs->write(node,(void*)current_file+512,size,0) == (int)size);
+                printf("New file: %s Size: %x Mode: %x\n",name,size,mode);
                 break;
             }
             case TAR_FILE_TYPE_DIRECTORY : {

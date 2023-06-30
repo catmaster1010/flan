@@ -93,7 +93,8 @@ static void exception_handler(uint8_t vector,interrupt_frame_t* state) {
 }
 
 static void isr_generic(uint8_t vector,interrupt_frame_t* state) {
-    printf("Something\n");
+    (void) state;
+    printf("Something, %d\n",vector);
 }
 
 void idt_init(){

@@ -36,7 +36,7 @@ static int tmpfs_write(vfs_node_t* node, void* buff, uint64_t count, uint64_t of
     uint64_t page = (offset + count) / FRAME_SIZE;
 
     spinlock_acquire(&node->lock);
-    if (node->st.st_blocks<=page){
+    if (node->st.st_blocks<= (off_t)page){
         void* new = kheap_realloc(node->data,(page+1)*FRAME_SIZE);
         assert(new);
         node->data=new;

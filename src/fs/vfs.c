@@ -46,7 +46,7 @@ static path_to_node_t path_to_node(vfs_node_t* parent, char* path){
 
     if (path[index] == '/') current_node = reduce_node(root);
 
-    for (index; path[index] == '/'; index++) {
+    for (; path[index] == '/'; index++) {
         if (index == path_len-1) {
                return (path_to_node_t){parent_node,current_node};
         }
@@ -99,7 +99,7 @@ vfs_node_t* vfs_create_node(vfs_node_t* parent, char* name, vfs_fs_t* fs, bool d
     }
     if(parent){
         node->parent=parent;
-        hashmap_set(parent->children,name,node);
+        assert(hashmap_set(parent->children,name,node));
     }
     return node;
 }
@@ -116,7 +116,7 @@ bool vfs_mount(vfs_node_t* parent, char* source, char* target, char* fs_name){
     vfs_fs_t* fs = hashmap_get(&filesystems,fs_name);
     path_to_node_t p2n_result = path_to_node(parent,target); 
     vfs_node_t* target_node = p2n_result.result;
-    vfs_node_t* dev;
+    vfs_node_t* dev=NULL;
     if (source != NULL) {
         p2n_result = path_to_node(parent,source); 
         dev = p2n_result.result;
@@ -149,15 +149,15 @@ int vfs_read(vfs_node_t* node, void* buff, uint64_t count, uint64_t offset){
 }
 void add_filesystem(vfs_fs_t* fs, char* fs_name){
     spinlock_acquire(&vfs_lock);
-    hashmap_set(&filesystems,fs_name,fs);
+    assert(hashmap_set(&filesystems,fs_name,fs));
     spinlock_release(&vfs_lock);
 }
 
 void vfs_init(){
     root=vfs_create_node(NULL,"", NULL, true);
     hashmap_create(&filesystems,64);
-    hashmap_set(&filesystems,"tmpfs",tmpfs_funcs());
-    hashmap_set(&filesystems,"ext2fs",ext2fs_funcs());
+    assert(hashmap_set(&filesystems,"tmpfs",tmpfs_funcs()));
+    assert(hashmap_set(&filesystems,"ext2fs",ext2fs_funcs()));
     vfs_mount(root,NULL,"/","tmpfs");
 }
 

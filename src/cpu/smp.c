@@ -14,7 +14,7 @@
 #include "lib/assert.h"
 
 spinlock_t smp_lock=LOCK_INIT;
-static int cpus_running;
+static uint64_t cpus_running;
 vector_t cpus;
 
 static volatile struct limine_smp_request smp_request = {
@@ -71,6 +71,7 @@ void core_init(struct limine_smp_info *info) {
     vmm_switch_pagemap(kernel_pagemap);
     thread_t* idle_thread = kheap_calloc(sizeof(thread_t));
     idle_thread->blocked = true;
+    idle_thread->self=idle_thread;
     idle_thread->cpu=local;
     idle_thread->process=kernel_process;
     local->idle_thread=idle_thread;

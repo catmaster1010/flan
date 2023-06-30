@@ -7,7 +7,7 @@ int spinlock_test_and_acq(spinlock_t*  lock){
 }
 
 void spinlock_acquire(spinlock_t* lock){
-    uint64_t spinlock_count;
+    uint64_t spinlock_count=0;
 
     for (;;) {
         if (spinlock_test_and_acq(lock)) {

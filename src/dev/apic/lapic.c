@@ -61,7 +61,7 @@ void lapic_timer_oneshot(uint64_t ms,uint8_t vector){
     asm volatile ("sti");
 }
 
-uint64_t lapic_calibrate(){
+void lapic_calibrate(){
     spinlock_acquire(&lapic_lock);
     lapic_stop();
     pit_set_reload_value(0xffff);

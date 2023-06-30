@@ -26,7 +26,7 @@ pagemap_t* kernel_pagemap;
 #define KERNEL_OFFSET  kernel_address_request.response->virtual_base
 
 static uint64_t* get_next_level(uint64_t* current_level, uint64_t index){
-    if(current_level[index]&1 != 0 ){
+    if((current_level[index] & 1) != 0 ){
         return  (uint64_t*) ((current_level[index] & PTE_ADDR_MASK) + HHDM_OFFSET);
     }
     void* next = pmm_calloc(1);

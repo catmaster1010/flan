@@ -5,6 +5,7 @@
 #include "cpu/cpu.h"
 #include "lib/lock.h"
 #include "fs/vfs.h"
+#include "lib/stddef.h"
 
 struct cpu_local;
 struct interrupt_frame;
@@ -20,7 +21,10 @@ typedef struct {
 } process_t;
 
 struct thread {
-    void* kernel_stack;
+    //DO NOT MOVE
+    struct thread* self;
+    //DO NOT MOVE
+
     struct thread* prev;
     struct thread* next;
     uint64_t cr3;
@@ -53,5 +57,10 @@ thread_t* sched_kernel_thread(void* start, void* args);
 thread_t* sched_user_thread(void *start, void *args, process_t* process);
 bool sched_enqueue_thread(thread_t* thread);
 
+static inline thread_t* get_current_thread(){
+    thread_t* current_thread = NULL;
+    asm volatile("mov %0,fs:0":"=r"(current_thread));
+    return current_thread;
+}
 
 #endif

@@ -19,6 +19,7 @@
 #include "lib/elf.h"
 #include "dev/serial.h"
 #include "dev/console.h"
+#include "lib/assert.h"
 
 void kernel_thread();
 
@@ -51,9 +52,9 @@ void kernel_thread(){
 
     pagemap_t* user_pagemap = vmm_new_pagemap();
     struct auxval aux;
-    elf_load(user_pagemap, init_node, &aux);
+    assert(elf_load(user_pagemap, init_node, &aux));
     process_t* user_proc = sched_process(user_pagemap);
-    thread_t* user_thread = sched_user_thread((void*)aux.at_entry, NULL, user_proc);
+    sched_user_thread((void*)aux.at_entry, NULL, user_proc);
 
     dequeue_and_die();
 }

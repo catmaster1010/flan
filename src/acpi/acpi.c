@@ -61,4 +61,5 @@ void* acpi_find_sdt(char signature[4], uint64_t index){
         return sdt;
     }
     printf("Cannot find  %s",signature);
+    return NULL;
 }

@@ -5,7 +5,7 @@
 
 int strlen(const char* f){
   int ct = 0;
-  for(*f != '\0'; *f++;) ct++;
+  for(;f[ct] != '\0'; ct++);
   return ct;
 }
 
@@ -33,10 +33,15 @@ void memset(void* ptr,uint8_t n,uint64_t size){
     }
 }
 
-//returns 1 if  not equal
-bool memcmp(void *str1, void *str2, uint64_t size) {
+//returns 1 or -1 if not equal
+int memcmp(const void *s1, const void *s2, uint64_t size) {
+    const uint8_t *p1 = (const uint8_t *)s1;
+    const uint8_t *p2 = (const uint8_t *)s2;
+
     for(uint64_t i = 0; i < size; i++)
-        if(((uint8_t *)str1)[i] != ((uint8_t *)str2)[i]) return ((uint8_t *)str1)[i] < ((uint8_t *)str2)[i] ? -1 : 1; // different (with comparison)
+        if(p1[i] != p2[i]) {
+            return p1[i] < p2[i] ? -1 : 1; // different (with comparison)
+        }
 
     return 0; // equal
 }
