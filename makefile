@@ -1,12 +1,17 @@
-QEMUFLAGS ?= -no-reboot -no-shutdown -m 4G -smp cores=4 -serial stdio 
+override IMAGENAME := flan
+
+QEMUFLAGS ?= -no-reboot -no-shutdown -m 4G -smp cores=4 -serial stdio -M q35
+BUILDDIR :=$(PWD)/build/
+
 
 .PHONY: all
-all: barebones.iso
+all: $(IMAGENAME).iso
 
 limine:
 	git clone https://github.com/limine-bootloader/limine.git --branch=v5.x-branch-binary --depth=1
 	make -C limine
 
+export BUILDDIR
 .PHONY: kernel
 kernel: 
 	cd src && ./get-deps.sh
@@ -16,36 +21,34 @@ initramfs:
 	$(MAKE) -C usr
 
 
-barebones.iso: limine kernel initramfs
-	rm -rf iso_root
+$(IMAGENAME).iso: limine kernel initramfs
 	mkdir -p iso_root/
-	cp src/kernel.elf \
+	cp build/kernel.elf \
 		boot/limine.cfg limine/limine-bios.sys limine/limine-bios-cd.bin limine/limine-uefi-cd.bin usr/initramfs.tar iso_root/
 	xorriso -as mkisofs -b limine-bios-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
 		--efi-boot limine-uefi-cd.bin \
 		-efi-boot-part --efi-boot-image --protective-msdos-label \
-		iso_root -o barebones.iso
-	limine/limine bios-install barebones.iso
+		iso_root -o $(IMAGENAME).iso
+	limine/limine bios-install $(IMAGENAME).iso
 
-	$(MAKE) -C src clean
 
 .PHONY: clean
 clean:
-	rm -rf iso_root barebones.iso initramfs.tar
+	rm -rf iso_root $(IMAGENAME).iso initramfs.tar
 	$(MAKE) -C src clean
 	$(MAKE) -C usr clean
 
 .PHONY: run
-run: barebones.iso
-	qemu-system-x86_64 $(QEMUFLAGS) barebones.iso
+run: $(IMAGENAME).iso
+	qemu-system-x86_64 $(QEMUFLAGS) $(IMAGENAME).iso
 
 .PHONY: kvm
-kvm: barebones.iso
-	qemu-system-x86_64 $(QEMUFLAGS) -cpu host --enable-kvm barebones.iso	
+kvm: $(IMAGENAME).iso
+	qemu-system-x86_64 $(QEMUFLAGS) -cpu host --enable-kvm $(IMAGENAME).iso	
 
 .PHONY: gdb
-gdb: barebones.iso
-	qemu-system-x86_64 $(QEMUFLAGS) -s -S barebones.iso	
+gdb: $(IMAGENAME).iso
+	qemu-system-x86_64 $(QEMUFLAGS) -s -S $(IMAGENAME).iso	
 
 

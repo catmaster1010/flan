@@ -1,5 +1,4 @@
-override KERNEL := kernel.elf
-
+override KERNEL := $(BUILDDIR)kernel.elf
 CC:=x86_64-elf-gcc
 LD:=x86_64-elf-ld
 
@@ -50,10 +49,12 @@ endif
 override NASMFLAGS += \
     -f elf64
 
+BUILDPATH:=$(BUILDDIR)
 override CFILES := $(shell find . -type f -name '*.c')
 override NASMFILES := $(shell find . -type f -name '*.asm')
-override OBJ := $(CFILES:.c=.o) $(NASMFILES:.asm=.o)
-override HEADER_DEPS := $(CFILES:.c=.d) $(NASMFILES:.asm=.d)
+override OBJ := $(addprefix $(BUILDDIR), $(CFILES:.c=.o) $(NASMFILES:.asm=.o))
+override HEADER_DEPS:= $(addprefix $(BUILDDIR), $(CFILES:.c=.d) $(NASMFILES:.asm=.d))
+DIRECTORY_GUARD = mkdir -p $(@D)
 
 .PHONY: all
 all: $(KERNEL)
@@ -64,13 +65,15 @@ $(KERNEL): $(OBJ)
 
 -include $(HEADER_DEPS)
 
-%.o: %.c 
+$(BUILDPATH)%.o: %.c 
+	$(DIRECTORY_GUARD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-%.o: %.asm
+$(BUILDPATH)%.o: %.asm
+	$(DIRECTORY_GUARD)
 	nasm $(NASMFLAGS) $< -o $@
 
 .PHONY: clean
 clean:
-	rm -rf  $(OBJ) $(HEADER_DEPS)
+	rm -rf $(BUILDDIR)
 
