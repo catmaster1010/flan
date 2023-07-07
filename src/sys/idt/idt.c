@@ -1,7 +1,7 @@
 #include "idt.h"
-#include "cpu/cpu.h"
-#include "cpu/idt/idt.h"
-#include "cpu/smp.h"
+#include "sys/cpu.h"
+#include "sys/idt/idt.h"
+#include "sys/smp.h"
 #include "lib/lock.h"
 #include "lib/stdio.h"
 

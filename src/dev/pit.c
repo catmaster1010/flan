@@ -1,5 +1,5 @@
 #include "dev/pit.h"
-#include "cpu/idt/idt.h"
+#include "sys/idt/idt.h"
 #include "dev/apic/ioapic.h"
 #include "dev/apic/lapic.h"
 #include "lib/io.h"

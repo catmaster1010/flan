@@ -1,6 +1,6 @@
 #include "dev/apic/lapic.h"
-#include "cpu/cpu.h"
-#include "cpu/smp.h"
+#include "sys/cpu.h"
+#include "sys/smp.h"
 #include "dev/apic/lapic.h"
 #include "dev/pit.h"
 #include "lib/lock.h"

@@ -1,4 +1,4 @@
-#include "cpu/cpu.h"
+#include "sys/cpu.h"
 #include "dev/fb.h"
 #include "lib/stdio.h"
 #include "proc/sched.h"

@@ -1,6 +1,6 @@
 #ifndef sched_h
 #define sched_h
-#include "cpu/cpu.h"
+#include "sys/cpu.h"
 #include "fs/vfs.h"
 #include "lib/lock.h"
 #include "lib/stddef.h"

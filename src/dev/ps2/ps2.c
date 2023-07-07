@@ -1,5 +1,5 @@
 #include "dev/ps2/ps2.h"
-#include "cpu/idt/idt.h"
+#include "sys/idt/idt.h"
 #include "dev/ps2/ps2kb.h"
 #include "lib/assert.h"
 #include "lib/io.h"

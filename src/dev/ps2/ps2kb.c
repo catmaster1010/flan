@@ -1,5 +1,5 @@
 #include "dev/ps2/ps2kb.h"
-#include "cpu/idt/idt.h"
+#include "sys/idt/idt.h"
 #include "dev/apic/ioapic.h"
 #include "dev/apic/lapic.h"
 #include "dev/pit.h"
