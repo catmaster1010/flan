@@ -2,4 +2,4 @@
 #define initramfs_h
 
 void initramfs_init();
-#endif 
+#endif

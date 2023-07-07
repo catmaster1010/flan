@@ -1,7 +1,7 @@
 #include "fs/ext2fs.h"
 #include "lib/stddef.h"
 
-struct ext2fs_superblock{
+struct ext2fs_superblock {
     uint32_t inode_num;
     uint32_t block_num;
     uint32_t rsvd_num;
@@ -13,11 +13,12 @@ struct ext2fs_superblock{
     uint32_t blocks_per_group;
     uint32_t frags_per_group;
     uint32_t inodes_per_group;
-    uint32_t last_mnt; // unix epoch for last mount
+    uint32_t last_mnt;     // unix epoch for last mount
     uint32_t last_written; // unix epoch for last write
     uint16_t last_check_mounts;
-    uint16_t mounts_allowed_before_check; // are we allowed to mount this filesystem?
-    uint16_t ext2_sig; //ext signature
+    uint16_t
+        mounts_allowed_before_check; // are we allowed to mount this filesystem?
+    uint16_t ext2_sig;               // ext signature
     uint16_t fss_tate;
     uint16_t errorr_action;
     uint16_t minor_version;
@@ -28,7 +29,7 @@ struct ext2fs_superblock{
     uint16_t uid;
     uint16_t gid;
 
-    //extend superblock fields
+    // extend superblock fields
     uint32_t first;
     uint16_t inode_size;
     uint16_t bg_sb;
@@ -39,18 +40,18 @@ struct ext2fs_superblock{
     char name[16];
     char lastmountedpath[64]; // last path we had when mounted
     uint32_t comp_algo;
-	uint8_t  blocks_prealloc_files;
-	uint8_t  blocks_prealloc_dirs;
+    uint8_t blocks_prealloc_files;
+    uint8_t blocks_prealloc_dirs;
     uint16_t unused;
-	char journal_id[16];
-	uint32_t journal_inode;
-	uint32_t journal_dev;
-	uint32_t head_orphan_inode_list;
+    char journal_id[16];
+    uint32_t journal_inode;
+    uint32_t journal_dev;
+    uint32_t head_orphan_inode_list;
 
 } __attribute__((packed));
 typedef struct ext2fs_superblock ext2fs_superblock_t;
 
-struct ext2fs_block_group_desc{
+struct ext2fs_block_group_desc {
     uint32_t usage_bitmap;
     uint32_t inode_bitmap;
     uint32_t inode_table;
@@ -58,10 +59,10 @@ struct ext2fs_block_group_desc{
     uint16_t unalloc_inodes;
     uint16_t dirs;
     uint8_t unused[14];
-}__attribute__((packed));
+} __attribute__((packed));
 typedef struct ext2fs_block_group_desc ext2fs_block_group_desc_t;
 
-struct ext2fs_inode{
+struct ext2fs_inode {
     uint16_t perms;
     uint16_t uid;
     uint32_t size_low;
@@ -81,16 +82,16 @@ struct ext2fs_inode{
     uint32_t frag_addr;
     uint32_t ossv2[3];
 
-}__attribute__((packed));
+} __attribute__((packed));
 typedef struct ext2fs_inode ext2fs_inode_t;
 
-struct ext2fs_dir_entry{
+struct ext2fs_dir_entry {
     uint32_t inode;
     uint16_t entry_size;
     uint8_t name_length;
     uint8_t type;
     char name[];
-}__attribute__((packed));
+} __attribute__((packed));
 typedef struct ext2fs_dir_entry ext2fs_dir_entry_t;
 
 typedef struct {
@@ -99,35 +100,27 @@ typedef struct {
 
     uint32_t block_size;
     uint32_t frag_size;
-    
 
 } ext2fs_t;
 
-
-
-
-
-static vfs_node_t* ext2fs_mount (vfs_node_t*, vfs_node_t*, char*){
+static vfs_node_t *ext2fs_mount(vfs_node_t *, vfs_node_t *, char *) {
     return NULL;
 }
 
-static vfs_node_t* ext2fs_create(vfs_node_t*, char*, int){
-    return NULL;
-}
-static int ext2fs_read (struct vfs_node*, void*, uint64_t, uint64_t){
-    return NULL;
-}
-
-static int ext2fs_write (struct vfs_node*, void*, uint64_t, uint64_t){
+static vfs_node_t *ext2fs_create(vfs_node_t *, char *, int) { return NULL; }
+static int ext2fs_read(struct vfs_node *, void *, uint64_t, uint64_t) {
     return NULL;
 }
 
-static vfs_fs_t ext2fs_calls={.mount=ext2fs_mount,.create=ext2fs_create,.read=ext2fs_read,.write=ext2fs_write};
-
-vfs_fs_t* ext2fs_funcs(){
-    return &ext2fs_calls;
+static int ext2fs_write(struct vfs_node *, void *, uint64_t, uint64_t) {
+    return NULL;
 }
 
-void ext2fs_init(){
+static vfs_fs_t ext2fs_calls = {.mount = ext2fs_mount,
+                                .create = ext2fs_create,
+                                .read = ext2fs_read,
+                                .write = ext2fs_write};
 
-}
+vfs_fs_t *ext2fs_funcs() { return &ext2fs_calls; }
+
+void ext2fs_init() {}

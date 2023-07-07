@@ -1,12 +1,11 @@
 #ifndef madt_h
 #define madt_h
 
-#include  "acpi/acpi.h"
-#include  <stdint.h>
+#include "acpi/acpi.h"
 #include "lib/vector.h"
+#include <stdint.h>
 
-
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) {
     sdt_header_t header;
     uint32_t local_controller_address;
     uint32_t flags;

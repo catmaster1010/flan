@@ -1,25 +1,24 @@
-#include <limine.h>
 #include "acpi/acpi.h"
 #include "cpu/cpu.h"
 #include "cpu/idt/idt.h"
 #include "cpu/smp.h"
+#include "dev/console.h"
 #include "dev/fb.h"
+#include "dev/pit.h"
+#include "dev/ps2/ps2.h"
+#include "dev/serial.h"
+#include "fs/initramfs.h"
+#include "fs/vfs.h"
+#include "lib/assert.h"
+#include "lib/elf.h"
 #include "lib/stdio.h"
 #include "memory/gdt/gdt.h"
+#include "memory/kheap.h"
 #include "memory/pmm.h"
 #include "memory/vmm.h"
-#include "memory/kheap.h"
-#include "dev/console.h"
-#include <stdint.h>
-#include "dev/pit.h"
 #include "proc/sched.h"
-#include "fs/vfs.h"
-#include "fs/initramfs.h"
-#include "dev/ps2/ps2.h"
-#include "lib/elf.h"
-#include "dev/serial.h"
-#include "dev/console.h"
-#include "lib/assert.h"
+#include <limine.h>
+#include <stdint.h>
 
 void kernel_thread();
 
@@ -42,20 +41,19 @@ void _start(void) {
     sched_init(kernel_thread);
 }
 
-void kernel_thread(){
-    printf("%sHello world from kernel thread!%s\n",cRED,cNONE);
+void kernel_thread() {
+    printf("%sHello world from kernel thread!%s\n", cRED, cNONE);
     initramfs_init();
 
     printf("\nNothing to be done now...\n");
- 
-    vfs_node_t* init_node = vfs_open(root,"/build/init");
 
-    pagemap_t* user_pagemap = vmm_new_pagemap();
+    vfs_node_t *init_node = vfs_open(root, "/build/init");
+
+    pagemap_t *user_pagemap = vmm_new_pagemap();
     struct auxval aux;
     assert(elf_load(user_pagemap, init_node, &aux));
-    process_t* user_proc = sched_process(user_pagemap);
-    sched_user_thread((void*)aux.at_entry, NULL, user_proc);
+    process_t *user_proc = sched_process(user_pagemap);
+    sched_user_thread((void *)aux.at_entry, NULL, user_proc);
 
     dequeue_and_die();
 }
-

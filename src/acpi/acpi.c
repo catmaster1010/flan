@@ -1,54 +1,53 @@
-#include "lib/stdio.h"
-#include  <limine.h>
-#include  "memory/vmm.h"
-#include "lib/stddef.h"
-#include  "acpi/acpi.h"
-#include  "lib/str.h"
-#include  "acpi/tables/madt.h"
+#include "acpi/acpi.h"
+#include "acpi/tables/madt.h"
 #include "lib/assert.h"
+#include "lib/stddef.h"
+#include "lib/stdio.h"
+#include "lib/str.h"
+#include "memory/vmm.h"
+#include <limine.h>
 
 static volatile struct limine_rsdp_request rsdp_request = {
-    .id = LIMINE_RSDP_REQUEST,
-    .revision = 0
-};
+    .id = LIMINE_RSDP_REQUEST, .revision = 0};
 
-static rsdp_descriptor_t* rsdp = NULL;
-static rsdt_t* rsdt = NULL;
+static rsdp_descriptor_t *rsdp = NULL;
+static rsdt_t *rsdt = NULL;
 
-int use_xsdt(){
-    return  rsdp->revision >= 2 && rsdp->xsdt_address!=0;
-}
+int use_xsdt() { return rsdp->revision >= 2 && rsdp->xsdt_address != 0; }
 
-void acpi_init(){
-    
+void acpi_init() {
+
     assert(rsdp_request.response);
     assert(rsdp_request.response->address);
     rsdp = rsdp_request.response->address;
 
     if (use_xsdt()) {
-        rsdt = (rsdt_t*)(rsdp->xsdt_address + HHDM_OFFSET);
+        rsdt = (rsdt_t *)(rsdp->xsdt_address + HHDM_OFFSET);
     } else {
-        rsdt = (rsdt_t*)((uint64_t)rsdp->rsdt_address + HHDM_OFFSET);
+        rsdt = (rsdt_t *)((uint64_t)rsdp->rsdt_address + HHDM_OFFSET);
     }
 
     printf("ACPI version: %d \n", rsdp->revision);
-    printf("OEM ID: %s \n",rsdp->oem_id);
-    //printf("RSDT at %x\n", rsdt);
-    if(use_xsdt()) {printf("Using XSDT.\n");};
+    printf("OEM ID: %s \n", rsdp->oem_id);
+    printf("RSDT at %x\n", rsdt);
+    if (use_xsdt()) {
+        printf("Using XSDT.\n");
+    };
     madt_init();
 }
-void* acpi_find_sdt(char signature[4], uint64_t index){
-    uint64_t entry_count = (rsdt->header.length - sizeof(rsdt_t))  /  (use_xsdt() ? 8 : 4);
+void *acpi_find_sdt(char signature[4], uint64_t index) {
+    uint64_t entry_count =
+        (rsdt->header.length - sizeof(rsdt_t)) / (use_xsdt() ? 8 : 4);
 
     for (uint64_t i = 0; i < entry_count; i++) {
         sdt_header_t *sdt = NULL;
         if (use_xsdt()) {
-            sdt = (sdt_header_t*) (*((uint64_t*)rsdt->data + i) + HHDM_OFFSET);
+            sdt = (sdt_header_t *)(*((uint64_t *)rsdt->data + i) + HHDM_OFFSET);
         } else {
-            sdt = (sdt_header_t*) (*((uint32_t*)rsdt->data + i) + HHDM_OFFSET);
+            sdt = (sdt_header_t *)(*((uint32_t *)rsdt->data + i) + HHDM_OFFSET);
         }
 
-        if (memcmp(sdt->signature, signature, 4)!=0) {
+        if (memcmp(sdt->signature, signature, 4) != 0) {
             continue;
         }
 
@@ -57,9 +56,9 @@ void* acpi_find_sdt(char signature[4], uint64_t index){
             continue;
         }
 
-        printf("Found %s at %x\n", signature,sdt);
+        printf("Found %s at %x\n", signature, sdt);
         return sdt;
     }
-    printf("Cannot find  %s",signature);
+    printf("Cannot find  %s", signature);
     return NULL;
 }

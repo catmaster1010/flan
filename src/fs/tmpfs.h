@@ -2,5 +2,5 @@
 #define tmpfs_h
 #include "fs/vfs.h"
 
-vfs_fs_t* tmpfs_funcs();
+vfs_fs_t *tmpfs_funcs();
 #endif

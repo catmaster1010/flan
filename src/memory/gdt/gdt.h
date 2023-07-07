@@ -3,7 +3,7 @@
 #ifndef gdt_h
 #define gdt_h
 
-#include "cpu/cpu.h" 
+#include "cpu/cpu.h"
 
 typedef struct __attribute__((packed)) {
     uint16_t limit;
@@ -14,14 +14,13 @@ typedef struct __attribute__((packed)) {
     uint8_t basehigh8;
 } gdt_entry_t;
 
-
 typedef struct __attribute__((packed)) {
-    uint16_t limit;  // length-1
-    uint64_t base;      //GDT BASE
+    uint16_t limit; // length-1
+    uint64_t base;  // GDT BASE
 } gdt_register_t;
 
 void encodeGdtEntry();
 void gdt_init();
 void gdt_load();
-void gdt_load_tss(tss_t* tss);
+void gdt_load_tss(tss_t *tss);
 #endif

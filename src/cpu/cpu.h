@@ -1,10 +1,10 @@
 #ifndef cpu_h
 #define cpu_h
-#include <stdint.h>
-#include  <stdbool.h>
-#include "lib/vector.h"
 #include "lib/lock.h"
+#include "lib/vector.h"
 #include "proc/sched.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 struct thread;
 #define STACK_SIZE 0x10000
@@ -18,7 +18,8 @@ struct thread;
 #define MSR_GSBASE 0xC0000101
 #define MSR_KGSBASE 0xC0000102
 
-#define cpuid(in,a,b,c,d) asm volatile ("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(in)); 
+#define cpuid(in, a, b, c, d)                                                  \
+    asm volatile("cpuid" : "=a"(a), "=b"(b), "=c"(c), "=d"(d) : "a"(in));
 
 typedef struct __attribute__((packed)) {
     uint32_t rsvd0;
@@ -38,7 +39,7 @@ typedef struct __attribute__((packed)) {
 } tss_t;
 
 struct interrupt_frame {
-    uint64_t es; 
+    uint64_t es;
     uint64_t ds;
     uint64_t r15;
     uint64_t r14;
@@ -65,49 +66,33 @@ struct interrupt_frame {
 typedef struct interrupt_frame interrupt_frame_t;
 
 typedef struct cpu_local {
-    void* kernel_stack;
+    void *kernel_stack;
     uint64_t cpu_number;
     uint64_t lapic_id;
     bool bsp;
     bool active;
     uint32_t lapic_freq;
     tss_t tss;
-    struct thread* idle_thread;
+    struct thread *idle_thread;
 } cpu_local_t;
-
 
 static inline uint64_t wrmsr(uint32_t msr, uint64_t val) {
     uint32_t eax = (uint32_t)val, edx = (uint32_t)(val >> 32);
-    asm volatile (
-        "wrmsr"
-        : : "a" (eax), "d" (edx), "c" (msr)
-        : "memory"
-    );
+    asm volatile("wrmsr" : : "a"(eax), "d"(edx), "c"(msr) : "memory");
     return ((uint64_t)edx << 32) | eax;
 }
 
 static inline uint64_t rdmsr(uint32_t msr) {
     uint32_t edx = 0, eax = 0;
-    asm volatile (
-        "rdmsr"
-        : "=a" (eax), "=d" (edx)
-        : "c" (msr)
-        : "memory"
-    );
+    asm volatile("rdmsr" : "=a"(eax), "=d"(edx) : "c"(msr) : "memory");
     return ((uint64_t)edx << 32) | eax;
 }
 
-static inline void* read_gs_base() {
-    return (void*) rdmsr(MSR_GSBASE);
-}
+static inline void *read_gs_base() { return (void *)rdmsr(MSR_GSBASE); }
 
-static inline void* read_kgs_base() {
-    return (void*) rdmsr(MSR_KGSBASE);
-}
+static inline void *read_kgs_base() { return (void *)rdmsr(MSR_KGSBASE); }
 
-static inline void* read_fs_base() {
-    return (void*) rdmsr(MSR_FSBASE);
-}
+static inline void *read_fs_base() { return (void *)rdmsr(MSR_FSBASE); }
 
 static inline void set_gs_base(void *addr) {
     wrmsr(MSR_GSBASE, (uint64_t)addr);
@@ -123,53 +108,29 @@ static inline void set_kgs_base(void *addr) {
 
 static inline uint64_t read_cr0(void) {
     uint64_t ret = 0;
-    asm volatile (
-        "mov %0, cr0"
-        : "=r" (ret)
-        : : "memory"
-    );
+    asm volatile("mov %0, cr0" : "=r"(ret) : : "memory");
     return ret;
 }
 static inline void write_cr0(uint64_t val) {
-    asm volatile (
-        "mov cr0, %0"
-        : : "r" (val)
-        : "memory"
-    );
+    asm volatile("mov cr0, %0" : : "r"(val) : "memory");
 }
 
 static inline uint64_t read_cr3(void) {
     uint64_t ret = 0;
-    asm volatile (
-        "mov %0, cr3"
-        : "=r" (ret)
-        : : "memory"
-    );
+    asm volatile("mov %0, cr3" : "=r"(ret) : : "memory");
     return ret;
 }
 static inline void write_cr3(uint64_t val) {
-    asm volatile (
-        "mov cr3, %0"
-        : : "r" (val)
-        : "memory"
-    );
+    asm volatile("mov cr3, %0" : : "r"(val) : "memory");
 }
 
 static inline uint64_t read_cr4(void) {
     uint64_t ret = 0;
-    asm volatile (
-        "mov %0, cr4"
-        : "=r" (ret)
-        : : "memory"
-    );
+    asm volatile("mov %0, cr4" : "=r"(ret) : : "memory");
     return ret;
 }
 static inline void write_cr4(uint64_t val) {
-    asm volatile (
-        "mov cr4, %0"
-        : : "r" (val)
-        : "memory"
-    );
+    asm volatile("mov cr4, %0" : : "r"(val) : "memory");
 }
 
 #endif
