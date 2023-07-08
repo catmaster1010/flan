@@ -1,7 +1,7 @@
-#include "lib/str.h"
-#include "lib/assert.h"
-#include "lib/stddef.h"
-#include "memory/kheap.h"
+#include <lib/assert.h>
+#include <lib/stddef.h>
+#include <lib/str.h>
+#include <memory/kheap.h>
 
 int strlen(const char *f) {
     int ct = 0;

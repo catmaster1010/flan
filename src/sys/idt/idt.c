@@ -1,9 +1,8 @@
-#include "idt.h"
-#include "sys/cpu.h"
-#include "sys/idt/idt.h"
-#include "sys/smp.h"
-#include "lib/lock.h"
-#include "lib/stdio.h"
+#include <lib/lock.h>
+#include <lib/stdio.h>
+#include <sys/cpu.h>
+#include <sys/idt/idt.h>
+#include <sys/smp.h>
 
 spinlock_t idt_lock = LOCK_INIT;
 static idt_gate_t idt[256];

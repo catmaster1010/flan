@@ -1,9 +1,9 @@
-#include "acpi/tables/madt.h"
-#include "lib/assert.h"
-#include "lib/lock.h"
-#include "lib/stddef.h"
-#include "lib/stdio.h"
-#include "lib/vector.h"
+#include <acpi/tables/madt.h>
+#include <lib/assert.h>
+#include <lib/lock.h>
+#include <lib/stddef.h>
+#include <lib/stdio.h>
+#include <lib/vector.h>
 
 vector_t madt_lapics;
 vector_t madt_ioapics;

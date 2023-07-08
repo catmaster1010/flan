@@ -1,10 +1,10 @@
-#include "memory/vmm.h"
-#include "lib/assert.h"
-#include "lib/lock.h"
-#include "lib/stddef.h"
-#include "lib/stdio.h"
-#include "memory/pmm.h"
+#include <lib/assert.h>
+#include <lib/lock.h>
+#include <lib/stddef.h>
+#include <lib/stdio.h>
 #include <limine.h>
+#include <memory/pmm.h>
+#include <memory/vmm.h>
 #include <stdint.h>
 
 spinlock_t vmm_lock;

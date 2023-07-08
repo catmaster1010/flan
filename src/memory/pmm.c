@@ -1,11 +1,11 @@
-#include "memory/pmm.h"
-#include "lib/assert.h"
-#include "lib/lock.h"
-#include "lib/stddef.h"
-#include "lib/stdio.h"
-#include "lib/str.h"
-#include "memory/vmm.h"
+#include <lib/assert.h>
+#include <lib/lock.h>
+#include <lib/stddef.h>
+#include <lib/stdio.h>
+#include <lib/str.h>
 #include <limine.h>
+#include <memory/pmm.h>
+#include <memory/vmm.h>
 
 volatile struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST, .revision = 0};

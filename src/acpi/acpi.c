@@ -1,11 +1,11 @@
-#include "acpi/acpi.h"
-#include "acpi/tables/madt.h"
-#include "lib/assert.h"
-#include "lib/stddef.h"
-#include "lib/stdio.h"
-#include "lib/str.h"
-#include "memory/vmm.h"
+#include <acpi/acpi.h>
+#include <acpi/tables/madt.h>
+#include <lib/assert.h>
+#include <lib/stddef.h>
+#include <lib/stdio.h>
+#include <lib/str.h>
 #include <limine.h>
+#include <memory/vmm.h>
 
 static volatile struct limine_rsdp_request rsdp_request = {
     .id = LIMINE_RSDP_REQUEST, .revision = 0};

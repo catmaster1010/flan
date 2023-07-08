@@ -1,7 +1,7 @@
-#include "lib/vector.h"
-#include "lib/assert.h"
-#include "lib/str.h"
-#include "memory/kheap.h"
+#include <lib/assert.h>
+#include <lib/str.h>
+#include <lib/vector.h>
+#include <memory/kheap.h>
 
 void vector_create(vector_t *vector, uint64_t item_size) {
     vector->items = 0;

@@ -1,17 +1,17 @@
-#include "sys/smp.h"
-#include "sys/cpu.h"
-#include "sys/idt/idt.h"
-#include "dev/apic/lapic.h"
-#include "lib/assert.h"
-#include "lib/lock.h"
-#include "lib/stdio.h"
-#include "memory/gdt/gdt.h"
-#include "memory/kheap.h"
-#include "memory/pmm.h"
-#include "memory/vmm.h"
-#include "proc/sched.h"
+#include <dev/apic/lapic.h>
+#include <lib/assert.h>
+#include <lib/lock.h>
+#include <lib/stdio.h>
 #include <limine.h>
+#include <memory/gdt/gdt.h>
+#include <memory/kheap.h>
+#include <memory/pmm.h>
+#include <memory/vmm.h>
+#include <proc/sched.h>
 #include <stdint.h>
+#include <sys/cpu.h>
+#include <sys/idt/idt.h>
+#include <sys/smp.h>
 
 spinlock_t smp_lock = LOCK_INIT;
 static uint64_t cpus_running;

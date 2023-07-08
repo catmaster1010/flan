@@ -1,9 +1,9 @@
-#include "dev/pit.h"
-#include "sys/idt/idt.h"
-#include "dev/apic/ioapic.h"
-#include "dev/apic/lapic.h"
-#include "lib/io.h"
-#include "lib/stdio.h"
+#include <dev/apic/ioapic.h>
+#include <dev/apic/lapic.h>
+#include <dev/pit.h>
+#include <lib/io.h>
+#include <lib/stdio.h>
+#include <sys/idt/idt.h>
 
 static volatile uint64_t ticks = 0;
 uint16_t pit_get_current_count() {

@@ -1,14 +1,14 @@
-#include "dev/ps2/ps2kb.h"
-#include "sys/idt/idt.h"
-#include "dev/apic/ioapic.h"
-#include "dev/apic/lapic.h"
-#include "dev/pit.h"
-#include "dev/ps2/ps2.h"
-#include "lib/io.h"
-#include "lib/stdio.h"
-#include "proc/sched.h"
+#include <dev/apic/ioapic.h>
+#include <dev/apic/lapic.h>
+#include <dev/pit.h>
+#include <dev/ps2/ps2.h>
+#include <dev/ps2/ps2kb.h>
+#include <lib/io.h>
+#include <lib/stdio.h>
+#include <proc/sched.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <sys/idt/idt.h>
 
 static const char keymap[] = {
     '\0', '\e', '1',  '2',  '3',  '4',  '5',  '6',  '7',  '8', '9', '0',

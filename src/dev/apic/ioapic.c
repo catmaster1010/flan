@@ -1,10 +1,10 @@
-#include "dev/apic/ioapic.h"
-#include "acpi/tables/madt.h"
-#include "lib/assert.h"
-#include "lib/stdio.h"
-#include "lib/vector.h"
-#include "memory/vmm.h"
+#include <acpi/tables/madt.h>
+#include <dev/apic/ioapic.h>
+#include <lib/assert.h>
+#include <lib/stdio.h>
+#include <lib/vector.h>
 #include <limine.h>
+#include <memory/vmm.h>
 #include <stdint.h>
 
 uint32_t ioapic_read(uint64_t ioapic_address, uint64_t reg) {

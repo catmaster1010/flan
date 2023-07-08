@@ -1,6 +1,6 @@
-#include "gdt.h"
-#include "lib/lock.h"
-#include "lib/stdio.h"
+#include <lib/lock.h>
+#include <lib/stdio.h>
+#include <memory/gdt/gdt.h>
 #include <stdint.h>
 
 gdt_entry_t gdt[11];

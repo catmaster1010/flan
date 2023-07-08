@@ -32,23 +32,23 @@ syscall_entry_asm:
     push r14
     push r15
 
-    mov eax, ds
-    push rax
-    mov eax, es
-    push rax
+    mov r11, ds
+    push r11
+    mov r11, es
+    push r11
 
     cld
 
-    mov rax, 0x30
-    mov ds, eax
-    mov es, eax
+    mov r11, 0x30
+    mov ds, r11
+    mov es, r11
 
     call syscall_handler
     
-    pop rax
-    mov es, eax
-    pop rax 
-    mov ds, eax
+    pop r11
+    mov es, r11
+    pop r11
+    mov ds, r11
 
     pop r15
     pop r14

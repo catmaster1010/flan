@@ -1,0 +1,1 @@
+int syscall_openat() {}

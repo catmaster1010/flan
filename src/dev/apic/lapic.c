@@ -1,13 +1,12 @@
-#include "dev/apic/lapic.h"
-#include "sys/cpu.h"
-#include "sys/smp.h"
-#include "dev/apic/lapic.h"
-#include "dev/pit.h"
-#include "lib/lock.h"
-#include "lib/stdio.h"
-#include "lib/vector.h"
-#include "memory/vmm.h"
+#include <dev/apic/lapic.h>
+#include <dev/pit.h>
+#include <lib/lock.h>
+#include <lib/stdio.h>
+#include <lib/vector.h>
 #include <limine.h>
+#include <memory/vmm.h>
+#include <sys/cpu.h>
+#include <sys/smp.h>
 
 spinlock_t lapic_lock;
 

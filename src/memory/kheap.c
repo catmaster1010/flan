@@ -1,9 +1,9 @@
-#include "memory/kheap.h"
-#include "lib/lock.h"
-#include "lib/stddef.h"
-#include "lib/stdio.h"
-#include "lib/str.h"
-#include "memory/vmm.h"
+#include <lib/lock.h>
+#include <lib/stddef.h>
+#include <lib/stdio.h>
+#include <lib/str.h>
+#include <memory/kheap.h>
+#include <memory/vmm.h>
 
 #define HEADER_SIZE 24
 static dll_t free_list = {.next = &free_list, .prev = &free_list};

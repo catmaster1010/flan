@@ -1,8 +1,8 @@
-#include "dev/ps2/ps2.h"
-#include "sys/idt/idt.h"
-#include "dev/ps2/ps2kb.h"
-#include "lib/assert.h"
-#include "lib/io.h"
+#include <dev/ps2/ps2.h>
+#include <dev/ps2/ps2kb.h>
+#include <lib/assert.h>
+#include <lib/io.h>
+#include <sys/idt/idt.h>
 
 uint8_t ps2_read() {
     while ((inb(0x64) & 1) == 0)

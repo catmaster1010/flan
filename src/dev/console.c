@@ -1,9 +1,9 @@
-#include "dev/console.h"
-#include "dev/fb.h"
-#include "flanterm/backends/fb.h"
-#include "lib/lock.h"
-#include "lib/str.h"
-#include "memory/kheap.h"
+#include <dev/console.h>
+#include <dev/fb.h>
+#include <flanterm/backends/fb.h>
+#include <lib/lock.h>
+#include <lib/str.h>
+#include <memory/kheap.h>
 
 spinlock_t console_lock = LOCK_INIT;
 static struct flanterm_context *term_context = NULL;

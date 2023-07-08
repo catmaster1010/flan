@@ -1,9 +1,9 @@
-#include "dev/console.h"
-#include "dev/serial.h"
-#include "flanterm/backends/fb.h"
-#include "lib/lock.h"
-#include "lib/str.h"
-#include "limine.h"
+#include <dev/console.h>
+#include <dev/serial.h>
+#include <flanterm/backends/fb.h>
+#include <lib/lock.h>
+#include <lib/str.h>
+#include <limine.h>
 #include <stdarg.h>
 
 spinlock_t print_lock = LOCK_INIT;

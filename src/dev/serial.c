@@ -1,6 +1,6 @@
-#include "dev/serial.h"
-#include "lib/io.h"
-#include "lib/lock.h"
+#include <dev/serial.h>
+#include <lib/io.h>
+#include <lib/lock.h>
 
 void serial_init() {
     outb(PORT + 1, 0x00);

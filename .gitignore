@@ -3,6 +3,7 @@
 *.o
 *.d
 .git
+.gdbinit
 limine
 src/flanterm
 src/limine.h

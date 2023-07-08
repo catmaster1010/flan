@@ -1,5 +1,5 @@
-#include "lib/lock.h"
-#include "lib/assert.h"
+#include <lib/assert.h>
+#include <lib/lock.h>
 #include <stdint.h>
 
 int spinlock_test_and_acq(spinlock_t *lock) { return CAS(&lock->lock, 0, 1); }

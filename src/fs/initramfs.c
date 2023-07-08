@@ -1,11 +1,11 @@
-#include "fs/initramfs.h"
-#include "fs/vfs.h"
-#include "lib/assert.h"
-#include "lib/stddef.h"
-#include "lib/str.h"
-#include "memory/pmm.h"
-#include "memory/vmm.h"
+#include <fs/initramfs.h>
+#include <fs/vfs.h>
+#include <lib/assert.h>
+#include <lib/stddef.h>
+#include <lib/str.h>
 #include <limine.h>
+#include <memory/pmm.h>
+#include <memory/vmm.h>
 
 #define TAR_FILE_TYPE_NORMAL '0'
 #define TAR_FILE_TYPE_HARD_LINK '1'

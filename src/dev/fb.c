@@ -1,5 +1,5 @@
-#include "dev/fb.h"
-#include "lib/stdio.h"
+#include <dev/fb.h>
+#include <lib/stdio.h>
 #include <limine.h>
 
 volatile struct limine_framebuffer_request fb_request = {

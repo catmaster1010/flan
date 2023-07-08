@@ -1,8 +1,8 @@
-#include "lib/hashmap.h"
-#include "lib/assert.h"
-#include "lib/stddef.h"
-#include "lib/str.h"
-#include "memory/kheap.h"
+#include <lib/assert.h>
+#include <lib/hashmap.h>
+#include <lib/stddef.h>
+#include <lib/str.h>
+#include <memory/kheap.h>
 
 static inline uint64_t hash(char *key, uint64_t size) {
     uint64_t hash = 5381;

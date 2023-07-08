@@ -1,8 +1,8 @@
-#include "lib/elf.h"
-#include "lib/assert.h"
-#include "lib/str.h"
-#include "memory/pmm.h"
-#include "memory/vmm.h"
+#include <lib/assert.h>
+#include <lib/elf.h>
+#include <lib/str.h>
+#include <memory/pmm.h>
+#include <memory/vmm.h>
 
 static inline bool check_headers(Elf64_Ehdr *header) {
     if (memcmp(header->e_ident, ELFMAG, 4))

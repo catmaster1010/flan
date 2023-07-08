@@ -1,12 +1,12 @@
-#include "proc/sched.h"
-#include "sys/cpu.h"
-#include "sys/idt/idt.h"
-#include "sys/smp.h"
-#include "dev/apic/lapic.h"
-#include "lib/assert.h"
-#include "lib/lock.h"
-#include "memory/kheap.h"
-#include "memory/pmm.h"
+#include <dev/apic/lapic.h>
+#include <lib/assert.h>
+#include <lib/lock.h>
+#include <memory/kheap.h>
+#include <memory/pmm.h>
+#include <proc/sched.h>
+#include <sys/cpu.h>
+#include <sys/idt/idt.h>
+#include <sys/smp.h>
 
 #define SCHED_VECTOR 34
 process_t *kernel_process;

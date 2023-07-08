@@ -1,12 +1,12 @@
-#include "fs/vfs.h"
-#include "fs/ext2fs.h"
-#include "fs/tmpfs.h"
-#include "lib/assert.h"
-#include "lib/lock.h"
-#include "lib/stddef.h"
-#include "lib/str.h"
-#include "lib/vector.h"
-#include "memory/kheap.h"
+#include <fs/ext2fs.h>
+#include <fs/tmpfs.h>
+#include <fs/vfs.h>
+#include <lib/assert.h>
+#include <lib/lock.h>
+#include <lib/stddef.h>
+#include <lib/str.h>
+#include <lib/vector.h>
+#include <memory/kheap.h>
 
 spinlock_t vfs_lock = LOCK_INIT;
 vfs_node_t *root;
