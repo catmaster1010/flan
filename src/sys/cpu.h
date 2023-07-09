@@ -1,8 +1,8 @@
 #ifndef cpu_h
 #define cpu_h
-#include "lib/lock.h"
-#include "lib/vector.h"
-#include "proc/sched.h"
+#include <lib/lock.h>
+#include <lib/vector.h>
+#include <proc/sched.h>
 #include <stdbool.h>
 #include <stdint.h>
 

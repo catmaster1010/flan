@@ -1,8 +1,8 @@
 #ifndef smp_h
 #define smp_h
-#include "sys/cpu.h"
-#include "sys/cpu.h"
-#include "lib/vector.h"
+#include <sys/cpu.h>
+#include <sys/cpu.h>
+#include <lib/vector.h>
 #include <limine.h>
 #include <stdint.h>
 

@@ -1,6 +1,5 @@
 #ifndef pmm_h
 #define pmm_h
-#include "lib/stddef.h"
 #include <limine.h>
 #include <stdint.h>
 void pmm_init();

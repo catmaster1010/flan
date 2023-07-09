@@ -1,8 +1,8 @@
 #ifndef vfs_h
 #define vfs_h
-#include "lib/hashmap.h"
-#include "lib/stat.h"
-#include "lib/vector.h"
+#include <lib/hashmap.h>
+#include <lib/stat.h>
+#include <lib/vector.h>
 #include <stdint.h>
 
 struct vfs_node;

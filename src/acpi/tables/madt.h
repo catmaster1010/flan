@@ -1,8 +1,8 @@
 #ifndef madt_h
 #define madt_h
 
-#include "acpi/acpi.h"
-#include "lib/vector.h"
+#include <acpi/acpi.h>
+#include <lib/vector.h>
 #include <stdint.h>
 
 typedef struct __attribute__((packed)) {

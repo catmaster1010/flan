@@ -1,6 +1,6 @@
 #ifndef assert_h
 #define assert_h
-#include "lib/stdio.h"
+#include <lib/stdio.h>
 
 #define assert(check)                                                          \
     ({                                                                         \

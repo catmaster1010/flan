@@ -1,7 +1,7 @@
 #ifndef elf_h
 #define elf_h
-#include "fs/vfs.h"
-#include "memory/vmm.h"
+#include <fs/vfs.h>
+#include <memory/vmm.h>
 #include <stdint.h>
 
 #define ELFDATA2LSB 1

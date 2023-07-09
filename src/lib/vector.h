@@ -1,6 +1,6 @@
 #ifndef vector_h
 #define vector_h
-#include "lib/lock.h"
+#include <lib/lock.h>
 #include <stdint.h>
 
 typedef struct {

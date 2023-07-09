@@ -1,11 +1,11 @@
 #ifndef sched_h
 #define sched_h
-#include "sys/cpu.h"
-#include "fs/vfs.h"
-#include "lib/lock.h"
-#include "lib/stddef.h"
-#include "lib/vector.h"
-#include "memory/vmm.h"
+#include <sys/cpu.h>
+#include <fs/vfs.h>
+#include <lib/lock.h>
+#include <lib/stddef.h>
+#include <lib/vector.h>
+#include <memory/vmm.h>
 
 struct cpu_local;
 struct interrupt_frame;

@@ -3,7 +3,7 @@
 #ifndef gdt_h
 #define gdt_h
 
-#include "sys/cpu.h"
+#include <sys/cpu.h>
 
 typedef struct __attribute__((packed)) {
     uint16_t limit;
