@@ -52,7 +52,7 @@ void kernel_thread() {
 
     pagemap_t *user_pagemap = vmm_new_pagemap();
     struct auxval aux;
-    const char* ld_path;
+    const char *ld_path;
 
     assert(elf_load(user_pagemap, init_node, &aux, &ld_path));
     process_t *user_proc = sched_process(user_pagemap);

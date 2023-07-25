@@ -2,8 +2,8 @@ name=mlibc-headers
 from_source=mlibc
 revision=1
 hostdeps="pkg-config"
-imagedeps="meson ninja"
-deps="cxxshim frigg"
+imagedeps="meson ninja git"
+deps="linux-headers cxxshim frigg"
 
 configure() {
     meson setup \
@@ -13,6 +13,7 @@ configure() {
         -Ddisable_crypt_option=true \
         -Ddisable_iconv_option=true \
         -Ddisable_intl_option=true \
+        -Dlinux_kernel_headers=${sysroot_dir}${prefix}/include \
         ${source_dir}
 }
 

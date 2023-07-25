@@ -1,27 +1,23 @@
 diff --git mlibc-clean/meson.build mlibc-workdir/meson.build
-index 12a74ae..f72bb0c 100644
+index 12a74ae..d781a3e 100644
 --- mlibc-clean/meson.build
 +++ mlibc-workdir/meson.build
-@@ -154,6 +154,14 @@ elif host_machine.system() == 'dripos'
+@@ -154,6 +154,10 @@ elif host_machine.system() == 'dripos'
  	rtdl_include_dirs += include_directories('sysdeps/dripos/include')
  	libc_include_dirs += include_directories('sysdeps/dripos/include')
  	subdir('sysdeps/dripos')
 +elif host_machine.system() == 'flan'
-+	disable_linux_option = true
-+    disable_posix_option = true
-+    disable_glibc_option = true
-+    disable_bsd_option = true
 +	rtdl_include_dirs += include_directories('sysdeps/flan/include')
 +	libc_include_dirs += include_directories('sysdeps/flan/include')
 +	subdir('sysdeps/flan')
  else
  	error('No sysdeps defined for OS: ' + host_machine.system())
  endif
-diff --git mlibc-workdir/sysdeps/flan/crt-x86_64/crt0.S mlibc-workdir/sysdeps/flan/crt-x86_64/crt0.S
+diff --git mlibc-workdir/sysdeps/flan/crt-src/crt0.S mlibc-workdir/sysdeps/flan/crt-src/crt0.S
 new file mode 100644
 index 0000000..9e81022
 --- /dev/null
-+++ mlibc-workdir/sysdeps/flan/crt-x86_64/crt0.S
++++ mlibc-workdir/sysdeps/flan/crt-src/crt0.S
 @@ -0,0 +1,6 @@
 +.section .text
 +.global _start
@@ -29,11 +25,11 @@ index 0000000..9e81022
 +    mov $main, %rdi
 +    call __mlibc_entry
 +.section .note.GNU-stack,"",%progbits
-diff --git mlibc-workdir/sysdeps/flan/crt-x86_64/crti.S mlibc-workdir/sysdeps/flan/crt-x86_64/crti.S
+diff --git mlibc-workdir/sysdeps/flan/crt-src/crti.S mlibc-workdir/sysdeps/flan/crt-src/crti.S
 new file mode 100644
 index 0000000..f04679c
 --- /dev/null
-+++ mlibc-workdir/sysdeps/flan/crt-x86_64/crti.S
++++ mlibc-workdir/sysdeps/flan/crt-src/crti.S
 @@ -0,0 +1,10 @@
 +.section .init
 +.global _init
@@ -45,11 +41,11 @@ index 0000000..f04679c
 +_fini:
 +	push %rax
 +.section .note.GNU-stack,"",%progbits
-diff --git mlibc-workdir/sysdeps/flan/crt-x86_64/crtn.S mlibc-workdir/sysdeps/flan/crt-x86_64/crtn.S
+diff --git mlibc-workdir/sysdeps/flan/crt-src/crtn.S mlibc-workdir/sysdeps/flan/crt-src/crtn.S
 new file mode 100644
 index 0000000..1b61d5a
 --- /dev/null
-+++ mlibc-workdir/sysdeps/flan/crt-x86_64/crtn.S
++++ mlibc-workdir/sysdeps/flan/crt-src/crtn.S
 @@ -0,0 +1,8 @@
 +.section .init
 +	pop %rax
@@ -509,10 +505,10 @@ index 0000000..66412d7
 \ No newline at end of file
 diff --git mlibc-workdir/sysdeps/flan/meson.build mlibc-workdir/sysdeps/flan/meson.build
 new file mode 100644
-index 0000000..7056801
+index 0000000..49bb989
 --- /dev/null
 +++ mlibc-workdir/sysdeps/flan/meson.build
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,86 @@
 +rtdl_sources += files(
 +	'generic/generic.cpp'
 +)
@@ -570,14 +566,32 @@ index 0000000..7056801
 +	)
 +endif
 +
-+
 +if not headers_only
 +	crt = custom_target('crt0',
 +		build_by_default: true,
 +		command: c_compiler.cmd_array() + ['-c', '-o', '@OUTPUT@', '@INPUT@'],
-+		input: 'crt-x86_64/crt0.S',
++		input: 'crt-src/crt0.S',
 +		output: 'crt0.o',
 +		install: true,
 +		install_dir: get_option('libdir')
 +	)
++
++	custom_target('crti',
++		build_by_default: true,
++		command: c_compiler.cmd_array() + ['-c', '-o', '@OUTPUT@', '@INPUT@'],
++		input: 'crt-src/crti.S',
++		output: 'crti.o',
++		install: true,
++		install_dir: get_option('libdir')
++	)
++
++	custom_target('crtn',
++		build_by_default: true,
++		command: c_compiler.cmd_array() + ['-c', '-o', '@OUTPUT@', '@INPUT@'],
++		input: 'crt-src/crtn.S',
++		output: 'crtn.o',
++		install: true,
++		install_dir: get_option('libdir')
++	)
 +endif
++

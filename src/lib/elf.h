@@ -98,5 +98,6 @@ struct auxval {
     uint64_t at_phent;
     uint64_t at_phnum;
 };
-bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux, const char** ld_path);
+bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux,
+              const char **ld_path);
 #endif

@@ -2,7 +2,7 @@ name=libgcc
 from_source=gcc-host
 revision=1
 hostdeps="gcc autoconf automake libtool pkg-config"
-imagedeps="gcc glibc"
+imagedeps="gcc"
 deps="mlibc"
 
 configure() {
@@ -17,7 +17,7 @@ build() {
 
 install() {
     cd "${base_dir}"/host-builds/gcc/build
-    
+
     rm -rf tmp_libgcc_dir
     mkdir tmp_libgcc_dir
 
