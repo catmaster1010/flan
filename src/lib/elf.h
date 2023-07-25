@@ -41,6 +41,7 @@ typedef Elf64_Sxword Elf64_Ssize;
 #define ET_EXEC 2
 #define EM_AMD64 62
 #define PT_LOAD 1
+#define PT_INTERP 3
 
 #define PF_X 1
 #define PF_W 2
@@ -97,5 +98,5 @@ struct auxval {
     uint64_t at_phent;
     uint64_t at_phnum;
 };
-bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux);
+bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux, const char** ld_path);
 #endif

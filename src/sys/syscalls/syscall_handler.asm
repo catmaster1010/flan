@@ -1,3 +1,13 @@
+section .rodata
+
+extern syscall_log
+extern syscall_exit_thread
+syscall_table:
+    dq syscall_log
+    dq syscall_exit_thread
+
+section .text
+
 extern syscall_handler
 global syscall_entry_asm
 syscall_entry_asm:
@@ -43,7 +53,7 @@ syscall_entry_asm:
     mov ds, r11
     mov es, r11
 
-    call syscall_handler
+    call [syscall_table + rax * 8]
     
     pop r11
     mov es, r11

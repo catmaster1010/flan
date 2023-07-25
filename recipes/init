@@ -1,0 +1,17 @@
+name=init
+from_source=init
+revision=1
+deps="core-libs"
+hostdeps="gcc"
+
+configure() {
+    cp -r ${source_dir}/. ./
+}
+
+build() {
+    make -j${parallelism} CC=x86_64-flan-gcc
+}
+
+install() {
+    make install DESTDIR="${dest_dir}" PREFIX="${prefix}" STRIP=x86_64-flan-strip
+}

@@ -1,11 +1,11 @@
 #ifndef sched_h
 #define sched_h
-#include <sys/cpu.h>
 #include <fs/vfs.h>
 #include <lib/lock.h>
 #include <lib/stddef.h>
 #include <lib/vector.h>
 #include <memory/vmm.h>
+#include <sys/cpu.h>
 
 struct cpu_local;
 struct interrupt_frame;
@@ -50,6 +50,7 @@ extern process_t *kernel_process;
 thread_t *sched_thread();
 bool dequeue_thread(thread_t *thread);
 void dequeue_and_die();
+__attribute__((__noreturn__)) void dequeue_and_die();
 process_t *sched_process(pagemap_t *pagemap);
 __attribute__((__noreturn__)) void sched_await();
 __attribute__((__noreturn__)) void sched_init(void *start);

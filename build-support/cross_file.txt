@@ -1,0 +1,13 @@
+[binaries]
+c = 'x86_64-flan-gcc'
+cpp = 'x86_64-flan-g++'
+ar = 'x86_64-flan-ar'
+strip = 'x86_64-flan-strip'
+pkgconfig = 'x86_64-flan-pkg-config'
+# sed adds binaries here.
+
+[host_machine]
+system = 'flan'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'

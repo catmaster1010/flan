@@ -192,7 +192,7 @@ bool dequeue_thread(thread_t *thread) {
     return true;
 }
 
-void dequeue_and_die() {
+__attribute__((__noreturn__)) void dequeue_and_die() {
     asm volatile("cli");
     lapic_stop();
     thread_t *current_thread = get_current_thread();

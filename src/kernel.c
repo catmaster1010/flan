@@ -48,10 +48,13 @@ void kernel_thread() {
     printf("\nNothing to be done now...\n");
 
     vfs_node_t *init_node = vfs_open(root, "/build/init");
+    assert(init_node);
 
     pagemap_t *user_pagemap = vmm_new_pagemap();
     struct auxval aux;
-    assert(elf_load(user_pagemap, init_node, &aux));
+    const char* ld_path;
+
+    assert(elf_load(user_pagemap, init_node, &aux, &ld_path));
     process_t *user_proc = sched_process(user_pagemap);
     sched_user_thread((void *)aux.at_entry, NULL, user_proc);
 

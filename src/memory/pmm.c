@@ -6,7 +6,6 @@
 #include <limine.h>
 #include <memory/pmm.h>
 #include <memory/vmm.h>
-#include <lib/stddef.h>
 
 volatile struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST, .revision = 0};

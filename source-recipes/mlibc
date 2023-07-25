@@ -1,0 +1,7 @@
+name=mlibc
+source_method=tarball
+tarball_url="https://github.com/managarm/mlibc/archive/refs/tags/4.0.0-rc1.tar.gz"
+tarball_blake2b="bd04605fb3e52da1bfdc4d28c60ea2d26cc516a6c961d6cfca8f86222a0309143889a53cf757cccb4904016eb3db97be82661024dc4e558f6b2fa9eba0b1c252"
+regenerate() {
+    true
+}

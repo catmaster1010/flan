@@ -1,9 +1,10 @@
 #include <lib/assert.h>
 #include <lib/elf.h>
+#include <lib/stddef.h>
 #include <lib/str.h>
 #include <memory/pmm.h>
 #include <memory/vmm.h>
-#include <lib/stddef.h>
+#include <memory/kheap.h>
 
 static inline bool check_headers(Elf64_Ehdr *header) {
     if (memcmp(header->e_ident, ELFMAG, 4))
@@ -19,7 +20,7 @@ static inline bool check_headers(Elf64_Ehdr *header) {
     return true;
 }
 
-bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux) {
+bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux, const char** ld_path) {
     Elf64_Ehdr elf_header;
     if (vfs_read(node, &elf_header, sizeof(Elf64_Ehdr), 0) <= 0)
         return false;
@@ -53,6 +54,14 @@ bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux) {
 
             assert(vfs_read(node, phys + unaligned + HHDM_OFFSET,
                             program_header.p_filesz, program_header.p_offset));
+        }
+        else if(program_header.p_type == PT_INTERP){
+            void* path = kheap_calloc(program_header.p_filesz + 1);
+            assert(path); 
+            assert(vfs_read(node, path, program_header.p_filesz, program_header.p_offset));
+            if (ld_path) *ld_path = path;
+
+
         }
     }
     aux->at_entry = elf_header.e_entry;

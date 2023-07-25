@@ -1,7 +1,7 @@
 override IMAGENAME := flan
 
 QEMUFLAGS ?= -no-reboot -no-shutdown -m 4G -smp cores=4 -serial stdio -M q35
-BUILDDIR :=$(PWD)/build/
+BUILDDIR :=$(PWD)/kernel-build/
 
 
 .PHONY: all
@@ -11,6 +11,10 @@ limine:
 	git clone https://github.com/limine-bootloader/limine.git --branch=v5.x-branch-binary --depth=1
 	make -C limine
 
+jinx:
+	curl -o jinx https://raw.githubusercontent.com/mintsuki/jinx/trunk/jinx
+	chmod +x jinx
+
 export BUILDDIR
 .PHONY: kernel
 kernel: 
@@ -18,13 +22,13 @@ kernel:
 	$(MAKE) -C src
 
 initramfs:
-	$(MAKE) -C usr
+	$(MAKE) -C init
 
 
-$(IMAGENAME).iso: limine kernel initramfs
+$(IMAGENAME).iso: limine kernel initramfs jinx
 	mkdir -p iso_root/
-	cp build/kernel.elf \
-		boot/limine.cfg limine/limine-bios.sys limine/limine-bios-cd.bin limine/limine-uefi-cd.bin usr/initramfs.tar iso_root/
+	cp $(BUILDDIR)/kernel.elf \
+		boot/limine.cfg limine/limine-bios.sys limine/limine-bios-cd.bin limine/limine-uefi-cd.bin init/initramfs.tar iso_root/
 	xorriso -as mkisofs -b limine-bios-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
 		--efi-boot limine-uefi-cd.bin \
@@ -37,7 +41,7 @@ $(IMAGENAME).iso: limine kernel initramfs
 clean:
 	rm -rf iso_root $(IMAGENAME).iso initramfs.tar
 	$(MAKE) -C src clean
-	$(MAKE) -C usr clean
+	$(MAKE) -C init clean
 
 .PHONY: run
 run: $(IMAGENAME).iso
