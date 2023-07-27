@@ -39,15 +39,13 @@ typedef struct tar_header tar_header_t;
 static volatile struct limine_module_request module_request = {
     .id = LIMINE_MODULE_REQUEST, .revision = 0};
 
-static inline uint64_t oct2int(const char *str, int size) {
-    uint64_t n = 0;
-    const char *c = str;
-    while (size-- > 0) {
-        n *= 8;
-        n += *c - '0';
-        c++;
+static inline uint64_t oct2int(const char *str, int len) {
+    uint64_t value = 0;
+    while (*str && len > 0) {
+        value = value * 8 + (*str++ - '0');
+        len--;
     }
-    return n;
+    return value;
 }
 
 void initramfs_init() {
@@ -68,13 +66,14 @@ void initramfs_init() {
             assert(node);
             assert(node->fs->write(node, (void *)current_file + 512, size, 0) ==
                    (int)size);
-            printf("New file: %s Size: %x Mode: %x\n", name, size, mode);
+            // printf("New file: %s Size: %x Mode: %x Node: %x\n", name, size,
+            // mode, node);
             break;
         }
         case TAR_FILE_TYPE_DIRECTORY: {
             vfs_node_t *node = vfs_create(root, name, true);
             assert(node);
-            printf("New dir: %s\n", name);
+            // printf("New dir: %s Node: %x\n", name, node);
             break;
         }
         }

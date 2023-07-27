@@ -4,12 +4,13 @@
 *.d
 /.git
 .gdbinit
+gdb.txt
 /.jinx-cache
 jinx
 /limine
 /src/flanterm
 /src/limine.h
-/init/initramfs.tar
+initramfs.tar
 /init/build
 /iso_root
 /builds

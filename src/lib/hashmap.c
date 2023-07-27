@@ -48,6 +48,14 @@ bool hashmap_set(hashmap_t *hashmap, char *key, void *val) {
         return true;
     }
     // key is not in hashmap
+    uint64_t index = INDEX(key, hashmap->entry_count);
+    entry = &hashmap->entries[index];
+    while (true) {
+        if (entry->next == NULL)
+            break;
+        entry = entry->next;
+    }
+
     hashmap_entry_t *new_entry = kheap_calloc(sizeof(hashmap_entry_t));
     if (!new_entry)
         return false;
@@ -55,9 +63,8 @@ bool hashmap_set(hashmap_t *hashmap, char *key, void *val) {
     new_entry->key = key;
     new_entry->key_length = strlen(key);
     new_entry->val = val;
-    uint64_t index = INDEX(key, hashmap->entry_count);
-    new_entry->next = &hashmap->entries[index];
-    hashmap->entries[index] = *new_entry;
+    new_entry->next = NULL;
+    entry->next = new_entry;
     hashmap->items++;
     return true;
 }

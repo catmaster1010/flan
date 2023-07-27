@@ -22,6 +22,17 @@ static vfs_node_t *reduce_node(vfs_node_t *node) {
     return node;
 }
 
+static bool create_dot(vfs_node_t *parent, vfs_node_t *node) {
+    vfs_node_t *dot = vfs_create_node(node, ".", node->fs, false);
+    vfs_node_t *dotdot = vfs_create_node(node, ".", node->fs, false);
+
+    dot->link = node;
+    dotdot->link = parent;
+
+    hashmap_set(node->children, ".", dot);
+    hashmap_set(node->children, "..", dotdot);
+}
+
 typedef struct {
     vfs_node_t *parent;
     vfs_node_t *result;
@@ -95,13 +106,15 @@ vfs_node_t *vfs_create_node(vfs_node_t *parent, char *name, vfs_fs_t *fs,
         node->children = kheap_alloc(sizeof(hashmap_t));
         hashmap_create(node->children, 256);
     }
-    if (!parent) {
+
+    if (!parent)
         parent = root;
-    }
+
     if (parent) {
         node->parent = parent;
         assert(hashmap_set(parent->children, name, node));
     }
+
     return node;
 }
 
@@ -115,16 +128,20 @@ vfs_node_t *vfs_open(vfs_node_t *parent, char *path) {
 bool vfs_mount(vfs_node_t *parent, char *source, char *target, char *fs_name) {
     spinlock_acquire(&vfs_lock);
     vfs_fs_t *fs = hashmap_get(&filesystems, fs_name);
-    path_to_node_t p2n_result = path_to_node(parent, target);
-    vfs_node_t *target_node = p2n_result.result;
+    path_to_node_t p2n_result;
+
     vfs_node_t *dev = NULL;
     if (source != NULL) {
         p2n_result = path_to_node(parent, source);
         dev = p2n_result.result;
     }
 
+    p2n_result = path_to_node(parent, target);
+    vfs_node_t *target_node = p2n_result.result;
+
     vfs_node_t *mount_node = fs->mount(target_node, dev, basename(target));
     target_node->mountpoint = mount_node;
+    create_dot(p2n_result.parent, mount_node);
     spinlock_release(&vfs_lock);
     return true;
 }
@@ -139,6 +156,11 @@ vfs_node_t *vfs_create(vfs_node_t *parent, char *path, int mode) {
     vfs_fs_t *target_fs = p2n_result.parent->fs;
     vfs_node_t *node =
         target_fs->create(p2n_result.parent, basename(path), mode);
+    if (node == NULL)
+        return NULL;
+
+    if (mode) // XXX
+        create_dot(p2n_result.parent, node);
     return node;
 }
 

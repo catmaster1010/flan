@@ -13,8 +13,6 @@ static inline bool check_headers(Elf64_Ehdr *header) {
         return false;
     if (header->e_ident[EI_DATA] != ELFDATA2LSB)
         return false;
-    if (header->e_type != ET_EXEC)
-        return false;
     if (header->e_machine != EM_AMD64)
         return false;
     return true;
@@ -28,7 +26,6 @@ bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux,
 
     if (!check_headers(&elf_header))
         return false;
-
     for (uint64_t i = 0; i < elf_header.e_phnum; i++) {
         Elf64_Phdr program_header;
         if (vfs_read(node, &program_header, sizeof(Elf64_Phdr),

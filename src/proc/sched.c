@@ -205,7 +205,7 @@ __attribute__((__noreturn__)) void dequeue_and_die() {
 }
 
 __attribute__((__noreturn__)) void sched_await() {
-    lapic_timer_oneshot(1000, SCHED_VECTOR);
+    lapic_timer_oneshot(TIME_QUANTUM, SCHED_VECTOR);
     for (;;) {
         asm volatile("hlt;");
     }

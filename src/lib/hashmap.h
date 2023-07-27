@@ -3,15 +3,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct hashmap_item {
-    struct hashmap_item *next;
+typedef struct hashmap_entry {
+    struct hashmap_entry *next;
     uint64_t key_length;
     char *key;
     void *val;
 } hashmap_entry_t;
 
 typedef struct {
-    struct hashmap_item *entries;
+    hashmap_entry_t *entries;
     uint64_t entry_count;
     uint64_t items;
 } hashmap_t;

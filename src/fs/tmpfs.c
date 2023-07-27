@@ -6,11 +6,12 @@
 static vfs_node_t *tmpfs_create(vfs_node_t *parent, char *name, int mode) {
     vfs_fs_t *fs = tmpfs_funcs();
     vfs_node_t *node = vfs_create_node(parent, name, fs, mode);
-    void *new_data = kheap_alloc(FRAME_SIZE);
+    void *new_data = kheap_calloc(FRAME_SIZE);
     assert(new_data);
     node->data = new_data;
     stat *st = &node->st;
     st->st_blksize = FRAME_SIZE;
+    st->st_size = st->st_blksize;
     st->st_blocks = 1;
     st->st_mode = mode;
     st->st_nlink = 1;
@@ -21,9 +22,8 @@ static vfs_node_t *tmpfs_create(vfs_node_t *parent, char *name, int mode) {
 static int tmpfs_read(vfs_node_t *node, void *buff, uint64_t count,
                       uint64_t offset) {
     uint64_t max = node->st.st_size - offset;
-    if (count > max) {
+    if (count > max)
         count = max;
-    }
 
     spinlock_acquire(&node->lock);
     memcpy(buff, node->data + offset, count);
@@ -53,7 +53,7 @@ static int tmpfs_write(vfs_node_t *node, void *buff, uint64_t count,
 static vfs_node_t *tmpfs_mount(vfs_node_t *node, vfs_node_t *dev, char *name) {
     (void)dev;
     vfs_fs_t *fs = tmpfs_funcs();
-    vfs_node_t *ret = vfs_create_node(node, name, fs, true);
+    vfs_node_t *ret = tmpfs_create(node, name, true);
     node->fs = fs;
     return ret;
 }

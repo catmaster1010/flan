@@ -47,16 +47,21 @@ void kernel_thread() {
 
     printf("\nNothing to be done now...\n");
 
-    vfs_node_t *init_node = vfs_open(root, "/build/init");
+    vfs_node_t *init_node = vfs_open(root, "/usr/bin/init");
     assert(init_node);
 
     pagemap_t *user_pagemap = vmm_new_pagemap();
-    struct auxval aux;
+    struct auxval init_aux, ld_aux;
     const char *ld_path;
 
-    assert(elf_load(user_pagemap, init_node, &aux, &ld_path));
+    assert(elf_load(user_pagemap, init_node, &init_aux, &ld_path));
+
+    vfs_node_t *ld_node = vfs_open(root, ld_path);
+    assert(ld_node);
+
+    assert(elf_load(user_pagemap, ld_node, &ld_aux, NULL));
     process_t *user_proc = sched_process(user_pagemap);
-    sched_user_thread((void *)aux.at_entry, NULL, user_proc);
+    // sched_user_thread((void *)ld_aux.at_entry, NULL, user_proc);
 
     dequeue_and_die();
 }

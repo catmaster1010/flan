@@ -1,14 +1,13 @@
-.PHONY: clean
+CFLAGS ?= -g -O2 -pipe -Wall -Wextra
 
-all: initramfs.tar
+override CFLAGS += -std=gnu11
 
-initramfs.tar: build/init
-	tar -cf initramfs.tar build
+all: init
 
-build/init: test.c
-	mkdir -p build 
-	$(CC) -ffreestanding -masm=intel -c  -g $< -o test.o
-	$(LD) test.o -nostdlib -static -z max-page-size=0x1000 -T linker.ld -o build/init
-clean: 
-	rm -rf build
-	rm initramfs.tar
+init: init.c
+	$(CC) $(CFLAGS) $< -o $@
+
+.PHONY: install
+install: all
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install init $(DESTDIR)$(PREFIX)/bin/init
