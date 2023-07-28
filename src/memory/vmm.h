@@ -7,9 +7,15 @@ typedef struct {
 } pagemap_t;
 
 #define PTE_ADDR_MASK 0x000ffffffffff000
-#define PTE_PRESENT (1 << 0)
-#define PTE_WRITABLE (1 << 1)
-#define PTE_USER (1 << 2)
+#define PTE_PRESENT (1ull << 0ull)
+#define PTE_WRITABLE (1ull << 1ull)
+#define PTE_USER (1ull << 2ull)
+#define PTE_NX (1ull << 63ull)
+
+#define PROT_NONE  0x00
+#define PROT_READ  0x01
+#define PROT_WRITE 0x02
+#define PROT_EXEC  0x04
 
 void vmm_init();
 void vmm_switch_pagemap(pagemap_t *pagemap);

@@ -21,23 +21,29 @@ static inline bool check_headers(Elf64_Ehdr *header) {
 bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux,
               const char **ld_path) {
     Elf64_Ehdr elf_header;
+
     if (vfs_read(node, &elf_header, sizeof(Elf64_Ehdr), 0) <= 0)
         return false;
 
     if (!check_headers(&elf_header))
         return false;
+
     for (uint64_t i = 0; i < elf_header.e_phnum; i++) {
         Elf64_Phdr program_header;
         if (vfs_read(node, &program_header, sizeof(Elf64_Phdr),
                      elf_header.e_phoff + i * elf_header.e_phentsize) <= 0)
             return false;
-        if (program_header.p_type == PT_LOAD) {
 
-            uint64_t prot = PTE_PRESENT;
+        switch (program_header.p_type){
+        case PT_LOAD: {
+
+            /*
+            uint64_t prot = PROT_READ;
             if (program_header.p_flags & PF_W)
-                prot |= PTE_WRITABLE;
+                prot |= PROT_WRITE;
             if (program_header.p_flags & PF_X)
-                prot |= PTE_USER;
+                prot |= PROT_EXEC;
+            */
 
             uint64_t unaligned = program_header.p_vaddr & (FRAME_SIZE - 1);
             uint64_t pages =
@@ -48,19 +54,30 @@ bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux,
                 return false;
 
             vmm_map_pages(pagemap, (uintptr_t)phys, program_header.p_vaddr,
-                          prot, pages);
+                          PTE_PRESENT | PTE_WRITABLE | PTE_USER, pages);
 
             assert(vfs_read(node, phys + unaligned + HHDM_OFFSET,
                             program_header.p_filesz, program_header.p_offset));
-        } else if (program_header.p_type == PT_INTERP) {
+            break;
+        } 
+        case PT_INTERP: {
             void *path = kheap_calloc(program_header.p_filesz + 1);
             assert(path);
             assert(vfs_read(node, path, program_header.p_filesz,
                             program_header.p_offset));
             if (ld_path)
                 *ld_path = path;
+            printf("Linker at %s\n",path);
+            break;
+        }
+        case PT_PHDR:{
+            aux->at_phdr = program_header.p_vaddr;
+            break;
+        }
         }
     }
     aux->at_entry = elf_header.e_entry;
+    aux->at_phent = elf_header.e_phentsize;
+    aux->at_phnum = elf_header.e_phnum;
     return true;
 }

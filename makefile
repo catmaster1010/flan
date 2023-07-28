@@ -41,7 +41,7 @@ $(IMAGENAME).iso: limine kernel initramfs.tar jinx
 
 .PHONY: clean
 clean:
-	rm -rf iso_root $(IMAGENAME).iso initramfs.tar
+	rm -rf iso_root $(IMAGENAME).iso initramfs.tar sysroot
 	$(MAKE) -C src clean
 
 .PHONY: run

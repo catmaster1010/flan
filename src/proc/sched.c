@@ -7,6 +7,8 @@
 #include <sys/cpu.h>
 #include <sys/idt/idt.h>
 #include <sys/smp.h>
+#include <lib/stddef.h>
+#include <lib/str.h>
 
 #define SCHED_VECTOR 34
 process_t *kernel_process;
@@ -83,7 +85,7 @@ bool sched_enqueue_thread(thread_t *thread) {
     return true;
 }
 
-thread_t *sched_user_thread(void *start, void *args, process_t *process) {
+thread_t *sched_user_thread(void *start, void *arg, process_t *process, const char** argv, const char** envp, struct auxval* aux){
     thread_t *thread = kheap_calloc(sizeof(thread_t));
     thread->self = thread;
     thread->lock = LOCK_INIT;
@@ -91,21 +93,76 @@ thread_t *sched_user_thread(void *start, void *args, process_t *process) {
     interrupt_frame_t *state = thread->state;
     void *stack_phys = pmm_alloc(STACK_SIZE);
     assert(stack_phys);
+    uint64_t pages = ALIGN_UP(STACK_SIZE, FRAME_SIZE) / FRAME_SIZE + 1;
     vmm_map_pages(process->pagemap, (uintptr_t)stack_phys,
                   process->thread_stack_top - STACK_SIZE,
                   PTE_PRESENT | PTE_WRITABLE | PTE_USER,
-                  STACK_SIZE / FRAME_SIZE);
+                  pages);
     state->rsp = (uint64_t)process->thread_stack_top;
     process->thread_stack_top -= STACK_SIZE - FRAME_SIZE;
     state->cs = 0x40 | 3;
     state->ds = state->es = state->ss = 0x38 | 3;
     state->rflags = 0x202;
     state->rip = (uint64_t)start;
-    state->rdi = (uint64_t)args;
+    state->rdi = (uint64_t)arg;
     thread->process = process;
-    vector_push(process->threads, thread);
     thread->timeslice = TIME_QUANTUM;
     thread->cr3 = (uint64_t)process->pagemap->top - HHDM_OFFSET;
+
+    //Code from https://github.com/Lyre-OS/Lyre/
+    if (process->threads->items == 0) {
+        uintptr_t* stack = stack_phys + STACK_SIZE + HHDM_OFFSET; 
+        void* stack_top = stack;
+
+        int envp_len;
+        for (envp_len = 0; envp[envp_len] != NULL; envp_len++) {
+            uint64_t length = strlen(envp[envp_len]);
+            stack = (void *)stack - length - 1;
+            memcpy(stack, envp[envp_len], length);
+        }
+
+        int argv_len;
+        for (argv_len = 0; argv[argv_len] != NULL; argv_len++) {
+            uint64_t length = strlen(argv[argv_len]);
+            stack = (void *)stack - length - 1;
+            memcpy(stack, argv[argv_len], length);
+        }
+
+        stack = (uintptr_t *)ALIGN_DOWN((uintptr_t)stack, 16);
+        if (((argv_len + envp_len + 1) & 1) != 0) {
+            stack--;
+        }
+
+        // Auxilary vector
+        *(--stack) = 0, *(--stack) = 0;
+        stack -= 2; stack[0] = AT_ENTRY, stack[1] = aux->at_entry;
+        stack -= 2; stack[0] = AT_PHDR,  stack[1] = aux->at_phdr;
+        stack -= 2; stack[0] = AT_PHENT, stack[1] = aux->at_phent;
+        stack -= 2; stack[0] = AT_PHNUM, stack[1] = aux->at_phnum;
+
+        uintptr_t old_rsp = thread->state->rsp;
+
+        // Environment variables
+        *(--stack) = 0;
+        stack -= envp_len;
+        for (int i = 0; i < envp_len; i++) {
+            old_rsp -= strlen(envp[i]) + 1;
+            stack[i] = old_rsp;
+        }
+
+        // Arguments
+        *(--stack) = 0;
+        stack -= argv_len;
+        for (int i = 0; i < argv_len; i++) {
+            old_rsp -= strlen(argv[i]) + 1;
+            stack[i] = old_rsp;
+        }
+
+        *(--stack) = argv_len;
+       
+        thread->state->rsp -= stack_top - (void*)stack;
+    }
+    vector_push(process->threads, thread);
     sched_enqueue_thread(thread);
     return thread;
 }

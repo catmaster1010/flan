@@ -6,6 +6,7 @@
 #include <lib/vector.h>
 #include <memory/vmm.h>
 #include <sys/cpu.h>
+#include <lib/elf.h>
 
 struct cpu_local;
 struct interrupt_frame;
@@ -55,7 +56,7 @@ process_t *sched_process(pagemap_t *pagemap);
 __attribute__((__noreturn__)) void sched_await();
 __attribute__((__noreturn__)) void sched_init(void *start);
 thread_t *sched_kernel_thread(void *start, void *args);
-thread_t *sched_user_thread(void *start, void *args, process_t *process);
+thread_t *sched_user_thread(void *start, void *arg, process_t *process, const char** argv, const char** envp, struct auxval* aux);
 bool sched_enqueue_thread(thread_t *thread);
 
 static inline thread_t *get_current_thread() {
