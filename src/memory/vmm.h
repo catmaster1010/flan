@@ -1,7 +1,7 @@
 #ifndef vmm_h
 #define vmm_h
 #include <stdint.h>
-
+#include <abi-bits/vm-flags.h>
 typedef struct {
     uint64_t *top;
 } pagemap_t;
@@ -12,10 +12,7 @@ typedef struct {
 #define PTE_USER (1ull << 2ull)
 #define PTE_NX (1ull << 63ull)
 
-#define PROT_NONE  0x00
-#define PROT_READ  0x01
-#define PROT_WRITE 0x02
-#define PROT_EXEC  0x04
+
 
 void vmm_init();
 void vmm_switch_pagemap(pagemap_t *pagemap);

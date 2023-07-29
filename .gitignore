@@ -10,6 +10,7 @@ jinx
 /limine
 /src/flanterm
 /src/limine.h
+/src/mlibc-headers
 initramfs.tar
 /init/build
 /iso_root

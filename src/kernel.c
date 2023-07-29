@@ -62,10 +62,11 @@ void kernel_thread() {
     assert(elf_load(user_pagemap, ld_node, &ld_aux, NULL));
     process_t *user_proc = sched_process(user_pagemap);
 
-	const char *argv[] = { "/usr/bin/init", NULL };
-	const char *envp[] = {NULL};
+    const char *argv[] = {"/usr/bin/init", NULL};
+    const char *envp[] = {NULL};
 
-    sched_user_thread((void *)ld_aux.at_entry, NULL, user_proc, argv, envp, &init_aux);
+    sched_user_thread((void *)ld_aux.at_entry, NULL, user_proc, argv, envp,
+                      &init_aux);
 
     dequeue_and_die();
 }

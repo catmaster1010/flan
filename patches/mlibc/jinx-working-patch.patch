@@ -96,7 +96,7 @@ index 0000000..265ab56
 +}
 diff --git mlibc-workdir/sysdeps/flan/generic/generic.cpp mlibc-workdir/sysdeps/flan/generic/generic.cpp
 new file mode 100644
-index 0000000..3a63233
+index 0000000..9c0759e
 --- /dev/null
 +++ mlibc-workdir/sysdeps/flan/generic/generic.cpp
 @@ -0,0 +1,60 @@
@@ -138,7 +138,7 @@ index 0000000..3a63233
 +
 +void sys_exit(int status) NOT_IMPLEMENTED
 +void sys_libc_panic() {
-+  sys_libc_log("PANIC");
++  sys_libc_log("\nMLIBC PANIC\n");
 +  for(;;);
 +}
 +

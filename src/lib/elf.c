@@ -13,7 +13,7 @@ static inline bool check_headers(Elf64_Ehdr *header) {
         return false;
     if (header->e_ident[EI_DATA] != ELFDATA2LSB)
         return false;
-    if (header->e_machine != EM_AMD64)
+    if (header->e_machine != EM_X86_64)
         return false;
     return true;
 }
@@ -34,7 +34,7 @@ bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux,
                      elf_header.e_phoff + i * elf_header.e_phentsize) <= 0)
             return false;
 
-        switch (program_header.p_type){
+        switch (program_header.p_type) {
         case PT_LOAD: {
 
             /*
@@ -59,7 +59,7 @@ bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux,
             assert(vfs_read(node, phys + unaligned + HHDM_OFFSET,
                             program_header.p_filesz, program_header.p_offset));
             break;
-        } 
+        }
         case PT_INTERP: {
             void *path = kheap_calloc(program_header.p_filesz + 1);
             assert(path);
@@ -67,10 +67,9 @@ bool elf_load(pagemap_t *pagemap, vfs_node_t *node, struct auxval *aux,
                             program_header.p_offset));
             if (ld_path)
                 *ld_path = path;
-            printf("Linker at %s\n",path);
             break;
         }
-        case PT_PHDR:{
+        case PT_PHDR: {
             aux->at_phdr = program_header.p_vaddr;
             break;
         }

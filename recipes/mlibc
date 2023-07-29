@@ -16,7 +16,6 @@ configure() {
         -Ddisable_crypt_option=true \
         -Ddisable_iconv_option=true \
         -Ddisable_intl_option=true \
-        -Dlinux_kernel_headers=${sysroot_dir}${prefix}/include \
         -Ddisable_libgcc_dependency=true \
         ${source_dir}
 }
