@@ -1,18 +1,19 @@
 #ifndef vmm_h
 #define vmm_h
-#include <stdint.h>
 #include <abi-bits/vm-flags.h>
+#include <stdint.h>
+
 typedef struct {
     uint64_t *top;
 } pagemap_t;
+
+#define USER_SPACE_END     (void*)0x00007FFFFFFFFFFF
 
 #define PTE_ADDR_MASK 0x000ffffffffff000
 #define PTE_PRESENT (1ull << 0ull)
 #define PTE_WRITABLE (1ull << 1ull)
 #define PTE_USER (1ull << 2ull)
 #define PTE_NX (1ull << 63ull)
-
-
 
 void vmm_init();
 void vmm_switch_pagemap(pagemap_t *pagemap);

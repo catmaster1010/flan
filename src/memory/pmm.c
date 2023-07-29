@@ -46,7 +46,7 @@ void pmm_init() {
             continue;
         ;
         if (mmaps[i]->length >= bitmap_size) {
-            bitmap = (uint8_t *)mmaps[i]->base;
+            bitmap = (uint8_t *)mmaps[i]->base + HHDM_OFFSET;
             memset(bitmap, 0xff, bitmap_size);
             mmaps[i]->length -= bitmap_size;
             mmaps[i]->base += bitmap_size;

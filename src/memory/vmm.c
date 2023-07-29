@@ -88,7 +88,7 @@ void vmm_switch_pagemap(pagemap_t *pagemap) {
 }
 
 pagemap_t *vmm_new_pagemap() {
-    pagemap_t *pagemap = pmm_alloc(sizeof(pagemap_t));
+    pagemap_t *pagemap = pmm_alloc(sizeof(pagemap_t)) + HHDM_OFFSET;
 
     assert(pagemap);
     pagemap->top = pmm_calloc(1);
@@ -109,7 +109,7 @@ void vmm_init() {
     printf("Our kernel's virtual base: %x\n", KERNEL_OFFSET);
     printf("Our HHDM offset is %x\n", HHDM_OFFSET);
 
-    kernel_pagemap = pmm_alloc(sizeof(kernel_pagemap));
+    kernel_pagemap = pmm_alloc(sizeof(kernel_pagemap)) + HHDM_OFFSET;
     kernel_pagemap->top = pmm_calloc(1);
     assert(kernel_pagemap->top);
 

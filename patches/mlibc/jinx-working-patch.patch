@@ -96,13 +96,15 @@ index 0000000..265ab56
 +}
 diff --git mlibc-workdir/sysdeps/flan/generic/generic.cpp mlibc-workdir/sysdeps/flan/generic/generic.cpp
 new file mode 100644
-index 0000000..9c0759e
+index 0000000..711a75f
 --- /dev/null
 +++ mlibc-workdir/sysdeps/flan/generic/generic.cpp
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,115 @@
 +#include <bits/ensure.h>
 +#include <stddef.h>
 +
++#include <stdint.h>
++#include <errno.h>
 +#include <abi-bits/seek-whence.h>
 +#include <abi-bits/vm-flags.h>
 +#include <bits/off_t.h>
@@ -112,34 +114,88 @@ index 0000000..9c0759e
 +
 +#define NOT_IMPLEMENTED { __ensure(!"NOT IMPLEMENTED"); __builtin_unreachable(); }
 +
-+#define SYSCALL0(NUM) ({               \
-+    int ret,errno;           \
-+    asm volatile ("syscall"                  \
-+                  : "=a"(ret), "=d"(errno)           \
-+                  : "a"(NUM)     \
-+                  : "rcx", "r11", "memory"); \
-+})
 +#define SYSCALL1(NUM, ARG0) ({               \
-+    int ret,errno;           \
 +    asm volatile ("syscall"                  \
-+                  : "=a"(ret), "=d"(errno)           \
++                  : "=a"(ret), "=d"(errno)   \
 +                  : "a"(NUM), "D"(ARG0)      \
 +                  : "rcx", "r11", "memory"); \
 +})
++#define SYSCALL2(NUM, ARG0, ARG1) ({               \
++    asm volatile ("syscall"                        \
++                  : "=a"(ret), "=d"(errno)         \
++                  : "a"(NUM), "D"(ARG0), "S"(ARG1) \
++                  : "rcx", "r11", "memory");       \
++})
++
++#define SYSCALL3(NUM, ARG0, ARG1, ARG2) ({                    \
++    asm volatile ("syscall"                                   \
++                  : "=a"(ret), "=d"(errno)                    \
++                  : "a"(NUM), "D"(ARG0), "S"(ARG1), "d"(ARG2) \
++                  : "rcx", "r11", "memory");                  \
++})
++
++#define SYSCALL4(NUM, ARG0, ARG1, ARG2, ARG3) ({               \
++    register uintptr_t arg3 asm("r10") = ARG3;                 \
++    asm volatile ("syscall"                                    \
++                 : "=a"(ret), "=d"(errno)                     \
++                  : "a"(NUM), "D"(ARG0), "S"(ARG1), "d"(ARG2), \
++                    "r"(arg3)                                  \
++                  : "rcx", "r11", "memory");                   \
++})
++
++#define SYSCALL4(NUM, ARG0, ARG1, ARG2, ARG3, ARG4) ({   \
++    register uintptr_t arg3 asm("r10") = ARG3;              \
++    register uintptr_t arg4 asm("r8")  = ARG4;              \
++    asm volatile ("syscall"                                    \
++                  : "=a"(ret), "=d"(errno)                     \
++                  : "a"(NUM), "D"(ARG0), "S"(ARG1), "d"(ARG2), \
++                    "r"(arg3), "r"(arg4)                       \
++                  : "rcx", "r11", "memory");                   \
++})
++#define SYSCALL5(NUM, ARG0, ARG1, ARG2, ARG3, ARG4, ARG5) ({   \
++    register uintptr_t arg3 asm("r10") = ARG3;              \
++    register uintptr_t arg4 asm("r8")  = ARG4;              \
++    register uintptr_t arg5 asm("r9")  = ARG5;              \
++    asm volatile ("syscall"                                    \
++                  : "=a"(ret), "=d"(errno)                     \
++                  : "a"(NUM), "D"(ARG0), "S"(ARG1), "d"(ARG2), \
++                    "r"(arg3), "r"(arg4), "r"(arg5)            \
++                  : "rcx", "r11", "memory");                   \
++})
 +
 +#define SYSCALL_LOG 0
-+#define SYSCALL_EXIT 1
++#define SYSCALL_MMAP 1
++#define SYSCALL_EXIT 2
 +
 +namespace mlibc {
 +
 +void sys_libc_log(const char *message) {
-+  SYSCALL1(SYSCALL_LOG, message);
++    int ret, errno;
++    SYSCALL1(SYSCALL_LOG, message);
 +}
 +
 +void sys_exit(int status) NOT_IMPLEMENTED
++
 +void sys_libc_panic() {
-+  sys_libc_log("\nMLIBC PANIC\n");
-+  for(;;);
++    sys_libc_log("\nMLIBC PANIC\n");
++    for(;;);
++}
++
++int sys_vm_map(void *hint, size_t size, int prot, int flags, int fd,
++               off_t offset, void **window) {
++    void* ret;
++    int errno;
++    SYSCALL5(SYSCALL_MMAP, hint, size, prot, flags, fd, offset);
++    if (ret == MAP_FAILED) {
++        return errno;
++    }
++    *window = ret;
++    return 0;
++}
++
++int sys_anon_allocate(size_t size, void **pointer) {
++    int errno = sys_vm_map(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON, -1, 0, pointer);
++    return errno;
 +}
 +
 +int sys_open(const char *path, int flags, mode_t mode, int *fd) NOT_IMPLEMENTED
@@ -148,9 +204,8 @@ index 0000000..9c0759e
 +int sys_vm_unmap(void *pointer, size_t size) NOT_IMPLEMENTED
 +
 +int sys_isatty(int fd) NOT_IMPLEMENTED
-+int sys_vm_map(void *hint, size_t size, int prot, int flags, int fd,
-+               off_t offset, void **window) NOT_IMPLEMENTED
-+int sys_anon_allocate(size_t size, void **pointer) NOT_IMPLEMENTED
++
++
 +int sys_anon_free(void *pointer, size_t size) NOT_IMPLEMENTED
 +int sys_read(int fd, void *buf, size_t count, ssize_t *bytes_read)NOT_IMPLEMENTED
 +int sys_write(int fd, void const *buf, size_t count, ssize_t *bytes_written)NOT_IMPLEMENTED

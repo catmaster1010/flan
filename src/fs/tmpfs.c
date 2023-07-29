@@ -9,7 +9,7 @@ static vfs_node_t *tmpfs_create(vfs_node_t *parent, char *name, int mode) {
     void *new_data = kheap_calloc(FRAME_SIZE);
     assert(new_data);
     node->data = new_data;
-    stat *st = &node->st;
+    struct stat *st = &node->st;
     st->st_blksize = FRAME_SIZE;
     st->st_size = st->st_blksize;
     st->st_blocks = 1;

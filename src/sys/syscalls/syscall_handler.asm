@@ -1,14 +1,15 @@
 section .rodata
 
 extern syscall_log
+extern syscall_mmap
 extern syscall_exit_thread
 syscall_table:
-    dq syscall_log
-    dq syscall_exit_thread
+    dq syscall_log  ;1
+    dq syscall_mmap ;2
+    dq syscall_exit_thread ;3
 
 section .text
 
-extern syscall_handler
 global syscall_entry_asm
 syscall_entry_asm:
 
@@ -47,6 +48,8 @@ syscall_entry_asm:
     mov r11, es
     push r11
 
+    mov rcx, r10
+
     cld
 
     mov r11, 0x30
@@ -71,11 +74,10 @@ syscall_entry_asm:
     pop rbp
     pop rdi
     pop rsi
-    pop rdx
+    add rsp, 0x8 ; rdx
     pop rcx
     pop rbx
-    pop rax
-    add rsp, 0x30 ; err, rip, cs, rflags, rsp, ss
+    add rsp, 0x38 ; rax, err, rip, cs, rflags, rsp, ss
     pop rsp ; get old stack back
     cli
     swapgs

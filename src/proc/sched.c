@@ -61,6 +61,7 @@ process_t *sched_process(pagemap_t *pagemap) {
     vector_create(proc->fildes, sizeof(vfs_node_t));
     proc->cwd = root;
     proc->thread_stack_top = 0x70000000000;
+    proc->anon_base = 0x80000000000;
     return proc;
 }
 

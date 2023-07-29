@@ -1,9 +1,8 @@
 #ifndef vfs_h
 #define vfs_h
 #include <lib/hashmap.h>
-#include <lib/stat.h>
+#include <sys/stat.h>
 #include <lib/vector.h>
-#include <stdint.h>
 
 struct vfs_node;
 typedef struct vfs_fs {
@@ -28,7 +27,7 @@ typedef struct vfs_node {
     struct vfs_node *mountpoint;
     struct vfs_node *link;
     void *data;
-    stat st;
+    struct stat st;
     spinlock_t lock;
 } vfs_node_t;
 

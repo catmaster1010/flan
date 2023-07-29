@@ -1,9 +1,9 @@
 #ifndef elf_h
 #define elf_h
+#include <elf.h>
 #include <fs/vfs.h>
 #include <memory/vmm.h>
 #include <stdint.h>
-#include <elf.h>
 
 struct auxval {
     uint64_t at_entry;

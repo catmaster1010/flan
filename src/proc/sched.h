@@ -18,12 +18,14 @@ typedef struct {
     vector_t *threads;
     vfs_node_t *cwd;
     vector_t *fildes;
-    uint64_t thread_stack_top;
+    uintptr_t thread_stack_top;
+    uintptr_t anon_base;
 } process_t;
 
 struct thread {
     // DO NOT MOVE
     struct thread *self;
+    int errno;
     // DO NOT MOVE
 
     struct thread *prev;
