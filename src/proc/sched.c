@@ -59,6 +59,7 @@ process_t *sched_process(pagemap_t *pagemap) {
     proc->pagemap = pagemap;
     proc->fildes = kheap_alloc(sizeof(vector_t));
     vector_create(proc->fildes, sizeof(vfs_node_t));
+    vector_resize(proc->fildes,MAX_FILDES);
     proc->cwd = root;
     proc->thread_stack_top = 0x70000000000;
     proc->anon_base = 0x80000000000;

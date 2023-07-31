@@ -11,6 +11,7 @@
 struct cpu_local;
 struct interrupt_frame;
 #define TIME_QUANTUM 3
+#define MAX_FILDES 256
 
 typedef struct {
     uint64_t pid;
@@ -18,6 +19,7 @@ typedef struct {
     vector_t *threads;
     vfs_node_t *cwd;
     vector_t *fildes;
+    int current_filde;
     uintptr_t thread_stack_top;
     uintptr_t anon_base;
 } process_t;

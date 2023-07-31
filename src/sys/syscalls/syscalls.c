@@ -5,9 +5,90 @@
 #include <lib/errno.h>
 #include <memory/vmm.h>
 #include <memory/pmm.h>
+#include <lib/str.h>
+#include <proc/sched.h>
 #include <fcntl.h>
 
-int syscall_openat(int dirfd, const char *pathname, int flags, mode_t mode);
+off_t syscall_seek(int fd, off_t offset, int whence){
+    off_t ret = -1;
+    vfs_node_t* node = fd_to_node(fd);    
+    
+    off_t new_off = 0;
+    switch (whence)
+    {
+    case SEEK_SET:
+        new_off = offset;
+        break;
+    case SEEK_CUR:
+        new_off = node->offset + offset;
+        break;
+    case SEEK_END:
+        new_off = node->st.st_size + offset;
+        break;
+    default:
+        errno = EINVAL;
+        return -1;
+    }
+    
+    if (new_off < 0) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    node->offset = new_off;
+    ret = new_off;
+    return ret;
+
+}
+
+int syscall_read(int fd, void *buf, uint64_t count){
+    vfs_node_t* node = fd_to_node(fd);    
+    int ret = -1;
+
+    if (node == NULL) {
+        errno = ENOENT;
+        return ret;
+    }
+
+    return vfs_read(node, buf, count, node->offset);
+}
+
+int syscall_openat(int dirfd, const char *pathname, int flags, mode_t mode) {
+    vfs_node_t* dir = fd_to_node(dirfd);    
+    int ret = -1;
+    vfs_node_t* node = vfs_open(dir, pathname);
+    if (node == NULL) {
+
+        if ((flags & O_CREAT) == NULL) {            
+            errno = ENOENT;
+            return ret;
+        }
+
+        vfs_node_t* parent = path_to_parent(dir, pathname);
+        if (parent == NULL) {
+            errno = ENOENT;
+            return ret;
+        }
+        char* new_pathname = strdup(pathname); 
+        if (new_pathname == NULL) {
+            errno = ENOMEM;
+            return ret;
+        }
+
+        const char* file_name = basename(new_pathname);
+        if (basename == NULL) {
+            errno = ENOMEM;
+            return ret;
+        }
+
+        node = vfs_create(parent, basename, S_IFREG);
+    }
+    ret = node_to_fd(node);
+    process_t* proc = get_current_thread()->process;
+    vfs_node_t* nodelibc = proc->fildes->data;
+
+    return ret;
+}
 
 void *syscall_mmap(void* hint, uint64_t length, int prot, int flags, int fd, off_t offset){
     (void)offset;

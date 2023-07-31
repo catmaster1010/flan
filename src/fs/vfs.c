@@ -7,6 +7,8 @@
 #include <lib/str.h>
 #include <lib/vector.h>
 #include <memory/kheap.h>
+#include <lib/errno.h>
+#include <proc/sched.h>
 
 spinlock_t vfs_lock = LOCK_INIT;
 vfs_node_t *root;
@@ -22,7 +24,7 @@ static vfs_node_t *reduce_node(vfs_node_t *node) {
     return node;
 }
 
-static bool create_dot(vfs_node_t *parent, vfs_node_t *node) {
+static void create_dot(vfs_node_t *parent, vfs_node_t *node) {
     vfs_node_t *dot = vfs_create_node(node, ".", node->fs, false);
     vfs_node_t *dotdot = vfs_create_node(node, ".", node->fs, false);
 
@@ -38,7 +40,7 @@ typedef struct {
     vfs_node_t *result;
 } path_to_node_t;
 
-static path_to_node_t path_to_node(vfs_node_t *parent, char *path) {
+static path_to_node_t path_to_node(vfs_node_t *parent, const char *path) {
     if (path == NULL || strlen(path) == 0)
         return (path_to_node_t){NULL, NULL};
     uint64_t path_len = strlen(path);
@@ -81,7 +83,9 @@ static path_to_node_t path_to_node(vfs_node_t *parent, char *path) {
         segment = strtok(NULL, "/");
 
         if (current_node) {
-            parent_node = current_node;
+            if (current_node->children) {
+                parent_node = current_node;
+            }
             continue;
         }
 
@@ -92,6 +96,47 @@ static path_to_node_t path_to_node(vfs_node_t *parent, char *path) {
     }
 
     return (path_to_node_t){parent_node, current_node};
+}
+vfs_node_t* get_node(vfs_node_t* parent, const char* path){
+    path_to_node_t p2n_result = path_to_node(parent, path);
+
+    return p2n_result.result;
+}
+
+vfs_node_t* path_to_parent(vfs_node_t* parent, const char* path){
+    path_to_node_t p2n_result = path_to_node(parent, path);
+    if (p2n_result.parent == NULL){
+        return NULL;
+    }
+    return p2n_result.parent;
+}
+
+vfs_node_t* fd_to_node(int fd){
+    process_t* process = get_current_thread()->process;
+    vfs_node_t* result = NULL;
+
+    if (fd == AT_FDCWD) {
+        result = process->cwd;
+    } 
+    else {
+        result = vector_get(process->fildes, (uint64_t) fd);
+    }
+
+    if (result == NULL){
+        errno = EBADF;
+    }
+
+    return result;
+}
+
+int node_to_fd(vfs_node_t* node){
+    process_t* process = get_current_thread()->process;
+    int result;
+    result = vector_get_index(process->fildes, (void *) node);
+    if (result == -1) {
+        errno = ENOENT;
+    }
+    return result;
 }
 
 vfs_node_t *vfs_create_node(vfs_node_t *parent, char *name, vfs_fs_t *fs,
@@ -118,13 +163,24 @@ vfs_node_t *vfs_create_node(vfs_node_t *parent, char *name, vfs_fs_t *fs,
     return node;
 }
 
-vfs_node_t *vfs_open(vfs_node_t *parent, char *path) {
+vfs_node_t *vfs_open(vfs_node_t *parent, const char *path) {
     spinlock_acquire(&vfs_lock);
+    process_t* process = get_current_thread()->process;
     path_to_node_t ret = path_to_node(parent, path);
     vfs_node_t *node = ret.result;
+
+    if (node == NULL) {
+        spinlock_release(&vfs_lock);
+        errno = ENOENT; 
+        return NULL;
+    }
+    node = vector_replace(process->fildes,node,process->current_filde);
+    process->current_filde++;
+    ret = path_to_node(parent, path);
     spinlock_release(&vfs_lock);
     return node;
 }
+
 bool vfs_mount(vfs_node_t *parent, char *source, char *target, char *fs_name) {
     spinlock_acquire(&vfs_lock);
     vfs_fs_t *fs = hashmap_get(&filesystems, fs_name);
@@ -146,7 +202,7 @@ bool vfs_mount(vfs_node_t *parent, char *source, char *target, char *fs_name) {
     return true;
 }
 
-vfs_node_t *vfs_create(vfs_node_t *parent, char *path, int mode) {
+vfs_node_t *vfs_create(vfs_node_t *parent, char *path, mode_t mode) {
     path_to_node_t p2n_result = path_to_node(parent, path);
     if (!p2n_result.parent)
         return NULL;
@@ -159,7 +215,7 @@ vfs_node_t *vfs_create(vfs_node_t *parent, char *path, int mode) {
     if (node == NULL)
         return NULL;
 
-    if (mode) // XXX
+    if (S_ISDIR(mode))
         create_dot(p2n_result.parent, node);
     return node;
 }
@@ -173,6 +229,7 @@ int vfs_read(vfs_node_t *node, void *buff, uint64_t count, uint64_t offset) {
     int read_count = node->fs->read(node, buff, count, offset);
     return read_count;
 }
+
 void add_filesystem(vfs_fs_t *fs, char *fs_name) {
     spinlock_acquire(&vfs_lock);
     assert(hashmap_set(&filesystems, fs_name, fs));

@@ -96,10 +96,10 @@ index 0000000..265ab56
 +}
 diff --git mlibc-workdir/sysdeps/flan/generic/generic.cpp mlibc-workdir/sysdeps/flan/generic/generic.cpp
 new file mode 100644
-index 0000000..711a75f
+index 0000000..3a05b5b
 --- /dev/null
 +++ mlibc-workdir/sysdeps/flan/generic/generic.cpp
-@@ -0,0 +1,115 @@
+@@ -0,0 +1,160 @@
 +#include <bits/ensure.h>
 +#include <stddef.h>
 +
@@ -111,25 +111,31 @@ index 0000000..711a75f
 +#include <bits/ssize_t.h>
 +#include <abi-bits/stat.h>
 +#include <mlibc/fsfd_target.hpp>
++#include <fcntl.h>
++
++typedef struct {
++	uint64_t ret;
++	uint64_t errno;
++} syscall_ret_t;
 +
 +#define NOT_IMPLEMENTED { __ensure(!"NOT IMPLEMENTED"); __builtin_unreachable(); }
 +
 +#define SYSCALL1(NUM, ARG0) ({               \
 +    asm volatile ("syscall"                  \
-+                  : "=a"(ret), "=d"(errno)   \
++                  : "=a"(ret.ret), "=d"(ret.errno)   \
 +                  : "a"(NUM), "D"(ARG0)      \
 +                  : "rcx", "r11", "memory"); \
 +})
 +#define SYSCALL2(NUM, ARG0, ARG1) ({               \
 +    asm volatile ("syscall"                        \
-+                  : "=a"(ret), "=d"(errno)         \
++                  : "=a"(ret.ret), "=d"(ret.errno)         \
 +                  : "a"(NUM), "D"(ARG0), "S"(ARG1) \
 +                  : "rcx", "r11", "memory");       \
 +})
 +
 +#define SYSCALL3(NUM, ARG0, ARG1, ARG2) ({                    \
 +    asm volatile ("syscall"                                   \
-+                  : "=a"(ret), "=d"(errno)                    \
++                  : "=a"(ret.ret), "=d"(ret.errno)                    \
 +                  : "a"(NUM), "D"(ARG0), "S"(ARG1), "d"(ARG2) \
 +                  : "rcx", "r11", "memory");                  \
 +})
@@ -137,27 +143,28 @@ index 0000000..711a75f
 +#define SYSCALL4(NUM, ARG0, ARG1, ARG2, ARG3) ({               \
 +    register uintptr_t arg3 asm("r10") = ARG3;                 \
 +    asm volatile ("syscall"                                    \
-+                 : "=a"(ret), "=d"(errno)                     \
++                 : "=a"(ret.ret), "=d"(ret.errno)                     \
 +                  : "a"(NUM), "D"(ARG0), "S"(ARG1), "d"(ARG2), \
 +                    "r"(arg3)                                  \
 +                  : "rcx", "r11", "memory");                   \
 +})
 +
-+#define SYSCALL4(NUM, ARG0, ARG1, ARG2, ARG3, ARG4) ({   \
++#define SYSCALL5(NUM, ARG0, ARG1, ARG2, ARG3, ARG4) ({   \
 +    register uintptr_t arg3 asm("r10") = ARG3;              \
 +    register uintptr_t arg4 asm("r8")  = ARG4;              \
 +    asm volatile ("syscall"                                    \
-+                  : "=a"(ret), "=d"(errno)                     \
++                  : "=a"(ret.ret), "=d"(ret.errno)                     \
 +                  : "a"(NUM), "D"(ARG0), "S"(ARG1), "d"(ARG2), \
 +                    "r"(arg3), "r"(arg4)                       \
 +                  : "rcx", "r11", "memory");                   \
 +})
-+#define SYSCALL5(NUM, ARG0, ARG1, ARG2, ARG3, ARG4, ARG5) ({   \
++
++#define SYSCALL6(NUM, ARG0, ARG1, ARG2, ARG3, ARG4, ARG5) ({   \
 +    register uintptr_t arg3 asm("r10") = ARG3;              \
 +    register uintptr_t arg4 asm("r8")  = ARG4;              \
 +    register uintptr_t arg5 asm("r9")  = ARG5;              \
 +    asm volatile ("syscall"                                    \
-+                  : "=a"(ret), "=d"(errno)                     \
++                  : "=a"(ret.ret), "=d"(ret.errno)                     \
 +                  : "a"(NUM), "D"(ARG0), "S"(ARG1), "d"(ARG2), \
 +                    "r"(arg3), "r"(arg4), "r"(arg5)            \
 +                  : "rcx", "r11", "memory");                   \
@@ -165,12 +172,15 @@ index 0000000..711a75f
 +
 +#define SYSCALL_LOG 0
 +#define SYSCALL_MMAP 1
-+#define SYSCALL_EXIT 2
++#define SYSCALL_OPENAT 2
++#define SYSCALL_READ 3
++#define SYSCALL_SEEK 4
++#define SYSCALL_EXIT 5
 +
 +namespace mlibc {
 +
 +void sys_libc_log(const char *message) {
-+    int ret, errno;
++    syscall_ret_t ret;
 +    SYSCALL1(SYSCALL_LOG, message);
 +}
 +
@@ -183,13 +193,13 @@ index 0000000..711a75f
 +
 +int sys_vm_map(void *hint, size_t size, int prot, int flags, int fd,
 +               off_t offset, void **window) {
-+    void* ret;
-+    int errno;
-+    SYSCALL5(SYSCALL_MMAP, hint, size, prot, flags, fd, offset);
-+    if (ret == MAP_FAILED) {
-+        return errno;
++    syscall_ret_t ret;
++    SYSCALL6(SYSCALL_MMAP, hint, size, prot, flags, fd, offset);
++    void* ret_val = (void *)ret.ret;
++    if (ret_val == MAP_FAILED) {
++        return ret.errno;
 +    }
-+    *window = ret;
++    *window = ret_val;
 +    return 0;
 +}
 +
@@ -198,16 +208,51 @@ index 0000000..711a75f
 +    return errno;
 +}
 +
-+int sys_open(const char *path, int flags, mode_t mode, int *fd) NOT_IMPLEMENTED
-+int sys_seek(int fd, off_t offset, int whence, off_t *new_offset)NOT_IMPLEMENTED
-+int sys_close(int fd) NOT_IMPLEMENTED
++int sys_openat(int dirfd, const char *path, int flags, mode_t mode, int *fd) {
++    syscall_ret_t ret;
++    SYSCALL4(SYSCALL_OPENAT, dirfd, path, flags, mode);
++    if (ret.ret == -1)
++        return ret.errno;
++    *fd = ret.ret;
++    return 0;
++}
++
++
++int sys_open(const char *path, int flags, mode_t mode, int *fd) {
++	return sys_openat(AT_FDCWD, path, flags, mode, fd);
++}
++
++int sys_read(int fd, void *buf, size_t count, ssize_t *bytes_read) {
++    syscall_ret_t ret;
++    SYSCALL3(SYSCALL_READ, fd, buf, count);
++	int ret_val = (int)ret.ret;
++	if (ret_val == -1) {
++		return ret.errno;
++	}
++	*bytes_read = ret_val;
++	return 0;
++}
++
++int sys_seek(int fd, off_t offset, int whence, off_t *new_offset){
++	syscall_ret_t ret;
++    SYSCALL3(SYSCALL_SEEK, fd, offset, whence);
++	off_t ret_val = (off_t)ret.ret;
++	if (ret_val == -1) {
++		return ret.errno;
++	}
++	*new_offset = ret_val;
++	return 0;
++}
++
++int sys_close(int fd) {
++    return 0;
++}
 +int sys_vm_unmap(void *pointer, size_t size) NOT_IMPLEMENTED
 +
 +int sys_isatty(int fd) NOT_IMPLEMENTED
 +
 +
 +int sys_anon_free(void *pointer, size_t size) NOT_IMPLEMENTED
-+int sys_read(int fd, void *buf, size_t count, ssize_t *bytes_read)NOT_IMPLEMENTED
 +int sys_write(int fd, void const *buf, size_t count, ssize_t *bytes_written)NOT_IMPLEMENTED
 +int sys_tcb_set(void *pointer)NOT_IMPLEMENTED
 +int sys_futex_wait(int *pointer, int expected, timespec const *time)NOT_IMPLEMENTED

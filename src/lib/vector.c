@@ -69,11 +69,12 @@ void vector_pop(vector_t *vector) {
     spinlock_release(&vector->lock);
 }
 
-void vector_replace(vector_t *vector, void *data, uint64_t index) {
+void* vector_replace(vector_t *vector, void *data, uint64_t index) {
     void *ptr = vector_get(vector, index);
     spinlock_acquire(&vector->lock);
     memcpy(ptr, data, vector->item_size);
     spinlock_release(&vector->lock);
+    return ptr;
 }
 
 void vector_insert(vector_t *vector, void *data, uint64_t index) {
@@ -119,11 +120,11 @@ void vector_resize(vector_t *vector, uint64_t items) {
     spinlock_release(&vector->lock);
 }
 
-uint64_t vector_get_index(vector_t *vector, void *data) {
+int vector_get_index(vector_t *vector, void *data) {
     spinlock_acquire(&vector->lock);
     if (vector->data + vector->item_size * vector->items < data ||
         data < vector->data) {
-        assert(0);
+        return -1;
     }
     uint64_t index = (data - vector->data) / vector->item_size;
     spinlock_release(&vector->lock);
