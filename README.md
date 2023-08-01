@@ -1,5 +1,5 @@
 # **flan-os**
-This is a hobby os in development. 
+This is a hobby os on pause due to school. 
 
 This supports the limine boot protocal and uses limine v5.x
 
