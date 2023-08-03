@@ -65,16 +65,18 @@ struct interrupt_frame {
 } __attribute__((__packed__));
 typedef struct interrupt_frame interrupt_frame_t;
 
-typedef struct cpu_local {
+struct cpu_local {
     void *kernel_stack;
+    struct thread *current_thread;
+    struct thread *idle_thread;
     uint64_t cpu_number;
     uint64_t lapic_id;
     bool bsp;
     bool active;
     uint32_t lapic_freq;
     tss_t tss;
-    struct thread *idle_thread;
-} cpu_local_t;
+};
+typedef struct cpu_local cpu_local_t;
 
 static inline uint64_t wrmsr(uint32_t msr, uint64_t val) {
     uint32_t eax = (uint32_t)val, edx = (uint32_t)(val >> 32);
@@ -132,5 +134,7 @@ static inline uint64_t read_cr4(void) {
 static inline void write_cr4(uint64_t val) {
     asm volatile("mov cr4, %0" : : "r"(val) : "memory");
 }
+
+static inline cpu_local_t *this_cpu() { return (cpu_local_t *)read_gs_base(); }
 
 #endif

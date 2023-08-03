@@ -64,6 +64,7 @@ void kernel_thread() {
 
     const char *argv[] = {"/usr/bin/init", NULL};
     const char *envp[] = {NULL};
+
     sched_user_thread((void *)ld_aux.at_entry, NULL, user_proc, argv, envp,
                       &init_aux);
     dequeue_and_die();

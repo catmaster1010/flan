@@ -1,9 +1,9 @@
 #ifndef vfs_h
 #define vfs_h
-#include <lib/hashmap.h>
-#include <sys/stat.h>
-#include <lib/vector.h>
 #include <fcntl.h>
+#include <lib/hashmap.h>
+#include <lib/vector.h>
+#include <sys/stat.h>
 
 struct vfs_node;
 typedef struct vfs_fs {
@@ -42,9 +42,9 @@ vfs_node_t *vfs_create(vfs_node_t *parent, char *path, mode_t mode);
 int vfs_read(vfs_node_t *node, void *buff, uint64_t count, uint64_t offset);
 int vfs_write(vfs_node_t *node, void *buff, uint64_t count, uint64_t offset);
 vfs_node_t *vfs_open(vfs_node_t *parent, const char *path);
-vfs_node_t* fd_to_node(int fd);
-int node_to_fd(vfs_node_t* node);
-vfs_node_t* path_to_parent(vfs_node_t* parent, const char* path);
-vfs_node_t* get_node(vfs_node_t* parent, const char* path);
+vfs_node_t *fd_to_node(int fd);
+int node_to_fd(vfs_node_t *node);
+vfs_node_t *path_to_parent(vfs_node_t *parent, const char *path);
+vfs_node_t *get_node(vfs_node_t *parent, const char *path);
 extern vfs_node_t *root;
 #endif

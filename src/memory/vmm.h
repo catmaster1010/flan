@@ -7,7 +7,7 @@ typedef struct {
     uint64_t *top;
 } pagemap_t;
 
-#define USER_SPACE_END     (void*)0x00007FFFFFFFFFFF
+#define USER_SPACE_END (void *)0x00007FFFFFFFFFFF
 
 #define PTE_ADDR_MASK 0x000ffffffffff000
 #define PTE_PRESENT (1ull << 0ull)

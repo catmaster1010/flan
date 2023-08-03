@@ -1,3 +1,4 @@
+#include <fcntl.h>
 #include <fs/initramfs.h>
 #include <fs/vfs.h>
 #include <lib/assert.h>
@@ -6,7 +7,6 @@
 #include <limine.h>
 #include <memory/pmm.h>
 #include <memory/vmm.h>
-#include <fcntl.h>
 
 #define TAR_FILE_TYPE_NORMAL '0'
 #define TAR_FILE_TYPE_HARD_LINK '1'
@@ -64,7 +64,8 @@ void initramfs_init() {
         switch (current_file->typeflag) {
         case TAR_FILE_TYPE_NORMAL: {
             vfs_node_t *node = vfs_create(root, name, S_IFREG);
-            //printf("New file: %s Size: %x Mode: %x Node: %x\n", name, size, mode, node);
+            // printf("New file: %s Size: %x Mode: %x Node: %x\n", name, size,
+            // mode, node);
             assert(node);
             assert(node->fs->write(node, (void *)current_file + 512, size, 0) ==
                    (int)size);
@@ -73,7 +74,7 @@ void initramfs_init() {
         case TAR_FILE_TYPE_DIRECTORY: {
             vfs_node_t *node = vfs_create(root, name, S_IFDIR);
             assert(node);
-            //printf("New dir: %s Node: %x\n", name, node);
+            // printf("New dir: %s Node: %x\n", name, node);
             break;
         }
         }

@@ -1,8 +1,8 @@
+#include <fcntl.h>
 #include <fs/tmpfs.h>
 #include <lib/assert.h>
 #include <lib/str.h>
 #include <memory/kheap.h>
-#include <fcntl.h>
 
 static vfs_node_t *tmpfs_create(vfs_node_t *parent, char *name, mode_t mode) {
     vfs_fs_t *fs = tmpfs_funcs();

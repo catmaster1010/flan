@@ -5,13 +5,15 @@ extern syscall_mmap
 extern syscall_openat
 extern syscall_read
 extern syscall_seek
+extern syscall_set_fs_base
 extern syscall_exit_thread
 syscall_table:
-    dq syscall_log  ;1
-    dq syscall_mmap ;2
-    dq syscall_openat ;3
-    dq syscall_read ;4
-    dq syscall_seek ;5
+    dq syscall_log  ;0
+    dq syscall_mmap ;1
+    dq syscall_openat ;2
+    dq syscall_read ;3
+    dq syscall_seek ;4
+    dq syscall_set_fs_base ; 5
     dq syscall_exit_thread ;6
 
 section .text

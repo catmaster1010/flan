@@ -68,15 +68,14 @@ void core_init(struct limine_smp_info *info) {
     vmm_switch_pagemap(kernel_pagemap);
     thread_t *idle_thread = kheap_calloc(sizeof(thread_t));
     idle_thread->blocked = true;
-    idle_thread->self = idle_thread;
     idle_thread->cpu = local;
     idle_thread->process = kernel_process;
+
     local->idle_thread = idle_thread;
+    local->current_thread = idle_thread;
     sched_enqueue_thread(idle_thread);
-    set_fs_base(idle_thread);
 
     set_gs_base(local);
-    set_kgs_base(local);
 
     // enable SSE and SSE2 for SIMD
     uint64_t cr0 = read_cr0();
@@ -119,9 +118,4 @@ void smp_init(void) {
     while (cpus_running != smp_response->cpu_count) {
         asm("pause");
     }
-}
-cpu_local_t *this_cpu() {
-    thread_t *thread = (thread_t *)read_fs_base();
-    cpu_local_t *this_cpu = thread->cpu;
-    return this_cpu;
 }

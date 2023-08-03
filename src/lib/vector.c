@@ -69,7 +69,7 @@ void vector_pop(vector_t *vector) {
     spinlock_release(&vector->lock);
 }
 
-void* vector_replace(vector_t *vector, void *data, uint64_t index) {
+void *vector_replace(vector_t *vector, void *data, uint64_t index) {
     void *ptr = vector_get(vector, index);
     spinlock_acquire(&vector->lock);
     memcpy(ptr, data, vector->item_size);

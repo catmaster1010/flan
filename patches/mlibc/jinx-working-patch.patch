@@ -96,10 +96,10 @@ index 0000000..265ab56
 +}
 diff --git mlibc-workdir/sysdeps/flan/generic/generic.cpp mlibc-workdir/sysdeps/flan/generic/generic.cpp
 new file mode 100644
-index 0000000..3a05b5b
+index 0000000..6c37a34
 --- /dev/null
 +++ mlibc-workdir/sysdeps/flan/generic/generic.cpp
-@@ -0,0 +1,160 @@
+@@ -0,0 +1,176 @@
 +#include <bits/ensure.h>
 +#include <stddef.h>
 +
@@ -120,12 +120,20 @@ index 0000000..3a05b5b
 +
 +#define NOT_IMPLEMENTED { __ensure(!"NOT IMPLEMENTED"); __builtin_unreachable(); }
 +
++#define SYSCALL0(NUM) ({               \
++    asm volatile ("syscall"                  \
++                  : "=a"(ret.ret), "=d"(ret.errno)   \
++                  : "a"(NUM)                 \
++                  : "rcx", "r11", "memory"); \
++})
++
 +#define SYSCALL1(NUM, ARG0) ({               \
 +    asm volatile ("syscall"                  \
 +                  : "=a"(ret.ret), "=d"(ret.errno)   \
 +                  : "a"(NUM), "D"(ARG0)      \
 +                  : "rcx", "r11", "memory"); \
 +})
++
 +#define SYSCALL2(NUM, ARG0, ARG1) ({               \
 +    asm volatile ("syscall"                        \
 +                  : "=a"(ret.ret), "=d"(ret.errno)         \
@@ -175,7 +183,8 @@ index 0000000..3a05b5b
 +#define SYSCALL_OPENAT 2
 +#define SYSCALL_READ 3
 +#define SYSCALL_SEEK 4
-+#define SYSCALL_EXIT 5
++#define SYSCALL_SET_FS_BASE 5
++#define SYSCALL_EXIT_THREAD 6
 +
 +namespace mlibc {
 +
@@ -184,8 +193,11 @@ index 0000000..3a05b5b
 +    SYSCALL1(SYSCALL_LOG, message);
 +}
 +
-+void sys_exit(int status) NOT_IMPLEMENTED
-+
++//XXX
++void sys_exit(int status) {
++    syscall_ret_t ret;
++    SYSCALL0(SYSCALL_EXIT_THREAD);
++}
 +void sys_libc_panic() {
 +    sys_libc_log("\nMLIBC PANIC\n");
 +    for(;;);
@@ -247,6 +259,11 @@ index 0000000..3a05b5b
 +int sys_close(int fd) {
 +    return 0;
 +}
++int sys_tcb_set(void *pointer) {
++	syscall_ret_t ret;
++    SYSCALL1(SYSCALL_SET_FS_BASE, pointer);
++    return 0;
++}
 +int sys_vm_unmap(void *pointer, size_t size) NOT_IMPLEMENTED
 +
 +int sys_isatty(int fd) NOT_IMPLEMENTED
@@ -254,7 +271,6 @@ index 0000000..3a05b5b
 +
 +int sys_anon_free(void *pointer, size_t size) NOT_IMPLEMENTED
 +int sys_write(int fd, void const *buf, size_t count, ssize_t *bytes_written)NOT_IMPLEMENTED
-+int sys_tcb_set(void *pointer)NOT_IMPLEMENTED
 +int sys_futex_wait(int *pointer, int expected, timespec const *time)NOT_IMPLEMENTED
 +int sys_futex_wake(int *pointer) NOT_IMPLEMENTED
 +int sys_clock_get(int clock, time_t *secs, long *nanos) NOT_IMPLEMENTED

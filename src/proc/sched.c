@@ -16,6 +16,8 @@ vector_t processes_vector;
 
 sched_queue_t queue = {.lock = LOCK_INIT, .start = NULL, .end = NULL};
 
+thread_t *get_current_thread() { return this_cpu()->current_thread; }
+
 static __attribute__((__noreturn__)) void switch_to_thread(thread_t *thread) {
     thread->running = 1;
     interrupt_frame_t *state = thread->state;
@@ -59,7 +61,7 @@ process_t *sched_process(pagemap_t *pagemap) {
     proc->pagemap = pagemap;
     proc->fildes = kheap_alloc(sizeof(vector_t));
     vector_create(proc->fildes, sizeof(vfs_node_t));
-    vector_resize(proc->fildes,MAX_FILDES);
+    vector_resize(proc->fildes, MAX_FILDES);
     proc->cwd = root;
     proc->thread_stack_top = 0x70000000000;
     proc->anon_base = 0x80000000000;
@@ -91,7 +93,6 @@ thread_t *sched_user_thread(void *start, void *arg, process_t *process,
                             const char **argv, const char **envp,
                             struct auxval *aux) {
     thread_t *thread = kheap_calloc(sizeof(thread_t));
-    thread->self = thread;
     thread->lock = LOCK_INIT;
     thread->state = kheap_calloc(sizeof(interrupt_frame_t));
     interrupt_frame_t *state = thread->state;
@@ -176,7 +177,6 @@ thread_t *sched_user_thread(void *start, void *arg, process_t *process,
 
 thread_t *sched_kernel_thread(void *start, void *args) {
     thread_t *thread = kheap_calloc(sizeof(thread_t));
-    thread->self = thread;
     thread->lock = LOCK_INIT;
     thread->state = kheap_calloc(sizeof(interrupt_frame_t));
     interrupt_frame_t *state = thread->state;
@@ -227,11 +227,12 @@ static void sched_vector(uint8_t vector, interrupt_frame_t *state) {
     current_thread->running = 0;
     spinlock_release(&current_thread->lock);
 
-    next_thread->cpu = this_cpu();
+    this_cpu()->current_thread = next_thread;
 
-    set_fs_base(next_thread);
     if (next_thread->state->cs == 0x3b) { // if user
         set_kgs_base(next_thread->gs_base);
+    } else {
+        set_kgs_base(read_gs_base());
     }
 
     if (read_cr3() != next_thread->cr3) {
@@ -262,7 +263,7 @@ __attribute__((__noreturn__)) void dequeue_and_die() {
     thread_t *current_thread = get_current_thread();
     dequeue_thread(current_thread);
     kheap_free(current_thread);
-    set_fs_base(this_cpu()->idle_thread);
+    this_cpu()->current_thread = this_cpu()->idle_thread;
     asm volatile("sti");
     lapic_ipi(this_cpu()->lapic_id, SCHED_VECTOR);
     __builtin_unreachable();

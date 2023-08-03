@@ -15,6 +15,8 @@ static inline bool check_headers(Elf64_Ehdr *header) {
         return false;
     if (header->e_machine != EM_X86_64)
         return false;
+    if (header->e_version != EV_CURRENT)
+        return false;
     return true;
 }
 

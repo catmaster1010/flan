@@ -8,7 +8,6 @@
 #include <memory/vmm.h>
 #include <sys/cpu.h>
 
-struct cpu_local;
 struct interrupt_frame;
 #define TIME_QUANTUM 3
 #define MAX_FILDES 256
@@ -25,11 +24,7 @@ typedef struct {
 } process_t;
 
 struct thread {
-    // DO NOT MOVE
-    struct thread *self;
     int errno;
-    // DO NOT MOVE
-
     struct thread *prev;
     struct thread *next;
     uint64_t cr3;
@@ -42,6 +37,7 @@ struct thread {
     bool enqueued;
     bool blocked;
     void *gs_base;
+    void *fs_base;
 };
 typedef struct thread thread_t;
 
@@ -64,11 +60,5 @@ thread_t *sched_user_thread(void *start, void *arg, process_t *process,
                             const char **argv, const char **envp,
                             struct auxval *aux);
 bool sched_enqueue_thread(thread_t *thread);
-
-static inline thread_t *get_current_thread() {
-    thread_t *current_thread = NULL;
-    asm volatile("mov %0,fs:0" : "=r"(current_thread));
-    return current_thread;
-}
-
+thread_t *get_current_thread();
 #endif
