@@ -28,8 +28,8 @@ override CFLAGS +=       \
     -mcmodel=kernel      \
     -MMD                 \
     -I.                  \
-	-idirafter mlibc-headers \
-    -Wall		         \
+    -idirafter mlibc-headers \
+    -Wall		 \
     -Wextra              \
     -masm=intel			
 
