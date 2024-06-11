@@ -175,7 +175,6 @@ vfs_node_t *vfs_open(vfs_node_t *parent, const char *path) {
     }
     node = vector_replace(process->fildes, node, process->current_filde);
     process->current_filde++;
-    ret = path_to_node(parent, path);
     spinlock_release(&vfs_lock);
     return node;
 }
